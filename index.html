@@ -22,6 +22,21 @@
             color: #e94560;
         }
 
+        .profile-bar {
+            display: none;
+            background: #16213e;
+            padding: 15px 25px;
+            text-align: center;
+            font-size: 15px;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .profile-bar span {
+            margin: 0 15px;
+            color: #e94560;
+            font-weight: bold;
+        }
+
         .login-box {
             max-width: 500px;
             margin: 100px auto;
@@ -55,7 +70,6 @@
 
         .login-box button:hover { background: #c73652; }
 
-        /* SHOP */
         #shopSection { display: none; padding: 20px; }
 
         .stats {
@@ -85,8 +99,8 @@
         }
 
         .card:hover { border-color: #e94560; }
-
         .card.owned { border-color: #2ecc71; }
+        .card.na { opacity: 0.4; }
 
         .card img {
             width: 100px;
@@ -118,6 +132,14 @@
             font-size: 12px;
         }
 
+        .card .na-badge {
+            background: #555;
+            color: #aaa;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 11px;
+        }
+
         .card .buy-btn {
             background: #e94560;
             color: white;
@@ -130,11 +152,18 @@
         }
 
         .card .buy-btn:hover { background: #c73652; }
+        .card .buy-btn:disabled { background: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div class="header">🏠 Secret Neighbor Shop</div>
+
+    <div class="profile-bar" id="profileBar">
+        👤 <span id="profileName"></span> |
+        🪙 FE: <span id="profileFE"></span> |
+        🎫 AC: <span id="profileAC"></span>
+    </div>
 
     <div class="login-box" id="loginBox">
         <h2>Enter Your Token</h2>
@@ -165,7 +194,12 @@
             if (!token) { alert("paste your token first!"); return; }
             userToken = token;
 
-            const [inventoryRes, catalogRes] = await Promise.all([
+            const [profileRes, inventoryRes, catalogRes] = await Promise.all([
+                fetch(`${HOST}/Client/GetAccountInfo`, {
+                    method: "POST",
+                    headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                }),
                 fetch(`${HOST}/Client/GetUserInventory`, {
                     method: "POST",
                     headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
@@ -178,44 +212,70 @@
                 })
             ]);
 
+            const profileData = await profileRes.json();
             const inventoryData = await inventoryRes.json();
             const catalogData = await catalogRes.json();
 
+            // profile bar
+            const displayName = profileData.data.AccountInfo.TitleInfo.DisplayName;
+            const currencies = inventoryData.data.VirtualCurrency;
+            document.getElementById("profileName").textContent = displayName;
+            document.getElementById("profileFE").textContent = currencies.FE || 0;
+            document.getElementById("profileAC").textContent = currencies.AC || 0;
+            document.getElementById("profileBar").style.display = "block";
+
             userInventory = inventoryData.data.Inventory.map(i => i.ItemId);
             catalog = catalogData.data.Catalog.filter(i =>
-                i.ItemClass === "Customization" || i.ItemClass === "Emotion"
+                i.ItemClass === "Customization" ||
+                i.ItemClass === "Emotion" ||
+                i.ItemClass === "Bundle"
             );
 
-            // hide login show shop
             document.getElementById("loginBox").style.display = "none";
             document.getElementById("shopSection").style.display = "block";
 
-            // update stats
             const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId)).length;
             document.getElementById("totalCount").textContent = catalog.length;
             document.getElementById("ownedCount").textContent = userInventory.length;
             document.getElementById("notOwnedCount").textContent = notOwned;
 
-            // render items
+            renderItems(catalog);
+        }
+
+        function renderItems(items) {
             const grid = document.getElementById("itemGrid");
             grid.innerHTML = "";
 
-            catalog.forEach(item => {
+            items.forEach(item => {
                 const owned = userInventory.includes(item.ItemId);
                 const prices = item.VirtualCurrencyPrices || {};
-                const priceText = Object.keys(prices).length > 0
-                    ? Object.entries(prices).map(([k,v]) => `${v} ${k}`).join(" / ")
-                    : "free / special";
+                const hasFE = prices.FE !== undefined;
+                const hasAC = prices.AC !== undefined;
+                const hasRM = prices.RM !== undefined;
+                const isNA = !hasFE && !hasAC;
+
+                let priceText = "";
+                if (hasFE) priceText = `🪙 ${prices.FE} FE`;
+                else if (hasAC) priceText = `🎫 ${prices.AC} AC`;
+                else if (hasRM) priceText = `💲 Real Money`;
+                else priceText = "Special";
+
+                // safe id for button lookup
+                const safeId = item.ItemId.replace(/'/g, "\\'");
+                const pricesJson = JSON.stringify(prices).replace(/'/g, "\\'");
 
                 const card = document.createElement("div");
-                card.className = `card ${owned ? "owned" : ""}`;
+                card.className = `card ${owned ? "owned" : ""} ${isNA || hasRM ? "na" : ""}`;
+                card.id = `card-${item.ItemId}`;
                 card.innerHTML = `
                     <img src="images/${item.ItemId}.png" onerror="this.src='images/placeholder.png'"/>
                     <div class="name">${item.ItemId}</div>
                     <div class="price">${priceText}</div>
                     ${owned
                         ? `<div class="owned-badge">✅ owned</div>`
-                        : `<button class="buy-btn" onclick="buyItem('${item.ItemId}', ${JSON.stringify(prices)})">Buy</button>`
+                        : isNA || hasRM
+                            ? `<div class="na-badge">🚫 Not obtainable</div>`
+                            : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="buyItem('${safeId}', ${pricesJson})">Buy</button>`
                     }
                 `;
                 grid.appendChild(card);
@@ -223,51 +283,64 @@
         }
 
         async function buyItem(itemId, prices) {
-        const currency = prices.FE !== undefined ? "FE" : "AC";
-        const price = prices[currency] || 0;
+            const currency = prices.FE !== undefined ? "FE" : "AC";
+            const price = prices[currency] || 0;
 
-        // find the button and disable it immediately
-        const btn = document.querySelector(`[onclick="buyItem('${itemId}', ${JSON.stringify(prices)})"]`);
-        if (btn) {
-        btn.disabled = true;
-        btn.textContent = "Buying...";
-        btn.style.background = "#555";
-        }
+            // disable button immediately to prevent double click
+            const btn = document.getElementById(`btn-${itemId}`);
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = "Buying...";
+            }
 
-        const res = await fetch(`${HOST}/Client/PurchaseItem`, {
-        method: "POST",
-        headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-        body: JSON.stringify({
-            CatalogVersion: "Ingame",
-            ItemId: itemId,
-            Price: price,
-            VirtualCurrency: currency
-        })
-        });
+            const res = await fetch(`${HOST}/Client/PurchaseItem`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    CatalogVersion: "Ingame",
+                    ItemId: itemId,
+                    Price: price,
+                    VirtualCurrency: currency
+                })
+            });
 
-        const data = await res.json();
-        if (data.code === 200) {
-        // update currency display
-        const newFE = parseInt(document.getElementById("profileFE").textContent) - (currency === "FE" ? price : 0);
-        const newAC = parseInt(document.getElementById("profileAC").textContent) - (currency === "AC" ? price : 0);
-        if (currency === "FE") document.getElementById("profileFE").textContent = newFE;
-        if (currency === "AC") document.getElementById("profileAC").textContent = newAC;
+            const data = await res.json();
 
-        // add to inventory and re-render
-        userInventory.push(itemId);
-        renderItems(catalog);
-        alert(`✅ ${itemId} unlocked!`);
-        } else {
-        // re-enable button if failed
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = "Buy";
-            btn.style.background = "#e94560";
+            if (data.code === 200) {
+                // update currency balance in profile bar
+                if (currency === "FE") {
+                    const cur = parseInt(document.getElementById("profileFE").textContent);
+                    document.getElementById("profileFE").textContent = cur - price;
+                } else if (currency === "AC") {
+                    const cur = parseInt(document.getElementById("profileAC").textContent);
+                    document.getElementById("profileAC").textContent = cur - price;
+                }
+
+                // flip card to owned instantly
+                userInventory.push(itemId);
+                const card = document.getElementById(`card-${itemId}`);
+                if (card) {
+                    card.className = "card owned";
+                    const btnEl = document.getElementById(`btn-${itemId}`);
+                    if (btnEl) btnEl.outerHTML = `<div class="owned-badge">✅ owned</div>`;
+                }
+
+                // update stats
+                document.getElementById("ownedCount").textContent = userInventory.length;
+                const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId)).length;
+                document.getElementById("notOwnedCount").textContent = notOwned;
+
+                alert(`✅ ${itemId} unlocked!`);
+            } else {
+                // re-enable button on failure
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Buy";
+                }
+                alert(`❌ failed: ${data.errorMessage}`);
+            }
         }
-        alert(`❌ failed: ${data.errorMessage}`);
-        }
-        }
-      </script>
+    </script>
 
 </body>
 </html>
