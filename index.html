@@ -277,29 +277,50 @@
         }
 
         async function buyItem(itemId, prices) {
-            const currency = prices.FE !== undefined ? "FE" : "AC";
-            const price = prices[currency] || 0;
+    const currency = prices.FE !== undefined ? "FE" : "AC";
+    const price = prices[currency] || 0;
 
-            const res = await fetch(`${HOST}/Client/PurchaseItem`, {
-                method: "POST",
-                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    CatalogVersion: "Ingame",
-                    ItemId: itemId,
-                    Price: price,
-                    VirtualCurrency: currency
-                })
-            });
+    // find the button and disable it immediately
+    const btn = document.querySelector(`[onclick="buyItem('${itemId}', ${JSON.stringify(prices)})"]`);
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Buying...";
+        btn.style.background = "#555";
+    }
 
-            const data = await res.json();
-            if (data.code === 200) {
-                alert(`✅ ${itemId} unlocked!`);
-                userInventory.push(itemId);
-                renderItems(catalog);
-            } else {
-                alert(`❌ failed: ${data.errorMessage}`);
-            }
+    const res = await fetch(`${HOST}/Client/PurchaseItem`, {
+        method: "POST",
+        headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+        body: JSON.stringify({
+            CatalogVersion: "Ingame",
+            ItemId: itemId,
+            Price: price,
+            VirtualCurrency: currency
+        })
+    });
+
+    const data = await res.json();
+    if (data.code === 200) {
+        // update currency display
+        const newFE = parseInt(document.getElementById("profileFE").textContent) - (currency === "FE" ? price : 0);
+        const newAC = parseInt(document.getElementById("profileAC").textContent) - (currency === "AC" ? price : 0);
+        if (currency === "FE") document.getElementById("profileFE").textContent = newFE;
+        if (currency === "AC") document.getElementById("profileAC").textContent = newAC;
+
+        // add to inventory and re-render
+        userInventory.push(itemId);
+        renderItems(catalog);
+        alert(`✅ ${itemId} unlocked!`);
+    } else {
+        // re-enable button if failed
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Buy";
+            btn.style.background = "#e94560";
         }
+        alert(`❌ failed: ${data.errorMessage}`);
+    }
+}
     </script>
 
 </body>
