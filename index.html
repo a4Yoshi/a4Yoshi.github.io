@@ -76,16 +76,55 @@
     </div>
 
     <script>
-        const HOST = "https://bdff1.playfabapi.com";
+const HOST = "https://bdff1.playfabapi.com";
+let userToken = "";
+let userInventory = [];
+let catalog = [];
 
-        async function loadShop() {
-            const token = document.getElementById("tokenInput").value.trim();
-            if (!token) {
-                alert("paste your token first!");
-                return;
-            }
-            alert("token saved! catalog loading coming next 😏");
-        }
+async function loadShop() {
+    const token = document.getElementById("tokenInput").value.trim();
+    if (!token) {
+        alert("paste your token first!");
+        return;
+    }
+    userToken = token;
+
+    // load inventory and catalog at the same time
+    const [inventoryRes, catalogRes] = await Promise.all([
+        fetch(`${HOST}/Client/GetUserInventory`, {
+            method: "POST",
+            headers: {
+                "X-Authorization": userToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        }),
+        fetch(`${HOST}/Client/GetCatalogItems`, {
+            method: "POST",
+            headers: {
+                "X-Authorization": userToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ "CatalogVersion": "Ingame" })
+        })
+    ]);
+
+    const inventoryData = await inventoryRes.json();
+    const catalogData = await catalogRes.json();
+
+    // store owned item IDs
+    userInventory = inventoryData.data.Inventory.map(i => i.ItemId);
+    
+    // store catalog filtering only Customization and Emotion
+    catalog = catalogData.data.Catalog.filter(i => 
+        i.ItemClass === "Customization" || i.ItemClass === "Emotion"
+    );
+
+    console.log(`loaded ${catalog.length} items`);
+    console.log(`you own ${userInventory.length} items`);
+    
+    alert(`loaded ${catalog.length} items! you own ${userInventory.length} of them 😏`);
+}
     </script>
 
 </body>
