@@ -76,12 +76,34 @@
             background: #16213e;
             padding: 15px 25px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 15px;
             color: #aaa;
         }
 
         .stats span { color: #e94560; font-weight: bold; }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 7px 14px;
+            background: #16213e;
+            color: #aaa;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover { border-color: #e94560; color: white; }
+        .tab-btn.active { background: #e94560; color: white; border-color: #e94560; }
 
         .grid {
             display: grid;
@@ -149,6 +171,7 @@
             cursor: pointer;
             font-size: 12px;
             width: 100%;
+            transition: 0.2s;
         }
 
         .card .buy-btn:hover { background: #c73652; }
@@ -157,7 +180,7 @@
 </head>
 <body>
 
-    <div class="header">🏠 Secret Neighbor Shop 1</div>
+    <div class="header">🏠 Secret Neighbor Shop</div>
 
     <div class="profile-bar" id="profileBar">
         👤 <span id="profileName"></span> |
@@ -180,6 +203,7 @@
             owned: <span id="ownedCount">0</span> |
             not owned: <span id="notOwnedCount">0</span>
         </div>
+        <div class="tabs" id="tabsBar"></div>
         <div class="grid" id="itemGrid"></div>
     </div>
 
@@ -188,6 +212,7 @@
         let userToken = "";
         let userInventory = [];
         let catalog = [];
+        let activeTab = "ALL";
 
         async function loadShop() {
             const token = document.getElementById("tokenInput").value.trim();
@@ -234,15 +259,55 @@
             document.getElementById("loginBox").style.display = "none";
             document.getElementById("shopSection").style.display = "block";
 
-            const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId)).length;
-            document.getElementById("totalCount").textContent = catalog.length;
-            document.getElementById("ownedCount").textContent = userInventory.length;
-            document.getElementById("notOwnedCount").textContent = notOwned;
-
-            renderItems(catalog);
+            updateStats();
+            buildTabs();
+            renderItems();
         }
 
-        function renderItems(items) {
+        function buildTabs() {
+            // get unique characters from item IDs
+            const characters = ["ALL", "OWNED", "NOT OWNED"];
+            const seen = new Set();
+            catalog.forEach(item => {
+                const char = item.ItemId.split("_")[0];
+                if (!seen.has(char)) {
+                    seen.add(char);
+                    characters.push(char);
+                }
+            });
+
+            const tabsBar = document.getElementById("tabsBar");
+            tabsBar.innerHTML = "";
+            characters.forEach(char => {
+                const btn = document.createElement("button");
+                btn.className = `tab-btn ${char === activeTab ? "active" : ""}`;
+                btn.textContent = char;
+                btn.onclick = () => switchTab(char);
+                tabsBar.appendChild(btn);
+            });
+        }
+
+        function switchTab(char) {
+            activeTab = char;
+            // update active tab style
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.className = `tab-btn ${btn.textContent === char ? "active" : ""}`;
+            });
+            renderItems();
+        }
+
+        function renderItems() {
+            let items = catalog;
+
+            // filter by tab
+            if (activeTab === "OWNED") {
+                items = catalog.filter(i => userInventory.includes(i.ItemId));
+            } else if (activeTab === "NOT OWNED") {
+                items = catalog.filter(i => !userInventory.includes(i.ItemId));
+            } else if (activeTab !== "ALL") {
+                items = catalog.filter(i => i.ItemId.split("_")[0] === activeTab);
+            }
+
             const grid = document.getElementById("itemGrid");
             grid.innerHTML = "";
 
@@ -260,9 +325,7 @@
                 else if (hasRM) priceText = `💲 Real Money`;
                 else priceText = "Special";
 
-                // safe id for button lookup
-                const safeId = item.ItemId.replace(/'/g, "\\'");
-                const pricesJson = JSON.stringify(prices).replace(/'/g, "\\'");
+                const pricesEncoded = encodeURIComponent(JSON.stringify(prices));
 
                 const card = document.createElement("div");
                 card.className = `card ${owned ? "owned" : ""} ${isNA || hasRM ? "na" : ""}`;
@@ -275,18 +338,19 @@
                         ? `<div class="owned-badge">✅ owned</div>`
                         : isNA || hasRM
                             ? `<div class="na-badge">🚫 Not obtainable</div>`
-                            : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="buyItem('${safeId}', ${pricesJson})">Buy</button>`
+                            : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="buyItem('${item.ItemId}', '${pricesEncoded}')">Buy</button>`
                     }
                 `;
                 grid.appendChild(card);
             });
         }
 
-        async function buyItem(itemId, prices) {
+        async function buyItem(itemId, pricesEncoded) {
+            const prices = JSON.parse(decodeURIComponent(pricesEncoded));
             const currency = prices.FE !== undefined ? "FE" : "AC";
             const price = prices[currency] || 0;
 
-            // disable button immediately to prevent double click
+            // disable button immediately
             const btn = document.getElementById(`btn-${itemId}`);
             if (btn) {
                 btn.disabled = true;
@@ -301,44 +365,46 @@
                     ItemId: itemId,
                     Price: price,
                     VirtualCurrency: currency
+                    // NO StoreId — this is the fix that makes it work!
                 })
             });
 
             const data = await res.json();
 
             if (data.code === 200) {
-                // update currency balance in profile bar
+                // update balance
                 if (currency === "FE") {
                     const cur = parseInt(document.getElementById("profileFE").textContent);
                     document.getElementById("profileFE").textContent = cur - price;
-                } else if (currency === "AC") {
+                } else {
                     const cur = parseInt(document.getElementById("profileAC").textContent);
                     document.getElementById("profileAC").textContent = cur - price;
                 }
 
-                // flip card to owned instantly
+                // flip card to owned
                 userInventory.push(itemId);
                 const card = document.getElementById(`card-${itemId}`);
                 if (card) {
                     card.className = "card owned";
-                    const btnEl = document.getElementById(`btn-${itemId}`);
-                    if (btnEl) btnEl.outerHTML = `<div class="owned-badge">✅ owned</div>`;
+                    card.querySelector(".buy-btn").outerHTML = `<div class="owned-badge">✅ owned</div>`;
                 }
 
-                // update stats
-                document.getElementById("ownedCount").textContent = userInventory.length;
-                const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId)).length;
-                document.getElementById("notOwnedCount").textContent = notOwned;
-
+                updateStats();
                 alert(`✅ ${itemId} unlocked!`);
             } else {
-                // re-enable button on failure
                 if (btn) {
                     btn.disabled = false;
                     btn.textContent = "Buy";
                 }
                 alert(`❌ failed: ${data.errorMessage}`);
             }
+        }
+
+        function updateStats() {
+            const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId)).length;
+            document.getElementById("totalCount").textContent = catalog.length;
+            document.getElementById("ownedCount").textContent = userInventory.length;
+            document.getElementById("notOwnedCount").textContent = notOwned;
         }
     </script>
 
