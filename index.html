@@ -83,7 +83,6 @@
 
         .stats span { color: #e94560; font-weight: bold; }
 
-        /* TABS */
         .tabs {
             display: flex;
             flex-wrap: wrap;
@@ -176,6 +175,19 @@
 
         .card .buy-btn:hover { background: #c73652; }
         .card .buy-btn:disabled { background: #555; cursor: not-allowed; }
+
+        .no-img {
+            width: 100px;
+            height: 100px;
+            background: #0f3460;
+            border-radius: 8px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -214,6 +226,35 @@
         let catalog = [];
         let activeTab = "ALL";
 
+        // neighbor aliases — Pumpkin and Scary map to Neighbor
+        const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary"];
+
+        // fixed tab order
+        const TAB_ORDER = [
+            "ALL", "OWNED", "NOT OWNED",
+            "Bagger", "Brave", "Detective", "Inventor", "Leader",
+            "Journalist", "Scout", "Neighbor", "Butcher", "Clown",
+            "Ghost", "Guest", "Hunter", "Emotion"
+        ];
+
+        // normalize character name
+        function getCharacter(itemId) {
+            const raw = itemId.split("_")[0];
+            if (NEIGHBOR_ALIASES.includes(raw)) return "Neighbor";
+            if (raw === "Emotion") return "Emotion";
+            return raw;
+        }
+
+        // fix image filename casing — lowercases the part after last underscore's first char
+        function getImageName(itemId) {
+            const parts = itemId.split("_");
+            if (parts.length >= 3) {
+                const last = parts[parts.length - 1];
+                parts[parts.length - 1] = last.charAt(0).toLowerCase() + last.slice(1);
+            }
+            return parts.join("_") + ".png";
+        }
+
         async function loadShop() {
             const token = document.getElementById("tokenInput").value.trim();
             if (!token) { alert("paste your token first!"); return; }
@@ -241,7 +282,6 @@
             const inventoryData = await inventoryRes.json();
             const catalogData = await catalogRes.json();
 
-            // profile bar
             const displayName = profileData.data.AccountInfo.TitleInfo.DisplayName;
             const currencies = inventoryData.data.VirtualCurrency;
             document.getElementById("profileName").textContent = displayName;
@@ -265,33 +305,40 @@
         }
 
         function buildTabs() {
-            // get unique characters from item IDs
-            const characters = ["ALL", "OWNED", "NOT OWNED"];
-            const seen = new Set();
-            catalog.forEach(item => {
-                const char = item.ItemId.split("_")[0];
-                if (!seen.has(char)) {
-                    seen.add(char);
-                    characters.push(char);
-                }
-            });
+            // get characters present in catalog
+            const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
 
             const tabsBar = document.getElementById("tabsBar");
             tabsBar.innerHTML = "";
-            characters.forEach(char => {
+
+            // add tabs in fixed order, only if present (always add ALL/OWNED/NOT OWNED)
+            TAB_ORDER.forEach(tab => {
+                const isSpecial = ["ALL", "OWNED", "NOT OWNED"].includes(tab);
+                if (!isSpecial && !present.has(tab)) return;
+
                 const btn = document.createElement("button");
-                btn.className = `tab-btn ${char === activeTab ? "active" : ""}`;
-                btn.textContent = char;
-                btn.onclick = () => switchTab(char);
+                btn.className = `tab-btn ${tab === activeTab ? "active" : ""}`;
+                btn.textContent = tab;
+                btn.onclick = () => switchTab(tab);
                 tabsBar.appendChild(btn);
+            });
+
+            // add any remaining characters not in TAB_ORDER
+            present.forEach(char => {
+                if (!TAB_ORDER.includes(char)) {
+                    const btn = document.createElement("button");
+                    btn.className = `tab-btn ${char === activeTab ? "active" : ""}`;
+                    btn.textContent = char;
+                    btn.onclick = () => switchTab(char);
+                    tabsBar.appendChild(btn);
+                }
             });
         }
 
-        function switchTab(char) {
-            activeTab = char;
-            // update active tab style
+        function switchTab(tab) {
+            activeTab = tab;
             document.querySelectorAll(".tab-btn").forEach(btn => {
-                btn.className = `tab-btn ${btn.textContent === char ? "active" : ""}`;
+                btn.className = `tab-btn ${btn.textContent === tab ? "active" : ""}`;
             });
             renderItems();
         }
@@ -299,13 +346,12 @@
         function renderItems() {
             let items = catalog;
 
-            // filter by tab
             if (activeTab === "OWNED") {
                 items = catalog.filter(i => userInventory.includes(i.ItemId));
             } else if (activeTab === "NOT OWNED") {
                 items = catalog.filter(i => !userInventory.includes(i.ItemId));
             } else if (activeTab !== "ALL") {
-                items = catalog.filter(i => i.ItemId.split("_")[0] === activeTab);
+                items = catalog.filter(i => getCharacter(i.ItemId) === activeTab);
             }
 
             const grid = document.getElementById("itemGrid");
@@ -316,28 +362,29 @@
                 const prices = item.VirtualCurrencyPrices || {};
                 const hasFE = prices.FE !== undefined;
                 const hasAC = prices.AC !== undefined;
-                const hasRM = prices.RM !== undefined;
                 const isNA = !hasFE && !hasAC;
 
                 let priceText = "";
                 if (hasFE) priceText = `🪙 ${prices.FE} FE`;
                 else if (hasAC) priceText = `🎟️ ${prices.AC} AC`;
-                else if (hasRM) priceText = `💲 Real Money`;
-                else priceText = "Special";
+                else priceText = "Not Purchasable";
 
+                const imgFile = getImageName(item.ItemId);
                 const pricesEncoded = encodeURIComponent(JSON.stringify(prices));
 
                 const card = document.createElement("div");
-                card.className = `card ${owned ? "owned" : ""} ${isNA || hasRM ? "na" : ""}`;
+                card.className = `card ${owned ? "owned" : ""} ${isNA ? "na" : ""}`;
                 card.id = `card-${item.ItemId}`;
                 card.innerHTML = `
-                    <img src="images/${item.ItemId}.png" onerror="this.src='images/placeholder.png'"/>
+                    <img src="images/${imgFile}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                    <div class="no-img" style="display:none">no image</div>
                     <div class="name">${item.ItemId}</div>
                     <div class="price">${priceText}</div>
                     ${owned
                         ? `<div class="owned-badge">✅ owned</div>`
-                        : isNA || hasRM
-                            ? `<div class="na-badge">🚫 Not obtainable</div>`
+                        : isNA
+                            ? `<div class="na-badge">🚫 Not Purchasable</div>`
                             : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="buyItem('${item.ItemId}', '${pricesEncoded}')">Buy</button>`
                     }
                 `;
@@ -350,7 +397,6 @@
             const currency = prices.FE !== undefined ? "FE" : "AC";
             const price = prices[currency] || 0;
 
-            // disable button immediately
             const btn = document.getElementById(`btn-${itemId}`);
             if (btn) {
                 btn.disabled = true;
@@ -365,14 +411,12 @@
                     ItemId: itemId,
                     Price: price,
                     VirtualCurrency: currency
-                    // NO StoreId — this is the fix that makes it work!
                 })
             });
 
             const data = await res.json();
 
             if (data.code === 200) {
-                // update balance
                 if (currency === "FE") {
                     const cur = parseInt(document.getElementById("profileFE").textContent);
                     document.getElementById("profileFE").textContent = cur - price;
@@ -381,12 +425,12 @@
                     document.getElementById("profileAC").textContent = cur - price;
                 }
 
-                // flip card to owned
                 userInventory.push(itemId);
                 const card = document.getElementById(`card-${itemId}`);
                 if (card) {
                     card.className = "card owned";
-                    card.querySelector(".buy-btn").outerHTML = `<div class="owned-badge">✅ owned</div>`;
+                    const buyBtn = document.getElementById(`btn-${itemId}`);
+                    if (buyBtn) buyBtn.outerHTML = `<div class="owned-badge">✅ owned</div>`;
                 }
 
                 updateStats();
