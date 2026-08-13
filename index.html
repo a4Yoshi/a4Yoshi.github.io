@@ -192,7 +192,7 @@
 </head>
 <body>
 
-    <div class="header">🏠 Secret Neighbor Shop 1</div>
+    <div class="header">🏠 Secret Neighbor Shop</div>
 
     <div class="profile-bar" id="profileBar">
         👤 <span id="profileName"></span> |
@@ -369,7 +369,7 @@
                 else if (hasAC) priceText = `🎟️ ${prices.AC} AC`;
                 else priceText = "Not Purchasable";
 
-                const imgFile = getImageName(item.ItemId);
+                const imgFile = item.ItemId + ".png";
                 const pricesEncoded = encodeURIComponent(JSON.stringify(prices));
 
                 const card = document.createElement("div");
