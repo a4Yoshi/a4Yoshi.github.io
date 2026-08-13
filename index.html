@@ -7,11 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            background-color: #1a1a2e;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
+        body { background-color: #1a1a2e; color: white; font-family: Arial, sans-serif; }
 
         .header {
             background-color: #16213e;
@@ -31,11 +27,7 @@
             border-bottom: 2px solid #e94560;
         }
 
-        .profile-bar span {
-            margin: 0 15px;
-            color: #e94560;
-            font-weight: bold;
-        }
+        .profile-bar span { margin: 0 15px; color: #e94560; font-weight: bold; }
 
         .login-box {
             max-width: 500px;
@@ -87,7 +79,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .tab-btn {
@@ -104,6 +96,63 @@
         .tab-btn:hover { border-color: #e94560; color: white; }
         .tab-btn.active { background: #e94560; color: white; border-color: #e94560; }
 
+        /* FILTER BAR */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-label { color: #aaa; font-size: 13px; margin-right: 4px; }
+
+        .toggle-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 2px solid #e94560;
+            background: #e94560;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .toggle-btn.off {
+            background: transparent;
+            color: #aaa;
+            border-color: #444;
+        }
+
+        .toggle-btn:hover { opacity: 0.8; }
+
+        .divider {
+            width: 1px;
+            height: 28px;
+            background: #333;
+            margin: 0 4px;
+        }
+
+        .sort-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 2px solid #444;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .sort-btn.active {
+            border-color: #e94560;
+            color: white;
+            background: #16213e;
+        }
+
+        .sort-btn:hover { border-color: #e94560; color: white; }
+
+        /* GRID */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -132,18 +181,8 @@
             border-radius: 8px;
         }
 
-        .card .name {
-            font-size: 11px;
-            color: #aaa;
-            margin-bottom: 8px;
-            word-break: break-all;
-        }
-
-        .card .price {
-            font-size: 12px;
-            color: #e94560;
-            margin-bottom: 8px;
-        }
+        .card .name { font-size: 11px; color: #aaa; margin-bottom: 8px; word-break: break-all; }
+        .card .price { font-size: 12px; color: #e94560; margin-bottom: 8px; }
 
         .card .owned-badge {
             background: #2ecc71;
@@ -188,11 +227,55 @@
             font-size: 11px;
             color: #555;
         }
+
+        /* BUNDLE POPUP */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-overlay.show { display: flex; }
+
+        .popup {
+            background: #16213e;
+            border: 2px solid #e94560;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .popup h3 { color: #e94560; margin-bottom: 15px; font-size: 18px; }
+        .popup p { color: #aaa; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+
+        .popup-btns { display: flex; gap: 10px; justify-content: center; }
+
+        .popup-btns button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-bundle { background: #e94560; color: white; }
+        .btn-single { background: #0f3460; color: white; }
+        .btn-cancel { background: #333; color: #aaa; }
+        .btn-bundle:hover { background: #c73652; }
+        .btn-single:hover { background: #1a4a8a; }
     </style>
 </head>
 <body>
 
-    <div class="header">🏠 Secret Neighbor Shop 1</div>
+    <div class="header">🏠 Secret Neighbor Shop</div>
 
     <div class="profile-bar" id="profileBar">
         👤 <span id="profileName"></span> |
@@ -215,8 +298,35 @@
             owned: <span id="ownedCount">0</span> |
             not owned: <span id="notOwnedCount">0</span>
         </div>
+
         <div class="tabs" id="tabsBar"></div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <span class="filter-label">Show:</span>
+            <button class="toggle-btn" id="toggle-FE" onclick="toggleFilter('FE')">🪙 FE</button>
+            <button class="toggle-btn" id="toggle-AC" onclick="toggleFilter('AC')">🎟️ AC</button>
+            <button class="toggle-btn" id="toggle-NA" onclick="toggleFilter('NA')">🚫 N/A</button>
+            <div class="divider"></div>
+            <span class="filter-label">Sort:</span>
+            <button class="sort-btn" id="sort-asc" onclick="setSort('asc')">Price ↑</button>
+            <button class="sort-btn" id="sort-desc" onclick="setSort('desc')">Price ↓</button>
+        </div>
+
         <div class="grid" id="itemGrid"></div>
+    </div>
+
+    <!-- BUNDLE POPUP -->
+    <div class="popup-overlay" id="bundlePopup">
+        <div class="popup">
+            <h3>💡 Bundle Available!</h3>
+            <p id="popupText"></p>
+            <div class="popup-btns">
+                <button class="btn-bundle" id="popupBundleBtn">Buy Bundle</button>
+                <button class="btn-single" id="popupSingleBtn">Buy Single</button>
+                <button class="btn-cancel" onclick="closePopup()">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -225,18 +335,17 @@
         let userInventory = [];
         let catalog = [];
         let activeTab = "ALL";
+        let sortMode = null; // null, 'asc', 'desc'
+        let filters = { FE: true, AC: true, NA: true };
 
-        // all these get merged into Neighbor tab
         const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
 
-        // these prefixes are completely hidden — items still exist but no tab shown
         const HIDDEN_PREFIXES = [
-            "2019", "2020", "2020-05", "00001V", "00001X", "00001Y", "00001Z",
+            "2019", "2020", "2020-05", "00001V", "00001X", "00001Y", "00001Z", "00001W",
             "9N15R5CPSDS7", "9N3TFBPS0S71", "9PF5VJVSLBTK", "9PHM1Z3BL1V7",
             "SWITCH", "com", "2021", "2022", "2023"
         ];
 
-        // exact tab order
         const TAB_ORDER = [
             "ALL", "OWNED", "NOT OWNED",
             "Bagger", "Brave", "Detective", "Engineer", "Inventor", "Leader", "Quentin",
@@ -254,6 +363,41 @@
         function isHidden(itemId) {
             const raw = itemId.split("_")[0];
             return HIDDEN_PREFIXES.includes(raw);
+        }
+
+        function getPrice(item) {
+            const prices = item.VirtualCurrencyPrices || {};
+            if (prices.FE !== undefined) return prices.FE;
+            if (prices.AC !== undefined) return prices.AC;
+            return 0;
+        }
+
+        function getCurrencyType(item) {
+            const prices = item.VirtualCurrencyPrices || {};
+            if (prices.FE !== undefined) return "FE";
+            if (prices.AC !== undefined) return "AC";
+            return "NA";
+        }
+
+        // toggle currency filters
+        function toggleFilter(type) {
+            filters[type] = !filters[type];
+            const btn = document.getElementById(`toggle-${type}`);
+            btn.className = `toggle-btn ${filters[type] ? "" : "off"}`;
+            renderItems();
+        }
+
+        // sort
+        function setSort(mode) {
+            if (sortMode === mode) {
+                sortMode = null;
+                document.getElementById(`sort-${mode}`).className = "sort-btn";
+            } else {
+                sortMode = mode;
+                document.getElementById("sort-asc").className = `sort-btn ${mode === "asc" ? "active" : ""}`;
+                document.getElementById("sort-desc").className = `sort-btn ${mode === "desc" ? "active" : ""}`;
+            }
+            renderItems();
         }
 
         async function loadShop() {
@@ -291,8 +435,6 @@
             document.getElementById("profileBar").style.display = "block";
 
             userInventory = inventoryData.data.Inventory.map(i => i.ItemId);
-
-            // filter catalog — remove hidden prefixes, keep customization/emotion/bundle
             catalog = catalogData.data.Catalog.filter(i =>
                 (i.ItemClass === "Customization" ||
                  i.ItemClass === "Emotion" ||
@@ -310,14 +452,12 @@
 
         function buildTabs() {
             const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
-
             const tabsBar = document.getElementById("tabsBar");
             tabsBar.innerHTML = "";
 
             TAB_ORDER.forEach(tab => {
                 const isSpecial = ["ALL", "OWNED", "NOT OWNED"].includes(tab);
                 if (!isSpecial && !present.has(tab)) return;
-
                 const btn = document.createElement("button");
                 btn.className = `tab-btn ${tab === activeTab ? "active" : ""}`;
                 btn.textContent = tab;
@@ -325,7 +465,6 @@
                 tabsBar.appendChild(btn);
             });
 
-            // any leftover characters not in TAB_ORDER and not hidden
             present.forEach(char => {
                 if (!TAB_ORDER.includes(char) && !HIDDEN_PREFIXES.includes(char)) {
                     const btn = document.createElement("button");
@@ -348,12 +487,26 @@
         function renderItems() {
             let items = catalog;
 
+            // tab filter
             if (activeTab === "OWNED") {
                 items = catalog.filter(i => userInventory.includes(i.ItemId));
             } else if (activeTab === "NOT OWNED") {
                 items = catalog.filter(i => !userInventory.includes(i.ItemId));
             } else if (activeTab !== "ALL") {
                 items = catalog.filter(i => getCharacter(i.ItemId) === activeTab);
+            }
+
+            // currency filter
+            items = items.filter(i => {
+                const type = getCurrencyType(i);
+                return filters[type];
+            });
+
+            // sort
+            if (sortMode === "asc") {
+                items = [...items].sort((a, b) => getPrice(a) - getPrice(b));
+            } else if (sortMode === "desc") {
+                items = [...items].sort((a, b) => getPrice(b) - getPrice(a));
             }
 
             const grid = document.getElementById("itemGrid");
@@ -386,23 +539,89 @@
                         ? `<div class="owned-badge">✅ owned</div>`
                         : isNA
                             ? `<div class="na-badge">🚫 Not Purchasable</div>`
-                            : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="buyItem('${item.ItemId}', '${pricesEncoded}')">Buy</button>`
+                            : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="checkBundle('${item.ItemId}', '${pricesEncoded}')">Buy</button>`
                     }
                 `;
                 grid.appendChild(card);
             });
         }
 
-        async function buyItem(itemId, pricesEncoded) {
+        // bundle check before buying
+        function checkBundle(itemId, pricesEncoded) {
             const prices = JSON.parse(decodeURIComponent(pricesEncoded));
+            const parts = itemId.split("_");
+            const character = parts[0];
+            const skinName = parts[parts.length - 1];
+
+            // skip bundle check if this IS a bundle
+            if (parts[1] === "Bundle") {
+                buyItem(itemId, prices);
+                return;
+            }
+
+            // find matching bundle
+            const bundleId = `${character}_Bundle_${skinName}`;
+            const bundle = catalog.find(i => i.ItemId === bundleId);
+
+            if (!bundle || userInventory.includes(bundleId)) {
+                // no bundle or already owned — buy single directly
+                buyItem(itemId, prices);
+                return;
+            }
+
+            const bundlePrices = bundle.VirtualCurrencyPrices || {};
+            const bundleCurrency = bundlePrices.FE !== undefined ? "FE" : "AC";
+            const bundlePrice = bundlePrices[bundleCurrency] || 0;
+
+            // find all singles for this skin
+            const singles = catalog.filter(i => {
+                const p = i.ItemId.split("_");
+                return p[0] === character && p[p.length - 1] === skinName && p[1] !== "Bundle";
+            });
+
+            const singleCurrency = prices.FE !== undefined ? "FE" : "AC";
+            const singlePrice = prices[singleCurrency] || 0;
+
+            // count how many singles NOT yet owned
+            const notOwnedSingles = singles.filter(i => !userInventory.includes(i.ItemId));
+            const totalSinglesPrice = notOwnedSingles.reduce((sum, i) => {
+                const p = i.VirtualCurrencyPrices || {};
+                return sum + (p[singleCurrency] || 0);
+            }, 0);
+
+            if (bundlePrice < totalSinglesPrice) {
+                // bundle is cheaper — show popup
+                document.getElementById("popupText").innerHTML =
+                    `<b>${bundleId}</b> costs <b>${bundlePrice} ${bundleCurrency}</b><br>
+                     vs buying all singles: <b>${totalSinglesPrice} ${singleCurrency}</b><br><br>
+                     Bundle saves you <b style="color:#2ecc71">${totalSinglesPrice - bundlePrice} ${bundleCurrency}!</b>`;
+
+                document.getElementById("popupBundleBtn").onclick = () => {
+                    closePopup();
+                    buyItem(bundleId, bundlePrices);
+                };
+                document.getElementById("popupSingleBtn").onclick = () => {
+                    closePopup();
+                    buyItem(itemId, prices);
+                };
+
+                document.getElementById("bundlePopup").className = "popup-overlay show";
+            } else {
+                // singles are cheaper or same — buy single directly
+                buyItem(itemId, prices);
+            }
+        }
+
+        function closePopup() {
+            document.getElementById("bundlePopup").className = "popup-overlay";
+        }
+
+        async function buyItem(itemId, prices) {
             const currency = prices.FE !== undefined ? "FE" : "AC";
             const price = prices[currency] || 0;
 
             const btn = document.getElementById(`btn-${itemId}`);
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = "Buying...";
-            }
+            if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
             const res = await fetch(`${HOST}/Client/PurchaseItem`, {
                 method: "POST",
@@ -437,10 +656,7 @@
                 updateStats();
                 alert(`✅ ${itemId} unlocked!`);
             } else {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = "Buy";
-                }
+                if (btn) { btn.disabled = false; btn.textContent = "Buy"; }
                 alert(`❌ failed: ${data.errorMessage}`);
             }
         }
