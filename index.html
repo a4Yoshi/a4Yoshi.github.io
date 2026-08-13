@@ -192,7 +192,7 @@
 </head>
 <body>
 
-    <div class="header">🏠 Secret Neighbor Shop</div>
+    <div class="header">🏠 Secret Neighbor Shop 1</div>
 
     <div class="profile-bar" id="profileBar">
         👤 <span id="profileName"></span> |
@@ -226,18 +226,24 @@
         let catalog = [];
         let activeTab = "ALL";
 
-        // neighbor aliases — Pumpkin and Scary map to Neighbor
-        const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary"];
+        // all these get merged into Neighbor tab
+        const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
 
-        // fixed tab order
+        // these prefixes are completely hidden — items still exist but no tab shown
+        const HIDDEN_PREFIXES = [
+            "2019", "2020", "2020-05", "00001V", "00001X", "00001Y", "00001Z",
+            "9N15R5CPSDS7", "9N3TFBPS0S71", "9PF5VJVSLBTK", "9PHM1Z3BL1V7",
+            "SWITCH", "com", "2021", "2022", "2023"
+        ];
+
+        // exact tab order
         const TAB_ORDER = [
             "ALL", "OWNED", "NOT OWNED",
-            "Bagger", "Brave", "Detective", "Inventor", "Leader",
+            "Bagger", "Brave", "Detective", "Engineer", "Inventor", "Leader", "Quentin",
             "Journalist", "Scout", "Neighbor", "Butcher", "Clown",
             "Ghost", "Guest", "Hunter", "Emotion"
         ];
 
-        // normalize character name
         function getCharacter(itemId) {
             const raw = itemId.split("_")[0];
             if (NEIGHBOR_ALIASES.includes(raw)) return "Neighbor";
@@ -245,14 +251,9 @@
             return raw;
         }
 
-        // fix image filename casing — lowercases the part after last underscore's first char
-        function getImageName(itemId) {
-            const parts = itemId.split("_");
-            if (parts.length >= 3) {
-                const last = parts[parts.length - 1];
-                parts[parts.length - 1] = last.charAt(0).toLowerCase() + last.slice(1);
-            }
-            return parts.join("_") + ".png";
+        function isHidden(itemId) {
+            const raw = itemId.split("_")[0];
+            return HIDDEN_PREFIXES.includes(raw);
         }
 
         async function loadShop() {
@@ -290,10 +291,13 @@
             document.getElementById("profileBar").style.display = "block";
 
             userInventory = inventoryData.data.Inventory.map(i => i.ItemId);
+
+            // filter catalog — remove hidden prefixes, keep customization/emotion/bundle
             catalog = catalogData.data.Catalog.filter(i =>
-                i.ItemClass === "Customization" ||
-                i.ItemClass === "Emotion" ||
-                i.ItemClass === "Bundle"
+                (i.ItemClass === "Customization" ||
+                 i.ItemClass === "Emotion" ||
+                 i.ItemClass === "Bundle") &&
+                !isHidden(i.ItemId)
             );
 
             document.getElementById("loginBox").style.display = "none";
@@ -305,13 +309,11 @@
         }
 
         function buildTabs() {
-            // get characters present in catalog
             const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
 
             const tabsBar = document.getElementById("tabsBar");
             tabsBar.innerHTML = "";
 
-            // add tabs in fixed order, only if present (always add ALL/OWNED/NOT OWNED)
             TAB_ORDER.forEach(tab => {
                 const isSpecial = ["ALL", "OWNED", "NOT OWNED"].includes(tab);
                 if (!isSpecial && !present.has(tab)) return;
@@ -323,9 +325,9 @@
                 tabsBar.appendChild(btn);
             });
 
-            // add any remaining characters not in TAB_ORDER
+            // any leftover characters not in TAB_ORDER and not hidden
             present.forEach(char => {
-                if (!TAB_ORDER.includes(char)) {
+                if (!TAB_ORDER.includes(char) && !HIDDEN_PREFIXES.includes(char)) {
                     const btn = document.createElement("button");
                     btn.className = `tab-btn ${char === activeTab ? "active" : ""}`;
                     btn.textContent = char;
@@ -369,14 +371,13 @@
                 else if (hasAC) priceText = `🎟️ ${prices.AC} AC`;
                 else priceText = "Not Purchasable";
 
-                const imgFile = item.ItemId + ".png";
                 const pricesEncoded = encodeURIComponent(JSON.stringify(prices));
 
                 const card = document.createElement("div");
                 card.className = `card ${owned ? "owned" : ""} ${isNA ? "na" : ""}`;
                 card.id = `card-${item.ItemId}`;
                 card.innerHTML = `
-                    <img src="images/${imgFile}"
+                    <img src="images/${item.ItemId}.png"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                     <div class="no-img" style="display:none">no image</div>
                     <div class="name">${item.ItemId}</div>
