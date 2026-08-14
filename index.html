@@ -130,6 +130,22 @@
         .sort-btn.active { border-color: #e94560; color: white; background: #16213e; }
         .sort-btn:hover { border-color: #e94560; color: white; }
 
+        /* SEARCH */
+        .search-box {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 2px solid #444;
+            background: #0f3460;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            width: 180px;
+            transition: 0.2s;
+        }
+
+        .search-box:focus { border-color: #e94560; }
+        .search-box::placeholder { color: #555; }
+
         /* NORMAL GRID */
         .grid {
             display: grid;
@@ -151,8 +167,7 @@
         .card.na { opacity: 0.4; }
 
         .card img {
-            width: 100px;
-            height: 100px;
+            width: 100px; height: 100px;
             object-fit: contain;
             margin-bottom: 10px;
             background: #0f3460;
@@ -161,7 +176,6 @@
 
         .card .name { font-size: 11px; color: #aaa; margin-bottom: 8px; word-break: break-all; }
         .card .price { font-size: 12px; color: #e94560; margin-bottom: 8px; }
-
         .card .owned-badge { background: #2ecc71; color: white; padding: 5px; border-radius: 5px; font-size: 12px; }
         .card .na-badge { background: #555; color: #aaa; padding: 5px; border-radius: 5px; font-size: 11px; }
 
@@ -191,13 +205,11 @@
             margin-bottom: 20px;
             border: 2px solid #2a2a4a;
             background: #16213e;
-            transition: border-color 0.2s;
         }
 
         .bundle-group.cheaper { border-color: #2ecc71; }
         .bundle-group.expensive { border-color: #e94560; }
         .bundle-group.mixed { border-color: #f39c12; }
-        .bundle-group.no-bundle { border-color: #2a2a4a; }
 
         .bundle-group-header {
             display: flex;
@@ -209,7 +221,6 @@
         }
 
         .bundle-group-title { font-size: 16px; font-weight: bold; color: white; margin-bottom: 4px; }
-
         .bundle-price-line { font-size: 13px; color: #aaa; margin-bottom: 3px; }
         .bundle-price-line b { color: white; }
 
@@ -327,7 +338,7 @@
 </head>
 <body>
 
-<div class="header">🏠 Secret Neighbor Shop 1</div>
+<div class="header">🏠 Secret Neighbor Shop</div>
 
 <div class="profile-bar" id="profileBar">
     👤 <span id="profileName"></span> |
@@ -365,6 +376,8 @@
         <div class="divider"></div>
         <span class="filter-label">View:</span>
         <button class="sort-btn" id="view-bundle" onclick="toggleBundleView()">📦 By Bundle</button>
+        <div class="divider"></div>
+        <input class="search-box" id="searchBox" type="text" placeholder="🔍 Search..." oninput="renderItems()"/>
     </div>
 
     <div id="itemGrid"></div>
@@ -393,50 +406,21 @@
     let filters = { FE: true, AC: true, NA: true };
     let bundleView = false;
 
+    // all neighbor aliases — bundles searched across ALL of these
     const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
+
     const HIDDEN_PREFIXES = [
         "2019", "2020", "2020-05", "00001V", "00001X", "00001Y", "00001Z", "00001W",
         "9N15R5CPSDS7", "9N3TFBPS0S71", "9PF5VJVSLBTK", "9PHM1Z3BL1V7",
         "SWITCH", "com", "2021", "2022", "2023"
     ];
+
     const TAB_ORDER = [
         "ALL", "OWNED", "NOT OWNED",
         "Bagger", "Brave", "Detective", "Engineer", "Inventor", "Leader", "Quentin",
         "Journalist", "Scout", "Neighbor", "Butcher", "Clown",
         "Ghost", "Guest", "Hunter", "Emotion"
     ];
-
-    // currency helpers
-    function getCurrencyType(item) {
-        const p = item.VirtualCurrencyPrices || {};
-        if (p.FE !== undefined) return "FE";
-        if (p.AC !== undefined) return "AC";
-        return "NA";
-    }
-
-    function getPrice(item) {
-        const p = item.VirtualCurrencyPrices || {};
-        return p.FE ?? p.AC ?? 0;
-    }
-
-    function currencyLabel(cur) {
-        if (cur === "FE") return "🪙 (C.) FE";
-        if (cur === "AC") return "🎟️ (T.) AC";
-        return "N/A";
-    }
-
-    function currencyFull(cur) {
-        if (cur === "FE") return "🪙 FE (Coins)";
-        if (cur === "AC") return "🎟️ AC (Tickets)";
-        return "N/A";
-    }
-
-    function priceTag(prices) {
-        if (!prices) return "Not Purchasable";
-        if (prices.FE !== undefined) return `🪙 (C.) ${prices.FE} FE`;
-        if (prices.AC !== undefined) return `🎟️ (T.) ${prices.AC} AC`;
-        return "Not Purchasable";
-    }
 
     function getCharacter(itemId) {
         const raw = itemId.split("_")[0];
@@ -449,32 +433,82 @@
         return HIDDEN_PREFIXES.includes(itemId.split("_")[0]);
     }
 
-    // compare bundle vs singles — returns { type, savings, bundleCur, singlesCur, bundlePrice, singlesTotal }
+    function getCurrencyType(item) {
+        const p = item.VirtualCurrencyPrices || {};
+        if (p.FE !== undefined) return "FE";
+        if (p.AC !== undefined) return "AC";
+        return "NA";
+    }
+
+    function getPrice(item) {
+        const p = item.VirtualCurrencyPrices || {};
+        return p.FE ?? p.AC ?? 0;
+    }
+
+    function priceTag(prices) {
+        if (!prices) return "Not Purchasable";
+        if (prices.FE !== undefined) return `🪙 (C.) ${prices.FE} FE`;
+        if (prices.AC !== undefined) return `🎟️ (T.) ${prices.AC} AC`;
+        return "Not Purchasable";
+    }
+
+    function currencyFull(cur) {
+        if (cur === "FE") return "🪙 FE (Coins)";
+        if (cur === "AC") return "🎟️ AC (Tickets)";
+        return "";
+    }
+
+    // find bundle for any item — searches across neighbor aliases too
+    function findBundle(character, skinName) {
+        // direct match first
+        const direct = catalog.find(i => i.ItemId === `${character}_Bundle_${skinName}`);
+        if (direct) return direct;
+
+        // if character is a neighbor alias, search all other aliases
+        if (NEIGHBOR_ALIASES.includes(character)) {
+            for (const alias of NEIGHBOR_ALIASES) {
+                const b = catalog.find(i => i.ItemId === `${alias}_Bundle_${skinName}`);
+                if (b) return b;
+            }
+        }
+        return null;
+    }
+
+    // compare bundle vs singles — only triggers warning if singles have real currency
     function compareBundle(bundle, singles) {
         if (!bundle) return null;
+
         const bp = bundle.VirtualCurrencyPrices || {};
         const bundleCur = bp.FE !== undefined ? "FE" : bp.AC !== undefined ? "AC" : null;
         if (!bundleCur) return null;
-        const bundlePrice = bp[bundleCur];
 
+        const bundlePrice = bp[bundleCur];
         const notOwned = singles.filter(i => !userInventory.includes(i.ItemId));
         if (notOwned.length === 0) return null;
 
-        // check if singles are mixed currency
-        const singleCurs = [...new Set(notOwned.map(i => getCurrencyType(i)))];
+        // only consider singles that actually have a real currency (FE or AC)
+        const purchasableSingles = notOwned.filter(i => getCurrencyType(i) !== "NA");
+
+        // if no purchasable singles — don't show mixed warning, just return null
+        if (purchasableSingles.length === 0) return null;
+
+        const singleCurs = [...new Set(purchasableSingles.map(i => getCurrencyType(i)))];
         const singleCur = singleCurs.length === 1 ? singleCurs[0] : "MIXED";
 
-        if (singleCur === "MIXED" || singleCur === "NA") {
-            return { type: "mixed", bundleCur, bundlePrice, singlesTotal: null, singlesCur: "MIXED" };
+        // truly mixed (multiple real currencies in singles)
+        if (singleCur === "MIXED") {
+            const singlesTotal = purchasableSingles.reduce((s, i) => s + getPrice(i), 0);
+            return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: "MIXED" };
         }
 
+        // different currency between bundle and singles
         if (singleCur !== bundleCur) {
-            // different currencies
-            const singlesTotal = notOwned.reduce((s, i) => s + getPrice(i), 0);
+            const singlesTotal = purchasableSingles.reduce((s, i) => s + getPrice(i), 0);
             return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur };
         }
 
-        const singlesTotal = notOwned.reduce((s, i) => s + getPrice(i), 0);
+        // same currency — compare prices
+        const singlesTotal = purchasableSingles.reduce((s, i) => s + getPrice(i), 0);
         const diff = singlesTotal - bundlePrice;
 
         if (diff > 0) return { type: "cheaper", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: diff };
@@ -588,6 +622,10 @@
         renderItems();
     }
 
+    function getSearchQuery() {
+        return (document.getElementById("searchBox")?.value || "").toLowerCase().trim();
+    }
+
     function getTabItems() {
         if (activeTab === "OWNED") return catalog.filter(i => userInventory.includes(i.ItemId));
         if (activeTab === "NOT OWNED") return catalog.filter(i => !userInventory.includes(i.ItemId));
@@ -596,6 +634,8 @@
     }
 
     function applyFiltersAndSort(items) {
+        const q = getSearchQuery();
+        if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
         items = items.filter(i => filters[getCurrencyType(i)]);
         if (sortMode === "asc") items = [...items].sort((a, b) => getPrice(a) - getPrice(b));
         else if (sortMode === "desc") items = [...items].sort((a, b) => getPrice(b) - getPrice(a));
@@ -639,35 +679,52 @@
         grid.className = "";
         grid.innerHTML = "";
 
-        let items = getTabItems();
+        const q = getSearchQuery();
 
-        // group by character + skinName
+        // bundle view ignores currency filters — shows everything
+        let items = getTabItems();
+        if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
+
+        // group by normalized character + skinName
         const groups = {};
         items.forEach(item => {
             const parts = item.ItemId.split("_");
-            const char = parts[0];
+            // normalize character for grouping
+            const rawChar = parts[0];
+            const normChar = NEIGHBOR_ALIASES.includes(rawChar) ? "Neighbor" : rawChar;
             const skinName = parts[parts.length - 1];
-            const key = `${char}_${skinName}`;
-            if (!groups[key]) groups[key] = { char, skinName, bundle: null, singles: [] };
+            const key = `${normChar}_${skinName}`;
+            if (!groups[key]) groups[key] = { normChar, skinName, bundle: null, singles: [], rawChars: new Set() };
+            groups[key].rawChars.add(rawChar);
             if (parts[1] === "Bundle") groups[key].bundle = item;
             else groups[key].singles.push(item);
         });
 
+        // for groups without bundle, try cross-alias search
         Object.values(groups).forEach(group => {
-            const filteredSingles = group.singles.filter(i => filters[getCurrencyType(i)]);
-            const bundleVisible = group.bundle && filters[getCurrencyType(group.bundle)];
-            if (filteredSingles.length === 0 && !bundleVisible) return;
+            if (!group.bundle) {
+                group.bundle = findBundle(group.normChar === "Neighbor" ? "Neighbor" : group.normChar, group.skinName);
+                // also try all raw chars found
+                if (!group.bundle) {
+                    for (const rc of group.rawChars) {
+                        const b = findBundle(rc, group.skinName);
+                        if (b) { group.bundle = b; break; }
+                    }
+                }
+            }
+        });
+
+        Object.values(groups).forEach(group => {
+            if (group.singles.length === 0 && !group.bundle) return;
 
             const cmp = compareBundle(group.bundle, group.singles);
             const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId);
 
-            // border color
-            let groupClass = "bundle-group no-bundle";
+            let groupClass = "bundle-group";
             if (cmp) {
                 if (cmp.type === "cheaper") groupClass = "bundle-group cheaper";
                 else if (cmp.type === "expensive") groupClass = "bundle-group expensive";
                 else if (cmp.type === "mixed") groupClass = "bundle-group mixed";
-                else groupClass = "bundle-group";
             }
 
             // savings line
@@ -676,11 +733,11 @@
                 if (cmp.type === "cheaper") {
                     savingsHtml = `<div class="savings-line green">✅ Bundle saves ${cmp.savings} ${currencyFull(cmp.bundleCur)}</div>`;
                 } else if (cmp.type === "expensive") {
-                    savingsHtml = `<div class="savings-line red">❌ Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`;
+                    savingsHtml = `<div class="savings-line red">Bundle is more expensive — Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`;
                 } else if (cmp.type === "mixed") {
                     savingsHtml = `<div class="savings-line orange">⚠️ Different currencies — your choice<br>
                         Bundle: ${cmp.bundlePrice} ${currencyFull(cmp.bundleCur)}<br>
-                        Singles: ${cmp.singlesTotal !== null ? cmp.singlesTotal + " " + currencyFull(cmp.singlesCur) : "mixed"}</div>`;
+                        Singles: ${cmp.singlesTotal} ${currencyFull(cmp.singlesCur)}</div>`;
                 } else {
                     savingsHtml = `<div class="savings-line" style="color:#aaa">Same price either way</div>`;
                 }
@@ -692,28 +749,30 @@
                 const bp = group.bundle.VirtualCurrencyPrices || {};
                 const bpe = encodeURIComponent(JSON.stringify(bp));
                 const bCur = getCurrencyType(group.bundle);
-                const bPrice = getPrice(group.bundle);
-                const bLabel = bCur !== "NA" ? `${priceTag(bp)}` : "N/A";
+                const singlesTotal = cmp ? cmp.singlesTotal : null;
+                const sCur = cmp ? cmp.singlesCur : null;
 
                 if (bundleOwned) {
                     bundleBtnHtml = `<button class="bundle-buy-btn owned" disabled>✅ Bundle Owned</button>`;
                 } else if (bCur === "NA") {
                     bundleBtnHtml = `<button class="bundle-buy-btn" disabled style="background:#555">🚫 N/A</button>`;
                 } else {
-                    const singlesTotal = cmp ? cmp.singlesTotal : null;
-                    const sCur = cmp ? cmp.singlesCur : null;
-                    bundleBtnHtml = `<button class="bundle-buy-btn" onclick="showBundlePopup('${group.bundle.ItemId}', '${bpe}', ${singlesTotal}, '${sCur}')">
-                        Buy Bundle — ${bLabel}
+                    bundleBtnHtml = `<button class="bundle-buy-btn" onclick="showBundlePopup('${group.bundle.ItemId}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">
+                        Buy Bundle — ${priceTag(bp)}
                     </button>`;
                 }
             }
+
+            // display title — show all raw chars if multiple
+            const titleChars = [...group.rawChars].join(" / ");
+            const displayTitle = `${titleChars} — ${group.skinName}`;
 
             const groupEl = document.createElement("div");
             groupEl.className = groupClass;
             groupEl.innerHTML = `
                 <div class="bundle-group-header">
                     <div>
-                        <div class="bundle-group-title">${group.char} — ${group.skinName}</div>
+                        <div class="bundle-group-title">${displayTitle}</div>
                         ${group.bundle
                             ? `<div class="bundle-price-line">Bundle: <b>${priceTag(group.bundle.VirtualCurrencyPrices)}</b></div>`
                             : `<div class="bundle-price-line" style="color:#555">No bundle available</div>`}
@@ -721,15 +780,12 @@
                     </div>
                     ${bundleBtnHtml}
                 </div>
-                <div class="bundle-singles" id="singles-${group.char}-${group.skinName}"></div>
+                <div class="bundle-singles" id="singles-${group.normChar}-${group.skinName}"></div>
             `;
             grid.appendChild(groupEl);
 
-            // render mini cards
-            const singlesContainer = document.getElementById(`singles-${group.char}-${group.skinName}`);
-            const displaySingles = filteredSingles.length > 0 ? filteredSingles : group.singles;
-
-            displaySingles.forEach(item => {
+            const singlesContainer = document.getElementById(`singles-${group.normChar}-${group.skinName}`);
+            group.singles.forEach(item => {
                 const owned = userInventory.includes(item.ItemId);
                 const prices = item.VirtualCurrencyPrices || {};
                 const isNA = getCurrencyType(item) === "NA";
@@ -758,25 +814,23 @@
         const bundleCur = getCurrencyType({ VirtualCurrencyPrices: prices });
         const bundlePrice = getPrice({ VirtualCurrencyPrices: prices });
 
-        let comparisonHtml = "";
-        if (singlesTotal !== null && singlesTotal !== "null") {
+        let compHtml = "";
+        if (singlesTotal !== null) {
             if (singlesCur === bundleCur) {
                 const diff = singlesTotal - bundlePrice;
-                if (diff > 0) comparisonHtml = `<span style="color:#2ecc71">✅ Bundle saves ${diff} ${currencyFull(bundleCur)}</span>`;
-                else if (diff < 0) comparisonHtml = `<span style="color:#e94560">❌ Singles save ${Math.abs(diff)} ${currencyFull(singlesCur)}</span>`;
-                else comparisonHtml = `<span style="color:#aaa">Same price either way</span>`;
+                if (diff > 0) compHtml = `<span style="color:#2ecc71">✅ Bundle saves ${diff} ${currencyFull(bundleCur)}</span>`;
+                else if (diff < 0) compHtml = `<span style="color:#e94560">Bundle is more expensive — Singles save ${Math.abs(diff)} ${currencyFull(singlesCur)}</span>`;
+                else compHtml = `<span style="color:#aaa">Same price either way</span>`;
             } else {
-                comparisonHtml = `<span style="color:#f39c12">⚠️ Different currencies — your choice</span>`;
+                compHtml = `<span style="color:#f39c12">⚠️ Different currencies — your choice</span>`;
             }
         }
 
         document.getElementById("popupText").innerHTML = `
             <b>${bundleId}</b><br><br>
             Bundle: <b>${priceTag(prices)}</b><br>
-            ${singlesTotal !== null && singlesTotal !== "null"
-                ? `Singles total: <b>${singlesTotal} ${singlesCur !== "null" ? currencyFull(singlesCur) : ""}</b><br>`
-                : ""}
-            <br>${comparisonHtml}
+            ${singlesTotal !== null ? `Singles total: <b>${singlesTotal} ${currencyFull(singlesCur)}</b><br>` : ""}
+            <br>${compHtml}
         `;
 
         document.getElementById("popupBundleBtn").onclick = () => { closePopup(); buyItem(bundleId, prices); };
@@ -793,24 +847,23 @@
 
         if (parts[1] === "Bundle") { buyItem(itemId, prices); return; }
 
-        const bundleId = `${character}_Bundle_${skinName}`;
-        const bundle = catalog.find(i => i.ItemId === bundleId);
-
-        if (!bundle || userInventory.includes(bundleId)) { buyItem(itemId, prices); return; }
+        const bundle = findBundle(character, skinName);
+        if (!bundle || userInventory.includes(bundle.ItemId)) { buyItem(itemId, prices); return; }
 
         const singles = catalog.filter(i => {
             const p = i.ItemId.split("_");
-            return p[0] === character && p[p.length - 1] === skinName && p[1] !== "Bundle";
+            const rc = p[0];
+            const sn = p[p.length - 1];
+            const sameChar = rc === character || (NEIGHBOR_ALIASES.includes(rc) && NEIGHBOR_ALIASES.includes(character));
+            return sameChar && sn === skinName && p[1] !== "Bundle";
         });
 
         const cmp = compareBundle(bundle, singles);
         if (!cmp) { buyItem(itemId, prices); return; }
 
-        const bp = bundle.VirtualCurrencyPrices || {};
-        const bpe = encodeURIComponent(JSON.stringify(bp));
-        showBundlePopup(bundleId, bpe, cmp.singlesTotal, cmp.singlesCur);
+        const bpe = encodeURIComponent(JSON.stringify(bundle.VirtualCurrencyPrices || {}));
+        showBundlePopup(bundle.ItemId, bpe, cmp.singlesTotal, cmp.singlesCur);
 
-        // override single buy button to buy THIS single
         document.getElementById("popupSingleBtn").textContent = "Buy Single";
         document.getElementById("popupSingleBtn").onclick = () => { closePopup(); buyItem(itemId, prices); };
     }
