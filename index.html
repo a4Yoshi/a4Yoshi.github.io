@@ -130,7 +130,6 @@
         .sort-btn.active { border-color: #e94560; color: white; background: #16213e; }
         .sort-btn:hover { border-color: #e94560; color: white; }
 
-        /* SEARCH */
         .search-box {
             padding: 6px 14px;
             border-radius: 20px;
@@ -210,6 +209,7 @@
         .bundle-group.cheaper { border-color: #2ecc71; }
         .bundle-group.expensive { border-color: #e94560; }
         .bundle-group.mixed { border-color: #f39c12; }
+        .bundle-group.same { border-color: #3498db; }
 
         .bundle-group-header {
             display: flex;
@@ -228,6 +228,7 @@
         .savings-line.green { color: #2ecc71; }
         .savings-line.red { color: #e94560; }
         .savings-line.orange { color: #f39c12; }
+        .savings-line.blue { color: #3498db; }
 
         .bundle-buy-btn {
             padding: 8px 18px;
@@ -242,8 +243,23 @@
         }
 
         .bundle-buy-btn:hover { background: #c73652; }
-        .bundle-buy-btn:disabled { background: #555; cursor: not-allowed; }
         .bundle-buy-btn.owned { background: #2ecc71; cursor: default; }
+        .bundle-buy-btn.grayed { background: #555; cursor: not-allowed; }
+
+        .buy-anyway-btn {
+            padding: 5px 10px;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 5px;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .buy-anyway-btn:hover { border-color: #aaa; color: white; }
 
         .bundle-singles { display: flex; flex-wrap: wrap; gap: 10px; }
 
@@ -259,6 +275,7 @@
 
         .mini-card.owned { border-color: #2ecc71; }
         .mini-card.na { opacity: 0.4; }
+        .mini-card.same-price { border-color: #3498db; }
 
         .mini-card img {
             width: 70px; height: 70px;
@@ -279,6 +296,7 @@
 
         .mini-name { font-size: 10px; color: #aaa; margin-bottom: 4px; }
         .mini-price { font-size: 11px; color: #e94560; margin-bottom: 6px; }
+        .mini-price.blue { color: #3498db; }
         .mini-owned { background: #2ecc71; color: white; padding: 4px; border-radius: 5px; font-size: 11px; }
         .mini-na { background: #555; color: #aaa; padding: 4px; border-radius: 5px; font-size: 10px; }
 
@@ -286,11 +304,12 @@
             background: #e94560; color: white;
             border: none; padding: 4px 8px;
             border-radius: 5px; cursor: pointer;
-            font-size: 11px; width: 100%;
+            font-size: 11px; width: 100%; margin-bottom: 3px;
         }
 
         .mini-buy:hover { background: #c73652; }
         .mini-buy:disabled { background: #555; cursor: not-allowed; }
+        .mini-buy.grayed { background: #555; cursor: not-allowed; }
 
         /* POPUP */
         .popup-overlay {
@@ -406,7 +425,6 @@
     let filters = { FE: true, AC: true, NA: true };
     let bundleView = false;
 
-    // all neighbor aliases — bundles searched across ALL of these
     const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
 
     const HIDDEN_PREFIXES = [
@@ -422,15 +440,40 @@
         "Ghost", "Guest", "Hunter", "Emotion"
     ];
 
+    // manual skin name aliases — maps inconsistent single names to bundle names
+    const SKIN_ALIASES = {
+        "sr": "SpeedRunner",
+        "elf_01": "Elf",
+    };
+
+    // normalize skin name for grouping — lowercase + apply aliases
+    function normalizeSkin(rawSkin) {
+        const lower = rawSkin.toLowerCase().trim();
+        return SKIN_ALIASES[lower] ? SKIN_ALIASES[lower].toLowerCase() : lower;
+    }
+
+    // display name for skin — capitalize first letter
+    function displaySkin(normalized) {
+        // reverse alias lookup for display
+        const reverseAlias = Object.entries(SKIN_ALIASES).find(([k, v]) => v.toLowerCase() === normalized);
+        if (reverseAlias) return reverseAlias[1];
+        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    }
+
     function getCharacter(itemId) {
-        const raw = itemId.split("_")[0];
-        if (NEIGHBOR_ALIASES.includes(raw)) return "Neighbor";
-        if (raw === "Emotion") return "Emotion";
-        return raw;
+        const raw = itemId.trim().split("_")[0];
+        if (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(raw.toLowerCase())) return "Neighbor";
+        if (raw.toLowerCase() === "emotion") return "Emotion";
+        // capitalize first letter for display
+        return raw.charAt(0).toUpperCase() + raw.slice(1);
+    }
+
+    function getRawCharacter(itemId) {
+        return itemId.trim().split("_")[0];
     }
 
     function isHidden(itemId) {
-        return HIDDEN_PREFIXES.includes(itemId.split("_")[0]);
+        return HIDDEN_PREFIXES.includes(itemId.trim().split("_")[0]);
     }
 
     function getCurrencyType(item) {
@@ -458,57 +501,69 @@
         return "";
     }
 
-    // find bundle for any item — searches across neighbor aliases too
-    function findBundle(character, skinName) {
-        // direct match first
-        const direct = catalog.find(i => i.ItemId === `${character}_Bundle_${skinName}`);
-        if (direct) return direct;
+    // get skin parts from itemId — handles 3 and 4 part names
+    function getSkinKey(itemId) {
+        const parts = itemId.trim().split("_");
+        // parts[0] = char, parts[1] = slot, parts[2..] = skin name
+        const skinRaw = parts.slice(2).join("_");
+        return normalizeSkin(skinRaw);
+    }
 
-        // if character is a neighbor alias, search all other aliases
-        if (NEIGHBOR_ALIASES.includes(character)) {
-            for (const alias of NEIGHBOR_ALIASES) {
-                const b = catalog.find(i => i.ItemId === `${alias}_Bundle_${skinName}`);
+    function getSlot(itemId) {
+        return itemId.trim().split("_")[1] || "";
+    }
+
+    function isBundle(itemId) {
+        return itemId.trim().split("_")[1].toLowerCase() === "bundle";
+    }
+
+    // find bundle across aliases and skin alias mapping
+    function findBundle(rawChar, normalizedSkin) {
+        const charsToSearch = NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase())
+            ? NEIGHBOR_ALIASES
+            : [rawChar];
+
+        // possible bundle skin names (original + reverse alias)
+        const skinVariants = [normalizedSkin];
+        const reverseAlias = Object.entries(SKIN_ALIASES).find(([k, v]) => v.toLowerCase() === normalizedSkin);
+        if (reverseAlias) skinVariants.push(reverseAlias[0]);
+        // also try capitalized
+        skinVariants.push(normalizedSkin.charAt(0).toUpperCase() + normalizedSkin.slice(1));
+        if (reverseAlias) skinVariants.push(reverseAlias[1]);
+
+        for (const char of charsToSearch) {
+            for (const skin of skinVariants) {
+                const b = catalog.find(i =>
+                    i.ItemId.trim().toLowerCase() === `${char.toLowerCase()}_bundle_${skin.toLowerCase()}`
+                );
                 if (b) return b;
             }
         }
         return null;
     }
 
-    // compare bundle vs singles — only triggers warning if singles have real currency
     function compareBundle(bundle, singles) {
         if (!bundle) return null;
-
         const bp = bundle.VirtualCurrencyPrices || {};
         const bundleCur = bp.FE !== undefined ? "FE" : bp.AC !== undefined ? "AC" : null;
         if (!bundleCur) return null;
-
         const bundlePrice = bp[bundleCur];
-        const notOwned = singles.filter(i => !userInventory.includes(i.ItemId));
-        if (notOwned.length === 0) return null;
 
-        // only consider singles that actually have a real currency (FE or AC)
-        const purchasableSingles = notOwned.filter(i => getCurrencyType(i) !== "NA");
+        const notOwned = singles.filter(i => !userInventory.includes(i.ItemId.trim()));
+        if (notOwned.length === 0) return { type: "all_owned" };
 
-        // if no purchasable singles — don't show mixed warning, just return null
-        if (purchasableSingles.length === 0) return null;
+        const purchasable = notOwned.filter(i => getCurrencyType(i) !== "NA");
+        if (purchasable.length === 0) return null;
 
-        const singleCurs = [...new Set(purchasableSingles.map(i => getCurrencyType(i)))];
+        const singleCurs = [...new Set(purchasable.map(i => getCurrencyType(i)))];
         const singleCur = singleCurs.length === 1 ? singleCurs[0] : "MIXED";
 
-        // truly mixed (multiple real currencies in singles)
-        if (singleCur === "MIXED") {
-            const singlesTotal = purchasableSingles.reduce((s, i) => s + getPrice(i), 0);
-            return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: "MIXED" };
-        }
-
-        // different currency between bundle and singles
-        if (singleCur !== bundleCur) {
-            const singlesTotal = purchasableSingles.reduce((s, i) => s + getPrice(i), 0);
+        if (singleCur === "MIXED" || singleCur !== bundleCur) {
+            const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
             return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur };
         }
 
-        // same currency — compare prices
-        const singlesTotal = purchasableSingles.reduce((s, i) => s + getPrice(i), 0);
+        const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
         const diff = singlesTotal - bundlePrice;
 
         if (diff > 0) return { type: "cheaper", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: diff };
@@ -574,7 +629,7 @@
         document.getElementById("profileAC").textContent = currencies.AC || 0;
         document.getElementById("profileBar").style.display = "block";
 
-        userInventory = inventoryData.data.Inventory.map(i => i.ItemId);
+        userInventory = inventoryData.data.Inventory.map(i => i.ItemId.trim());
         catalog = catalogData.data.Catalog.filter(i =>
             (i.ItemClass === "Customization" || i.ItemClass === "Emotion" || i.ItemClass === "Bundle") &&
             !isHidden(i.ItemId)
@@ -604,7 +659,7 @@
         });
 
         present.forEach(char => {
-            if (!TAB_ORDER.includes(char) && !HIDDEN_PREFIXES.includes(char)) {
+            if (!TAB_ORDER.includes(char) && !HIDDEN_PREFIXES.includes(char.toLowerCase())) {
                 const btn = document.createElement("button");
                 btn.className = `tab-btn ${char === activeTab ? "active" : ""}`;
                 btn.textContent = char;
@@ -627,8 +682,8 @@
     }
 
     function getTabItems() {
-        if (activeTab === "OWNED") return catalog.filter(i => userInventory.includes(i.ItemId));
-        if (activeTab === "NOT OWNED") return catalog.filter(i => !userInventory.includes(i.ItemId));
+        if (activeTab === "OWNED") return catalog.filter(i => userInventory.includes(i.ItemId.trim()));
+        if (activeTab === "NOT OWNED") return catalog.filter(i => !userInventory.includes(i.ItemId.trim()));
         if (activeTab !== "ALL") return catalog.filter(i => getCharacter(i.ItemId) === activeTab);
         return catalog;
     }
@@ -653,22 +708,22 @@
         grid.innerHTML = "";
 
         items.forEach(item => {
-            const owned = userInventory.includes(item.ItemId);
+            const owned = userInventory.includes(item.ItemId.trim());
             const prices = item.VirtualCurrencyPrices || {};
             const isNA = getCurrencyType(item) === "NA";
             const pe = encodeURIComponent(JSON.stringify(prices));
 
             const card = document.createElement("div");
             card.className = `card ${owned ? "owned" : ""} ${isNA ? "na" : ""}`;
-            card.id = `card-${item.ItemId}`;
+            card.id = `card-${item.ItemId.trim()}`;
             card.innerHTML = `
-                <img src="images/${item.ItemId}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                <img src="images/${item.ItemId.trim()}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                 <div class="no-img" style="display:none">no image</div>
-                <div class="name">${item.ItemId}</div>
+                <div class="name">${item.ItemId.trim()}</div>
                 <div class="price">${priceTag(prices)}</div>
                 ${owned ? `<div class="owned-badge">✅ owned</div>`
                 : isNA ? `<div class="na-badge">🚫 Not Purchasable</div>`
-                : `<button class="buy-btn" id="btn-${item.ItemId}" onclick="checkBundle('${item.ItemId}', '${pe}')">Buy</button>`}
+                : `<button class="buy-btn" id="btn-${item.ItemId.trim()}" onclick="checkBundle('${item.ItemId.trim()}', '${pe}')">Buy</button>`}
             `;
             grid.appendChild(card);
         });
@@ -680,51 +735,75 @@
         grid.innerHTML = "";
 
         const q = getSearchQuery();
-
-        // bundle view ignores currency filters — shows everything
+        // bundle view ignores currency filters
         let items = getTabItems();
         if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
 
-        // group by normalized character + skinName
+        // group by normalized char + normalized skin
         const groups = {};
         items.forEach(item => {
-            const parts = item.ItemId.split("_");
-            // normalize character for grouping
-            const rawChar = parts[0];
-            const normChar = NEIGHBOR_ALIASES.includes(rawChar) ? "Neighbor" : rawChar;
-            const skinName = parts[parts.length - 1];
-            const key = `${normChar}_${skinName}`;
-            if (!groups[key]) groups[key] = { normChar, skinName, bundle: null, singles: [], rawChars: new Set() };
+            const trimmed = item.ItemId.trim();
+            const rawChar = getRawCharacter(trimmed);
+            const normChar = getCharacter(trimmed); // already normalized (Neighbor etc)
+            const skinKey = getSkinKey(trimmed);
+            const key = `${normChar.toLowerCase()}_${skinKey}`;
+
+            if (!groups[key]) {
+                groups[key] = {
+                    normChar,
+                    skinKey,
+                    displaySkinName: displaySkin(skinKey),
+                    bundle: null,
+                    singles: [],
+                    rawChars: new Set()
+                };
+            }
+
             groups[key].rawChars.add(rawChar);
-            if (parts[1] === "Bundle") groups[key].bundle = item;
-            else groups[key].singles.push(item);
+
+            if (isBundle(trimmed)) {
+                groups[key].bundle = item;
+            } else {
+                groups[key].singles.push(item);
+            }
         });
 
-        // for groups without bundle, try cross-alias search
+        // for groups without bundle — cross-alias search
         Object.values(groups).forEach(group => {
             if (!group.bundle) {
-                group.bundle = findBundle(group.normChar === "Neighbor" ? "Neighbor" : group.normChar, group.skinName);
-                // also try all raw chars found
-                if (!group.bundle) {
-                    for (const rc of group.rawChars) {
-                        const b = findBundle(rc, group.skinName);
-                        if (b) { group.bundle = b; break; }
-                    }
+                for (const rc of group.rawChars) {
+                    const b = findBundle(rc, group.skinKey);
+                    if (b) { group.bundle = b; break; }
                 }
             }
         });
 
+        // sort groups: Scary-Pumpkin always shown as one group under Scary
+        // merge duplicate groups (e.g. Pumpkin-Scary and Scary-Pumpkin)
+        const seen = new Set();
+        const finalGroups = [];
         Object.values(groups).forEach(group => {
+            const key = `${group.normChar.toLowerCase()}_${group.skinKey}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                finalGroups.push(group);
+            }
+        });
+
+        finalGroups.forEach(group => {
             if (group.singles.length === 0 && !group.bundle) return;
 
             const cmp = compareBundle(group.bundle, group.singles);
-            const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId);
+            const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
+            const allSinglesOwned = group.singles.length > 0 && group.singles.every(i => userInventory.includes(i.ItemId.trim()));
 
+            // border color
             let groupClass = "bundle-group";
             if (cmp) {
                 if (cmp.type === "cheaper") groupClass = "bundle-group cheaper";
                 else if (cmp.type === "expensive") groupClass = "bundle-group expensive";
                 else if (cmp.type === "mixed") groupClass = "bundle-group mixed";
+                else if (cmp.type === "same") groupClass = "bundle-group same";
             }
 
             // savings line
@@ -738,12 +817,14 @@
                     savingsHtml = `<div class="savings-line orange">⚠️ Different currencies — your choice<br>
                         Bundle: ${cmp.bundlePrice} ${currencyFull(cmp.bundleCur)}<br>
                         Singles: ${cmp.singlesTotal} ${currencyFull(cmp.singlesCur)}</div>`;
-                } else {
-                    savingsHtml = `<div class="savings-line" style="color:#aaa">Same price either way</div>`;
+                } else if (cmp.type === "same") {
+                    savingsHtml = `<div class="savings-line blue">Same price either way</div>`;
+                } else if (cmp.type === "all_owned") {
+                    savingsHtml = `<div class="savings-line" style="color:#2ecc71">✅ All singles already owned</div>`;
                 }
             }
 
-            // bundle button
+            // bundle button logic
             let bundleBtnHtml = "";
             if (group.bundle) {
                 const bp = group.bundle.VirtualCurrencyPrices || {};
@@ -755,17 +836,37 @@
                 if (bundleOwned) {
                     bundleBtnHtml = `<button class="bundle-buy-btn owned" disabled>✅ Bundle Owned</button>`;
                 } else if (bCur === "NA") {
-                    bundleBtnHtml = `<button class="bundle-buy-btn" disabled style="background:#555">🚫 N/A</button>`;
+                    bundleBtnHtml = `<button class="bundle-buy-btn grayed" disabled>🚫 N/A</button>`;
+                } else if (allSinglesOwned && !bundleOwned) {
+                    // all singles owned but not bundle — gray it out
+                    bundleBtnHtml = `
+                        <div style="text-align:right">
+                            <button class="bundle-buy-btn grayed" disabled>Buy Bundle — ${priceTag(bp)}</button>
+                            <button class="buy-anyway-btn" onclick="showBundlePopup('${group.bundle.ItemId.trim()}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">Buy anyway?</button>
+                        </div>`;
+                } else if (cmp && cmp.type === "expensive") {
+                    // bundle more expensive — gray it out with buy anyway
+                    bundleBtnHtml = `
+                        <div style="text-align:right">
+                            <button class="bundle-buy-btn grayed" disabled>Buy Bundle — ${priceTag(bp)}</button>
+                            <button class="buy-anyway-btn" onclick="showBundlePopup('${group.bundle.ItemId.trim()}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">Buy bundle anyway?</button>
+                        </div>`;
                 } else {
-                    bundleBtnHtml = `<button class="bundle-buy-btn" onclick="showBundlePopup('${group.bundle.ItemId}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">
-                        Buy Bundle — ${priceTag(bp)}
-                    </button>`;
+                    bundleBtnHtml = `
+                        <button class="bundle-buy-btn" onclick="showBundlePopup('${group.bundle.ItemId.trim()}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">
+                            Buy Bundle — ${priceTag(bp)}
+                        </button>`;
                 }
             }
 
-            // display title — show all raw chars if multiple
-            const titleChars = [...group.rawChars].join(" / ");
-            const displayTitle = `${titleChars} — ${group.skinName}`;
+            // display title — prefer Scary over Pumpkin for Neighbor
+            const rawCharsArr = [...group.rawChars];
+            const preferredChar = rawCharsArr.includes("Scary") ? "Scary"
+                : rawCharsArr.includes("Neighbor") ? "Neighbor"
+                : rawCharsArr[0];
+            const displayTitle = `${preferredChar} — ${group.displaySkinName}`;
+
+            const safeKey = `${group.normChar}-${group.skinKey}`.replace(/[^a-z0-9-]/gi, "_");
 
             const groupEl = document.createElement("div");
             groupEl.className = groupClass;
@@ -780,29 +881,46 @@
                     </div>
                     ${bundleBtnHtml}
                 </div>
-                <div class="bundle-singles" id="singles-${group.normChar}-${group.skinName}"></div>
+                <div class="bundle-singles" id="singles-${safeKey}"></div>
             `;
             grid.appendChild(groupEl);
 
-            const singlesContainer = document.getElementById(`singles-${group.normChar}-${group.skinName}`);
+            const singlesContainer = document.getElementById(`singles-${safeKey}`);
+            const bundleCheaper = cmp && cmp.type === "cheaper";
+
             group.singles.forEach(item => {
-                const owned = userInventory.includes(item.ItemId);
+                const trimmed = item.ItemId.trim();
+                const owned = userInventory.includes(trimmed);
                 const prices = item.VirtualCurrencyPrices || {};
                 const isNA = getCurrencyType(item) === "NA";
-                const slotName = item.ItemId.split("_")[1] || "";
+                const isSame = cmp && cmp.type === "same";
+                const slot = getSlot(trimmed).toUpperCase();
                 const pe = encodeURIComponent(JSON.stringify(prices));
 
+                let btnHtml = "";
+                if (owned) {
+                    btnHtml = `<div class="mini-owned">✅</div>`;
+                } else if (isNA) {
+                    btnHtml = `<div class="mini-na">🚫</div>`;
+                } else if (bundleCheaper) {
+                    // bundle cheaper — gray out single buy, add buy single anyway
+                    btnHtml = `
+                        <button class="mini-buy grayed" disabled>Buy</button>
+                        <button class="buy-anyway-btn" onclick="buyItem('${trimmed}', ${JSON.stringify(prices)})">Buy single anyway</button>
+                    `;
+                } else {
+                    btnHtml = `<button class="mini-buy" id="btn-${trimmed}" onclick="checkBundle('${trimmed}', '${pe}')">Buy</button>`;
+                }
+
                 const mini = document.createElement("div");
-                mini.className = `mini-card ${owned ? "owned" : ""} ${isNA ? "na" : ""}`;
-                mini.id = `card-${item.ItemId}`;
+                mini.className = `mini-card ${owned ? "owned" : ""} ${isNA ? "na" : ""} ${isSame ? "same-price" : ""}`;
+                mini.id = `card-${trimmed}`;
                 mini.innerHTML = `
-                    <img src="images/${item.ItemId}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                    <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                     <div class="mini-no-img" style="display:none">no image</div>
-                    <div class="mini-name">${slotName}</div>
-                    <div class="mini-price">${priceTag(prices)}</div>
-                    ${owned ? `<div class="mini-owned">✅</div>`
-                    : isNA ? `<div class="mini-na">🚫</div>`
-                    : `<button class="mini-buy" id="btn-${item.ItemId}" onclick="checkBundle('${item.ItemId}', '${pe}')">Buy</button>`}
+                    <div class="mini-name">${slot}</div>
+                    <div class="mini-price ${isSame ? "blue" : ""}">${priceTag(prices)}</div>
+                    ${btnHtml}
                 `;
                 singlesContainer.appendChild(mini);
             });
@@ -815,12 +933,12 @@
         const bundlePrice = getPrice({ VirtualCurrencyPrices: prices });
 
         let compHtml = "";
-        if (singlesTotal !== null) {
+        if (singlesTotal !== null && singlesCur && singlesCur !== "null") {
             if (singlesCur === bundleCur) {
                 const diff = singlesTotal - bundlePrice;
                 if (diff > 0) compHtml = `<span style="color:#2ecc71">✅ Bundle saves ${diff} ${currencyFull(bundleCur)}</span>`;
                 else if (diff < 0) compHtml = `<span style="color:#e94560">Bundle is more expensive — Singles save ${Math.abs(diff)} ${currencyFull(singlesCur)}</span>`;
-                else compHtml = `<span style="color:#aaa">Same price either way</span>`;
+                else compHtml = `<span style="color:#3498db">Same price either way</span>`;
             } else {
                 compHtml = `<span style="color:#f39c12">⚠️ Different currencies — your choice</span>`;
             }
@@ -829,43 +947,49 @@
         document.getElementById("popupText").innerHTML = `
             <b>${bundleId}</b><br><br>
             Bundle: <b>${priceTag(prices)}</b><br>
-            ${singlesTotal !== null ? `Singles total: <b>${singlesTotal} ${currencyFull(singlesCur)}</b><br>` : ""}
+            ${singlesTotal !== null && singlesCur && singlesCur !== "null"
+                ? `Singles total: <b>${singlesTotal} ${currencyFull(singlesCur)}</b><br>`
+                : ""}
             <br>${compHtml}
         `;
 
         document.getElementById("popupBundleBtn").onclick = () => { closePopup(); buyItem(bundleId, prices); };
-        document.getElementById("popupSingleBtn").textContent = "Cancel";
-        document.getElementById("popupSingleBtn").onclick = () => closePopup();
+        document.getElementById("popupSingleBtn").style.display = "none";
         document.getElementById("bundlePopup").className = "popup-overlay show";
     }
 
     function checkBundle(itemId, pricesEncoded) {
         const prices = JSON.parse(decodeURIComponent(pricesEncoded));
-        const parts = itemId.split("_");
-        const character = parts[0];
-        const skinName = parts[parts.length - 1];
+        const trimmed = itemId.trim();
+        const rawChar = getRawCharacter(trimmed);
+        const skinKey = getSkinKey(trimmed);
 
-        if (parts[1] === "Bundle") { buyItem(itemId, prices); return; }
-
-        const bundle = findBundle(character, skinName);
-        if (!bundle || userInventory.includes(bundle.ItemId)) { buyItem(itemId, prices); return; }
+        const bundle = findBundle(rawChar, skinKey);
+        if (!bundle || userInventory.includes(bundle.ItemId.trim())) {
+            buyItem(trimmed, prices);
+            return;
+        }
 
         const singles = catalog.filter(i => {
-            const p = i.ItemId.split("_");
-            const rc = p[0];
-            const sn = p[p.length - 1];
-            const sameChar = rc === character || (NEIGHBOR_ALIASES.includes(rc) && NEIGHBOR_ALIASES.includes(character));
-            return sameChar && sn === skinName && p[1] !== "Bundle";
+            const t = i.ItemId.trim();
+            if (isBundle(t)) return false;
+            const rc = getRawCharacter(t);
+            const sk = getSkinKey(t);
+            const sameChar = rc.toLowerCase() === rawChar.toLowerCase() ||
+                (NEIGHBOR_ALIASES.map(a=>a.toLowerCase()).includes(rc.toLowerCase()) &&
+                 NEIGHBOR_ALIASES.map(a=>a.toLowerCase()).includes(rawChar.toLowerCase()));
+            return sameChar && sk === skinKey;
         });
 
         const cmp = compareBundle(bundle, singles);
-        if (!cmp) { buyItem(itemId, prices); return; }
+        if (!cmp || cmp.type === "all_owned") { buyItem(trimmed, prices); return; }
 
         const bpe = encodeURIComponent(JSON.stringify(bundle.VirtualCurrencyPrices || {}));
-        showBundlePopup(bundle.ItemId, bpe, cmp.singlesTotal, cmp.singlesCur);
+        showBundlePopup(bundle.ItemId.trim(), bpe, cmp.singlesTotal, cmp.singlesCur);
 
+        document.getElementById("popupSingleBtn").style.display = "inline-block";
         document.getElementById("popupSingleBtn").textContent = "Buy Single";
-        document.getElementById("popupSingleBtn").onclick = () => { closePopup(); buyItem(itemId, prices); };
+        document.getElementById("popupSingleBtn").onclick = () => { closePopup(); buyItem(trimmed, prices); };
     }
 
     function closePopup() {
@@ -873,16 +997,17 @@
     }
 
     async function buyItem(itemId, prices) {
+        const trimmed = itemId.trim();
         const currency = prices.FE !== undefined ? "FE" : "AC";
         const price = prices[currency] || 0;
 
-        const btn = document.getElementById(`btn-${itemId}`);
+        const btn = document.getElementById(`btn-${trimmed}`);
         if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
         const res = await fetch(`${HOST}/Client/PurchaseItem`, {
             method: "POST",
             headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-            body: JSON.stringify({ CatalogVersion: "Ingame", ItemId: itemId, Price: price, VirtualCurrency: currency })
+            body: JSON.stringify({ CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency })
         });
 
         const data = await res.json();
@@ -895,10 +1020,10 @@
                 document.getElementById("profileAC").textContent =
                     parseInt(document.getElementById("profileAC").textContent) - price;
             }
-            userInventory.push(itemId);
+            userInventory.push(trimmed);
             updateStats();
             renderItems();
-            alert(`✅ ${itemId} unlocked!`);
+            alert(`✅ ${trimmed} unlocked!`);
         } else {
             if (btn) { btn.disabled = false; btn.textContent = "Buy"; }
             alert(`❌ failed: ${data.errorMessage}`);
@@ -906,7 +1031,7 @@
     }
 
     function updateStats() {
-        const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId)).length;
+        const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId.trim())).length;
         document.getElementById("totalCount").textContent = catalog.length;
         document.getElementById("ownedCount").textContent = userInventory.length;
         document.getElementById("notOwnedCount").textContent = notOwned;
