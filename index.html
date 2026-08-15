@@ -29,9 +29,12 @@
             gap: 10px;
         }
 
-        .profile-bar span { margin: 0 10px; color: #e94560; font-weight: bold; }
+        .profile-bar span { margin: 0 8px; color: #e94560; font-weight: bold; }
 
-        .profile-left { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+        /* three-column layout */
+        .profile-left   { display: flex; align-items: center; }
+        .profile-center { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; justify-content: center; flex: 1; }
+        .profile-right  { display: flex; align-items: center; gap: 8px; }
 
         .store-badge {
             display: inline-flex;
@@ -47,8 +50,6 @@
         }
 
         .store-badge b { color: #e94560; font-size: 13px; }
-
-        .profile-shop-btns { display: flex; gap: 8px; align-items: center; }
 
         .shop-mode-btn {
             padding: 7px 16px;
@@ -67,67 +68,7 @@
         .shop-mode-btn.daily-active { background: #2ecc71; border-color: #2ecc71; color: white; }
         .shop-mode-btn.season-active { background: #3498db; border-color: #3498db; color: white; }
 
-        /* store picker modal */
-        .store-picker-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.75);
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-        }
-        .store-picker-overlay.show { display: flex; }
 
-        .store-picker {
-            background: #16213e;
-            border: 2px solid #e94560;
-            border-radius: 14px;
-            padding: 28px;
-            max-width: 480px;
-            width: 92%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .store-picker h3 { color: #e94560; margin-bottom: 18px; font-size: 17px; }
-
-        .store-list { display: flex; flex-direction: column; gap: 8px; }
-
-        .store-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #0f3460;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: 0.2s;
-        }
-
-        .store-item:hover { border-color: #e94560; color: white; }
-        .store-item.active-store { border-color: #2ecc71; }
-
-        .store-item-name { color: white; font-weight: bold; }
-        .store-item-count { color: #aaa; font-size: 11px; }
-
-        .store-picker-close {
-            margin-top: 16px;
-            width: 100%;
-            padding: 10px;
-            background: #333;
-            color: #aaa;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-
-        .store-picker-close:hover { background: #555; color: white; }
 
         .login-box {
             max-width: 500px;
@@ -509,29 +450,27 @@
 <div class="header">🏠 Secret Neighbor Shop</div>
 
 <div class="profile-bar" id="profileBar">
+    <!-- LEFT: All button -->
     <div class="profile-left">
+        <button class="shop-mode-btn active" id="btnAllStore" onclick="switchToAllStore()">📦 All</button>
+    </div>
+
+    <!-- CENTER: player info + active store badge -->
+    <div class="profile-center">
         👤 <span id="profileName"></span>
-        <span style="color:#aaa;font-weight:normal">|</span>
+        <span style="color:#555;font-weight:normal">|</span>
         🪙 FE: <span id="profileFE"></span>
-        <span style="color:#aaa;font-weight:normal">|</span>
+        <span style="color:#555;font-weight:normal">|</span>
         🎟️ AC: <span id="profileAC"></span>
         <div class="store-badge">
             🏪 <b id="storeBadgeLabel">All Items</b>
         </div>
     </div>
-    <div class="profile-shop-btns">
-        <button class="shop-mode-btn" id="btnAllStore" onclick="switchToAllStore()">📦 All</button>
-        <button class="shop-mode-btn" id="btnDailyShop" onclick="openStorePicker('daily')">🗓️ Daily Shop</button>
-        <button class="shop-mode-btn" id="btnSeasonShop" onclick="openStorePicker('season')">🌟 Season Shop</button>
-    </div>
-</div>
 
-<!-- Store Picker Modal -->
-<div class="store-picker-overlay" id="storePickerOverlay">
-    <div class="store-picker">
-        <h3 id="storePickerTitle">🗓️ Daily Shop</h3>
-        <div class="store-list" id="storePickerList"></div>
-        <button class="store-picker-close" onclick="closeStorePicker()">✕ Close</button>
+    <!-- RIGHT: Daily + Season -->
+    <div class="profile-right">
+        <button class="shop-mode-btn" id="btnDailyShop" onclick="loadDailyShop()">🗓️ Daily Shop</button>
+        <button class="shop-mode-btn" id="btnSeasonShop" onclick="loadSeasonShop()">🌟 Season Shop</button>
     </div>
 </div>
 
@@ -772,38 +711,8 @@
 
     // ── Store switcher logic ─────────────────────────────────────────────────
 
-    function openStorePicker(type) {
-        const list = document.getElementById("storePickerList");
-        const title = document.getElementById("storePickerTitle");
-        list.innerHTML = "";
-
-        const stores = type === "daily" ? DAILY_STORES : SEASON_STORES;
-        title.textContent = type === "daily" ? "🗓️ Daily Shop — Pick a rotation" : "🌟 Season Shop — Pick a rotation";
-
-        stores.forEach(storeId => {
-            const div = document.createElement("div");
-            div.className = `store-item ${activeStoreId === storeId ? "active-store" : ""}`;
-
-            // friendly label
-            const label = storeId
-                .replace("Daily_December_2023_", "December 2023 — Day ")
-                .replace("Featured_Space24_", "Space 2024 — Rotation ");
-
-            div.innerHTML = `
-                <span class="store-item-name">${label}</span>
-                <span class="store-item-count" id="storecount-${storeId}">…</span>
-            `;
-            div.onclick = () => { closeStorePicker(); loadStore(storeId, type); };
-            list.appendChild(div);
-
-            // async: fetch item count for each store to show in picker
-            fetchStoreCount(storeId, `storecount-${storeId}`);
-        });
-
-        document.getElementById("storePickerOverlay").className = "store-picker-overlay show";
-    }
-
-    async function fetchStoreCount(storeId, spanId) {
+    // helper: fetch a single store, returns its items array or []
+    async function fetchStore(storeId) {
         try {
             const res = await fetch(`${HOST}/Client/GetStoreItems`, {
                 method: "POST",
@@ -811,61 +720,83 @@
                 body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
             });
             const data = await res.json();
-            const el = document.getElementById(spanId);
-            if (!el) return;
-            if (data.code === 200) {
-                el.textContent = `${data.data.Store.length} items`;
-            } else {
-                el.textContent = "—";
-            }
-        } catch { /* ignore */ }
+            if (data.code === 200) return data.data.Store;
+        } catch {}
+        return [];
     }
 
-    function closeStorePicker() {
-        document.getElementById("storePickerOverlay").className = "store-picker-overlay";
-    }
-
-    async function loadStore(storeId, storeType) {
-        // show loading state on badge
-        document.getElementById("storeBadgeLabel").textContent = "Loading…";
-
-        const res = await fetch(`${HOST}/Client/GetStoreItems`, {
-            method: "POST",
-            headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-            body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
+    // Merge multiple store arrays → cheapest price per item across all rotations.
+    // Returns { itemId → VirtualCurrencyPrices } with the cheapest seen price.
+    function mergeStoresCheapest(storeArrays) {
+        const best = {}; // itemId → { prices, bestNumeric }
+        storeArrays.forEach(items => {
+            items.forEach(si => {
+                const id = si.ItemId.trim();
+                const prices = si.VirtualCurrencyPrices || {};
+                const cur = prices.FE !== undefined ? "FE" : prices.AC !== undefined ? "AC" : null;
+                if (!cur) return; // not purchasable in this rotation — skip
+                const num = prices[cur];
+                if (!best[id] || num < best[id].bestNumeric) {
+                    best[id] = { prices, bestNumeric: num };
+                }
+            });
         });
-        const data = await res.json();
+        // flatten to itemId → prices
+        const result = {};
+        Object.entries(best).forEach(([id, v]) => { result[id] = v.prices; });
+        return result;
+    }
 
-        if (data.code !== 200) {
-            alert(`❌ Failed to load store: ${data.errorMessage}`);
-            document.getElementById("storeBadgeLabel").textContent = activeStoreId || "All Items";
+    // Daily Shop: pulls ALL Daily_December_2023_XX + ALL Featured_Space24_XX rotations,
+    // merges them, shows each item at its cheapest available price.
+    async function loadDailyShop() {
+        setBadgeLoading();
+
+        // fetch all daily + featured rotations in parallel
+        const allStoreIds = [...DAILY_STORES, ...SEASON_STORES];
+        const storeArrays = await Promise.all(allStoreIds.map(id => fetchStore(id)));
+
+        storePriceOverride = mergeStoresCheapest(storeArrays);
+
+        // build storeItems as the union of all unique item IDs found
+        const seenIds = new Set(Object.keys(storePriceOverride));
+        storeItems = [...seenIds].map(id => ({ ItemId: id, VirtualCurrencyPrices: storePriceOverride[id] }));
+
+        storeMode = "store";
+        activeStoreId = "daily_merged";
+
+        document.getElementById("storeBadgeLabel").textContent = "Daily Shop (cheapest)";
+        document.getElementById("btnAllStore").className = "shop-mode-btn";
+        document.getElementById("btnDailyShop").className = "shop-mode-btn daily-active";
+        document.getElementById("btnSeasonShop").className = "shop-mode-btn";
+
+        updateStats();
+        buildTabs();
+        renderItems();
+    }
+
+    // Season Shop: pulls shop_season_Summer2025 directly.
+    async function loadSeasonShop() {
+        setBadgeLoading();
+
+        const items = await fetchStore("shop_season_Summer2025");
+        if (!items.length) {
+            alert("❌ Season shop returned no items (store might be empty or ID changed)");
+            document.getElementById("storeBadgeLabel").textContent = activeStoreId ? "—" : "All Items";
             return;
         }
 
-        storeMode = "store";
-        activeStoreId = storeId;
-        storeItems = data.data.Store; // [{ItemId, VirtualCurrencyPrices, ...}]
-
-        // build price override map from store prices
         storePriceOverride = {};
-        storeItems.forEach(si => {
-            storePriceOverride[si.ItemId.trim()] = si.VirtualCurrencyPrices || {};
-        });
+        items.forEach(si => { storePriceOverride[si.ItemId.trim()] = si.VirtualCurrencyPrices || {}; });
+        storeItems = items;
+        storeMode = "store";
+        activeStoreId = "shop_season_Summer2025";
 
-        // friendly badge label
-        const friendlyLabel = storeId
-            .replace("Daily_December_2023_", "Daily #")
-            .replace("Featured_Space24_", "Season #");
-        document.getElementById("storeBadgeLabel").textContent = friendlyLabel;
-
-        // update button active states
+        document.getElementById("storeBadgeLabel").textContent = "Season Shop (Summer 2025)";
         document.getElementById("btnAllStore").className = "shop-mode-btn";
-        document.getElementById("btnDailyShop").className =
-            `shop-mode-btn ${storeType === "daily" ? "daily-active" : ""}`;
-        document.getElementById("btnSeasonShop").className =
-            `shop-mode-btn ${storeType === "season" ? "season-active" : ""}`;
+        document.getElementById("btnDailyShop").className = "shop-mode-btn";
+        document.getElementById("btnSeasonShop").className = "shop-mode-btn season-active";
 
-        // update stats label
         updateStats();
         buildTabs();
         renderItems();
@@ -885,19 +816,27 @@
         renderItems();
     }
 
+    function setBadgeLoading() {
+        document.getElementById("storeBadgeLabel").textContent = "Loading…";
+        document.getElementById("btnDailyShop").disabled = true;
+        document.getElementById("btnSeasonShop").disabled = true;
+        // re-enable after a tick (will be re-enabled after render anyway)
+        setTimeout(() => {
+            document.getElementById("btnDailyShop").disabled = false;
+            document.getElementById("btnSeasonShop").disabled = false;
+        }, 8000);
+    }
+
     // returns the items to show based on current store mode
     function getActiveCatalog() {
         if (storeMode === "store") {
-            // intersect storeItems with full catalog to get full item objects
+            // intersect storeItems with full catalog to get full item objects + store prices
             const storeIds = new Set(storeItems.map(si => si.ItemId.trim()));
             return catalog
                 .filter(ci => storeIds.has(ci.ItemId.trim()))
                 .map(ci => {
-                    // overlay store prices
                     const override = storePriceOverride[ci.ItemId.trim()];
-                    return override
-                        ? { ...ci, VirtualCurrencyPrices: override }
-                        : ci;
+                    return override ? { ...ci, VirtualCurrencyPrices: override } : ci;
                 });
         }
         return catalog;
@@ -1360,9 +1299,12 @@
         const btn = document.getElementById(`btn-${trimmed}`);
         if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
-        // include StoreId when in store mode — hits store price, not catalog price
+        // include StoreId only when viewing a single named store (not the merged daily view)
+        // daily_merged pulls cheapest across rotations → we buy at catalog-matched price, no StoreId
         const payload = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
-        if (storeMode === "store" && activeStoreId) payload.StoreId = activeStoreId;
+        if (storeMode === "store" && activeStoreId && activeStoreId !== "daily_merged") {
+            payload.StoreId = activeStoreId;
+        }
 
         const res = await fetch(`${HOST}/Client/PurchaseItem`, {
             method: "POST",
