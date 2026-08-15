@@ -20,13 +20,114 @@
         .profile-bar {
             display: none;
             background: #16213e;
-            padding: 15px 25px;
-            text-align: center;
-            font-size: 15px;
+            padding: 12px 25px;
             border-bottom: 2px solid #e94560;
+            font-size: 15px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .profile-bar span { margin: 0 15px; color: #e94560; font-weight: bold; }
+        .profile-bar span { margin: 0 10px; color: #e94560; font-weight: bold; }
+
+        .profile-left { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+
+        .store-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #0f3460;
+            border: 1px solid #3a3a6a;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #aaa;
+            margin-left: 10px;
+        }
+
+        .store-badge b { color: #e94560; font-size: 13px; }
+
+        .profile-shop-btns { display: flex; gap: 8px; align-items: center; }
+
+        .shop-mode-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 2px solid #444;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .shop-mode-btn:hover { border-color: #e94560; color: white; }
+        .shop-mode-btn.active { background: #e94560; border-color: #e94560; color: white; }
+        .shop-mode-btn.daily-active { background: #2ecc71; border-color: #2ecc71; color: white; }
+        .shop-mode-btn.season-active { background: #3498db; border-color: #3498db; color: white; }
+
+        /* store picker modal */
+        .store-picker-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .store-picker-overlay.show { display: flex; }
+
+        .store-picker {
+            background: #16213e;
+            border: 2px solid #e94560;
+            border-radius: 14px;
+            padding: 28px;
+            max-width: 480px;
+            width: 92%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .store-picker h3 { color: #e94560; margin-bottom: 18px; font-size: 17px; }
+
+        .store-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .store-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .store-item:hover { border-color: #e94560; color: white; }
+        .store-item.active-store { border-color: #2ecc71; }
+
+        .store-item-name { color: white; font-weight: bold; }
+        .store-item-count { color: #aaa; font-size: 11px; }
+
+        .store-picker-close {
+            margin-top: 16px;
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            color: #aaa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .store-picker-close:hover { background: #555; color: white; }
 
         .login-box {
             max-width: 500px;
@@ -408,9 +509,30 @@
 <div class="header">🏠 Secret Neighbor Shop</div>
 
 <div class="profile-bar" id="profileBar">
-    👤 <span id="profileName"></span> |
-    🪙 FE (Coins): <span id="profileFE"></span> |
-    🎟️ AC (Tickets): <span id="profileAC"></span>
+    <div class="profile-left">
+        👤 <span id="profileName"></span>
+        <span style="color:#aaa;font-weight:normal">|</span>
+        🪙 FE: <span id="profileFE"></span>
+        <span style="color:#aaa;font-weight:normal">|</span>
+        🎟️ AC: <span id="profileAC"></span>
+        <div class="store-badge">
+            🏪 <b id="storeBadgeLabel">All Items</b>
+        </div>
+    </div>
+    <div class="profile-shop-btns">
+        <button class="shop-mode-btn" id="btnAllStore" onclick="switchToAllStore()">📦 All</button>
+        <button class="shop-mode-btn" id="btnDailyShop" onclick="openStorePicker('daily')">🗓️ Daily Shop</button>
+        <button class="shop-mode-btn" id="btnSeasonShop" onclick="openStorePicker('season')">🌟 Season Shop</button>
+    </div>
+</div>
+
+<!-- Store Picker Modal -->
+<div class="store-picker-overlay" id="storePickerOverlay">
+    <div class="store-picker">
+        <h3 id="storePickerTitle">🗓️ Daily Shop</h3>
+        <div class="store-list" id="storePickerList"></div>
+        <button class="store-picker-close" onclick="closeStorePicker()">✕ Close</button>
+    </div>
 </div>
 
 <div class="login-box" id="loginBox">
@@ -466,7 +588,7 @@
     const HOST = "https://bdff1.playfabapi.com";
     let userToken = "";
     let userInventory = [];
-    let catalog = [];
+    let catalog = [];           // full catalog (980+ items)
     let activeTab = "ALL";
     let sortMode = null;
     let filters = { FE: true, AC: true, NA: true };
@@ -474,6 +596,35 @@
 
     // store prices by itemId for safe lookup — avoids inline JSON in onclick
     const priceMap = {};
+
+    // ── Store mode ──────────────────────────────────────────────────────────
+    // "all"    → full catalog, no StoreId, priceMap from catalog
+    // "store"  → filtered to storeItems, prices from store
+    let storeMode = "all";          // "all" | "store"
+    let activeStoreId = null;       // e.g. "Daily_December_2023_01"
+    let storeItems = [];            // items returned by GetStoreItems
+    let storePriceOverride = {};    // itemId → VirtualCurrencyPrices (store prices)
+
+    // known store IDs parsed from stores_found.txt — hardcoded so no extra API call needed
+    const DAILY_STORES = [
+        "Daily_December_2023_01","Daily_December_2023_02","Daily_December_2023_03",
+        "Daily_December_2023_04","Daily_December_2023_05","Daily_December_2023_06",
+        "Daily_December_2023_07","Daily_December_2023_08","Daily_December_2023_09",
+        "Daily_December_2023_10","Daily_December_2023_11","Daily_December_2023_12",
+        "Daily_December_2023_13","Daily_December_2023_14","Daily_December_2023_15",
+        "Daily_December_2023_16","Daily_December_2023_17","Daily_December_2023_18",
+        "Daily_December_2023_19","Daily_December_2023_20","Daily_December_2023_21",
+        "Daily_December_2023_22","Daily_December_2023_23","Daily_December_2023_24",
+        "Daily_December_2023_25","Daily_December_2023_26","Daily_December_2023_27",
+        "Daily_December_2023_28","Daily_December_2023_29","Daily_December_2023_30",
+        "Daily_December_2023_31"
+    ];
+
+    const SEASON_STORES = [
+        "Featured_Space24_00","Featured_Space24_01","Featured_Space24_02",
+        "Featured_Space24_03","Featured_Space24_04","Featured_Space24_05",
+        "Featured_Space24_06"
+    ];
 
     const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
     const HIDDEN_PREFIXES = [
@@ -619,6 +770,139 @@
         renderItems();
     }
 
+    // ── Store switcher logic ─────────────────────────────────────────────────
+
+    function openStorePicker(type) {
+        const list = document.getElementById("storePickerList");
+        const title = document.getElementById("storePickerTitle");
+        list.innerHTML = "";
+
+        const stores = type === "daily" ? DAILY_STORES : SEASON_STORES;
+        title.textContent = type === "daily" ? "🗓️ Daily Shop — Pick a rotation" : "🌟 Season Shop — Pick a rotation";
+
+        stores.forEach(storeId => {
+            const div = document.createElement("div");
+            div.className = `store-item ${activeStoreId === storeId ? "active-store" : ""}`;
+
+            // friendly label
+            const label = storeId
+                .replace("Daily_December_2023_", "December 2023 — Day ")
+                .replace("Featured_Space24_", "Space 2024 — Rotation ");
+
+            div.innerHTML = `
+                <span class="store-item-name">${label}</span>
+                <span class="store-item-count" id="storecount-${storeId}">…</span>
+            `;
+            div.onclick = () => { closeStorePicker(); loadStore(storeId, type); };
+            list.appendChild(div);
+
+            // async: fetch item count for each store to show in picker
+            fetchStoreCount(storeId, `storecount-${storeId}`);
+        });
+
+        document.getElementById("storePickerOverlay").className = "store-picker-overlay show";
+    }
+
+    async function fetchStoreCount(storeId, spanId) {
+        try {
+            const res = await fetch(`${HOST}/Client/GetStoreItems`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
+            });
+            const data = await res.json();
+            const el = document.getElementById(spanId);
+            if (!el) return;
+            if (data.code === 200) {
+                el.textContent = `${data.data.Store.length} items`;
+            } else {
+                el.textContent = "—";
+            }
+        } catch { /* ignore */ }
+    }
+
+    function closeStorePicker() {
+        document.getElementById("storePickerOverlay").className = "store-picker-overlay";
+    }
+
+    async function loadStore(storeId, storeType) {
+        // show loading state on badge
+        document.getElementById("storeBadgeLabel").textContent = "Loading…";
+
+        const res = await fetch(`${HOST}/Client/GetStoreItems`, {
+            method: "POST",
+            headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+            body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
+        });
+        const data = await res.json();
+
+        if (data.code !== 200) {
+            alert(`❌ Failed to load store: ${data.errorMessage}`);
+            document.getElementById("storeBadgeLabel").textContent = activeStoreId || "All Items";
+            return;
+        }
+
+        storeMode = "store";
+        activeStoreId = storeId;
+        storeItems = data.data.Store; // [{ItemId, VirtualCurrencyPrices, ...}]
+
+        // build price override map from store prices
+        storePriceOverride = {};
+        storeItems.forEach(si => {
+            storePriceOverride[si.ItemId.trim()] = si.VirtualCurrencyPrices || {};
+        });
+
+        // friendly badge label
+        const friendlyLabel = storeId
+            .replace("Daily_December_2023_", "Daily #")
+            .replace("Featured_Space24_", "Season #");
+        document.getElementById("storeBadgeLabel").textContent = friendlyLabel;
+
+        // update button active states
+        document.getElementById("btnAllStore").className = "shop-mode-btn";
+        document.getElementById("btnDailyShop").className =
+            `shop-mode-btn ${storeType === "daily" ? "daily-active" : ""}`;
+        document.getElementById("btnSeasonShop").className =
+            `shop-mode-btn ${storeType === "season" ? "season-active" : ""}`;
+
+        // update stats label
+        updateStats();
+        buildTabs();
+        renderItems();
+    }
+
+    function switchToAllStore() {
+        storeMode = "all";
+        activeStoreId = null;
+        storeItems = [];
+        storePriceOverride = {};
+        document.getElementById("storeBadgeLabel").textContent = "All Items";
+        document.getElementById("btnAllStore").className = "shop-mode-btn active";
+        document.getElementById("btnDailyShop").className = "shop-mode-btn";
+        document.getElementById("btnSeasonShop").className = "shop-mode-btn";
+        updateStats();
+        buildTabs();
+        renderItems();
+    }
+
+    // returns the items to show based on current store mode
+    function getActiveCatalog() {
+        if (storeMode === "store") {
+            // intersect storeItems with full catalog to get full item objects
+            const storeIds = new Set(storeItems.map(si => si.ItemId.trim()));
+            return catalog
+                .filter(ci => storeIds.has(ci.ItemId.trim()))
+                .map(ci => {
+                    // overlay store prices
+                    const override = storePriceOverride[ci.ItemId.trim()];
+                    return override
+                        ? { ...ci, VirtualCurrencyPrices: override }
+                        : ci;
+                });
+        }
+        return catalog;
+    }
+
     async function loadShop() {
         const token = document.getElementById("tokenInput").value.trim();
         if (!token) { alert("paste your token first!"); return; }
@@ -665,13 +949,17 @@
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("shopSection").style.display = "block";
 
+        // default: all store button active
+        document.getElementById("btnAllStore").className = "shop-mode-btn active";
+
         updateStats();
         buildTabs();
         renderItems();
     }
 
     function buildTabs() {
-        const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
+        const src = getActiveCatalog();
+        const present = new Set(src.map(i => getCharacter(i.ItemId)));
         const tabsBar = document.getElementById("tabsBar");
         tabsBar.innerHTML = "";
 
@@ -709,10 +997,11 @@
     }
 
     function getTabItems() {
-        if (activeTab === "OWNED") return catalog.filter(i => userInventory.includes(i.ItemId.trim()));
-        if (activeTab === "NOT OWNED") return catalog.filter(i => !userInventory.includes(i.ItemId.trim()));
-        if (activeTab !== "ALL") return catalog.filter(i => getCharacter(i.ItemId) === activeTab);
-        return catalog;
+        const src = getActiveCatalog();
+        if (activeTab === "OWNED") return src.filter(i => userInventory.includes(i.ItemId.trim()));
+        if (activeTab === "NOT OWNED") return src.filter(i => !userInventory.includes(i.ItemId.trim()));
+        if (activeTab !== "ALL") return src.filter(i => getCharacter(i.ItemId) === activeTab);
+        return src;
     }
 
     function applyFiltersAndSort(items) {
@@ -1071,10 +1360,14 @@
         const btn = document.getElementById(`btn-${trimmed}`);
         if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
+        // include StoreId when in store mode — hits store price, not catalog price
+        const payload = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
+        if (storeMode === "store" && activeStoreId) payload.StoreId = activeStoreId;
+
         const res = await fetch(`${HOST}/Client/PurchaseItem`, {
             method: "POST",
             headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-            body: JSON.stringify({ CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency })
+            body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -1098,9 +1391,11 @@
     }
 
     function updateStats() {
-        const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId.trim())).length;
-        document.getElementById("totalCount").textContent = catalog.length;
-        document.getElementById("ownedCount").textContent = userInventory.length;
+        const src = getActiveCatalog();
+        const notOwned = src.filter(i => !userInventory.includes(i.ItemId.trim())).length;
+        const ownedInView = src.filter(i => userInventory.includes(i.ItemId.trim())).length;
+        document.getElementById("totalCount").textContent = src.length;
+        document.getElementById("ownedCount").textContent = ownedInView;
         document.getElementById("notOwnedCount").textContent = notOwned;
     }
 </script>
