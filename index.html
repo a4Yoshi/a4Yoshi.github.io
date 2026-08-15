@@ -451,6 +451,8 @@
         .compact-buy:hover { background: #c73652; }
         .compact-buy.grayed { background: #555; color: #aaa; cursor: not-allowed; }
         .compact-buy.owned  { background: #2ecc71; cursor: default; }
+
+        .popup-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0;
@@ -462,6 +464,31 @@
         }
 
         .popup-overlay.show { display: flex; }
+
+        .ban-warning {
+            display: inline-block;
+            background: #7b0000;
+            border: 1px solid #e94560;
+            color: #ff6b6b;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 7px;
+            border-radius: 5px;
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .mini-ban-warning {
+            display: block;
+            background: #7b0000;
+            border: 1px solid #e94560;
+            color: #ff6b6b;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-top: 3px;
+        }
 
         .popup {
             background: #16213e;
@@ -625,6 +652,33 @@
         "Journalist", "Scout", "Neighbor", "Butcher", "Clown",
         "Ghost", "Guest", "Hunter", "Emotion"
     ];
+
+    // ── Ban-risk items: owning these can get you banned ──────────────────────
+    // Scout — Winter: neighbor_tennis skin, neighbor_tennis_2 skin, x emote
+    // Leader — Basketball: basketball_skin_1, basketball_skin_2
+    const BAN_RISK_ITEMS = new Set([
+        // Scout Winter singles
+        "Scout_bundle_winter",
+        "Scout_skin_winter",
+        "Neighbor_tennis",
+        "Neighbor_tennis_2",
+        "Scout_emote_x",
+        // Leader Basketball singles
+        "Leader_bundle_basketball",
+        "Leader_skin_basketball_1",
+        "Leader_skin_basketball_2",
+    ]);
+
+    function isBanRisk(itemId) {
+        const t = itemId.trim();
+        // exact match
+        if (BAN_RISK_ITEMS.has(t)) return true;
+        // case-insensitive match
+        for (const b of BAN_RISK_ITEMS) {
+            if (b.toLowerCase() === t.toLowerCase()) return true;
+        }
+        return false;
+    }
 
     const SKIN_ALIASES = {
         "sr": "speedrunner",
@@ -823,24 +877,63 @@
         renderItems();
     }
 
-    // Season Shop: pulls shop_season_Summer2025 directly.
+    // Season Shop: tries multiple known season store IDs until one returns items.
+    const SEASON_SHOP_IDS = [
+        "shop_season_Summer2025",
+        "shop_season_Summer_2025",
+        "Season_Summer2025",
+        "Featured_Summer2025_00",
+    ];
+
+    async function fetchStoreDebug(storeId) {
+        try {
+            const res = await fetch(`${HOST}/Client/GetStoreItems`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
+            });
+            const data = await res.json();
+            console.log(`[SeasonShop] StoreId="${storeId}" → code=${data.code}`, data);
+            if (data.code === 200 && data.data && data.data.Store && data.data.Store.length > 0) {
+                return { items: data.data.Store, storeId };
+            }
+        } catch(e) {
+            console.warn(`[SeasonShop] fetchStoreDebug error for "${storeId}":`, e);
+        }
+        return null;
+    }
+
     async function loadSeasonShop() {
         setBadgeLoading();
 
-        const items = await fetchStore("shop_season_Summer2025");
-        if (!items.length) {
-            alert("❌ Season shop returned no items (store might be empty or ID changed)");
+        let result = null;
+        for (const sid of SEASON_SHOP_IDS) {
+            result = await fetchStoreDebug(sid);
+            if (result) break;
+        }
+
+        // re-enable buttons regardless of outcome
+        document.getElementById("btnDailyShop").disabled = false;
+        document.getElementById("btnSeasonShop").disabled = false;
+
+        if (!result) {
+            alert("❌ Season shop returned no items.\n\nTried store IDs:\n" + SEASON_SHOP_IDS.join("\n") + "\n\nCheck console (F12) for details. The store ID might have changed.");
             document.getElementById("storeBadgeLabel").textContent = activeStoreId ? "—" : "All Items";
+            // revert button states
+            document.getElementById("btnAllStore").className = storeMode === "all" ? "shop-mode-btn active" : "shop-mode-btn";
+            document.getElementById("btnDailyShop").className = activeStoreId === "daily_merged" ? "shop-mode-btn daily-active" : "shop-mode-btn";
+            document.getElementById("btnSeasonShop").className = "shop-mode-btn";
             return;
         }
 
+        const { items, storeId: foundId } = result;
         storePriceOverride = {};
         items.forEach(si => { storePriceOverride[si.ItemId.trim()] = si.VirtualCurrencyPrices || {}; });
         storeItems = items;
         storeMode = "store";
-        activeStoreId = "shop_season_Summer2025";
+        activeStoreId = foundId;
 
-        document.getElementById("storeBadgeLabel").textContent = "Season Shop (Summer 2025)";
+        document.getElementById("storeBadgeLabel").textContent = `Season Shop (${foundId})`;
         document.getElementById("btnAllStore").className = "shop-mode-btn";
         document.getElementById("btnDailyShop").className = "shop-mode-btn";
         document.getElementById("btnSeasonShop").className = "shop-mode-btn season-active";
@@ -1049,6 +1142,12 @@
                 badge.className = "owned-badge";
                 badge.textContent = "✅ owned";
                 card.appendChild(badge);
+                if (isBanRisk(trimmed)) {
+                    const warn = document.createElement("div");
+                    warn.className = "ban-warning";
+                    warn.textContent = "⚠️ BAN RISK — owning this may get you banned!";
+                    card.appendChild(warn);
+                }
             } else if (isNA) {
                 const badge = document.createElement("div");
                 badge.className = "na-badge";
@@ -1105,8 +1204,31 @@
 
             const cmp = compareBundle(group.bundle, group.singles);
             const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
-            const allSinglesOwned = group.singles.length > 0 && group.singles.every(i => userInventory.includes(i.ItemId.trim()));
-            // note: group.singles.length === 0 does NOT mean all owned — store just didn't list singles
+
+            // allSinglesOwned: if we have singles in this group, check all of them.
+            // ALSO: if this is a bundle group with no singles listed (store mode), look up
+            // matching singles from full catalog to see if user owns them all.
+            let allSinglesOwned = false;
+            if (group.singles.length > 0) {
+                allSinglesOwned = group.singles.every(i => userInventory.includes(i.ItemId.trim()));
+            } else if (group.bundle) {
+                // find matching singles from full catalog for this char+skin combo
+                const rawChar = group.bundle.ItemId.trim().split("_")[0];
+                const fullMatchSingles = catalog.filter(i => {
+                    const t = i.ItemId.trim();
+                    if (isBundle(t)) return false;
+                    const rc = getRawCharacter(t);
+                    const sk = getSkinKey(t);
+                    const sameChar = rc.toLowerCase() === rawChar.toLowerCase() ||
+                        (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rc.toLowerCase()) &&
+                         NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase()));
+                    return sameChar && sk === group.skinKey;
+                });
+                if (fullMatchSingles.length > 0) {
+                    allSinglesOwned = fullMatchSingles.every(i => userInventory.includes(i.ItemId.trim()));
+                }
+            }
+            // note: group.singles.length === 0 AND no catalog match → NOT treated as all owned
 
             let groupClass = "bundle-group";
             if (cmp) {
@@ -1156,7 +1278,7 @@
                         <div class="bundle-img-placeholder" style="display:none">📦</div>
                         <div class="bundle-price-tag">${priceTag(bp)}</div>
                         ${bundleOwned
-                            ? `<button class="bundle-main-btn owned-btn" disabled>✅ Owned</button>`
+                            ? `<button class="bundle-main-btn owned-btn" disabled>✅ Owned</button>${isBanRisk(bundleId) ? `<span class="mini-ban-warning">⚠️ BAN RISK</span>` : ""}`
                             : bCur === "NA"
                                 ? `<button class="bundle-main-btn grayed" disabled>🚫 N/A</button>`
                                 : `<button class="${btnClass}" ${isGrayed ? "disabled" : ""} id="bundlebtn-${safeKey}">Buy Bundle</button>`
@@ -1286,6 +1408,12 @@
                     badge.className = "mini-owned";
                     badge.textContent = "✅";
                     mini.appendChild(badge);
+                    if (isBanRisk(trimmed)) {
+                        const warn = document.createElement("span");
+                        warn.className = "mini-ban-warning";
+                        warn.textContent = "⚠️ BAN RISK";
+                        mini.appendChild(warn);
+                    }
                 } else if (isNA) {
                     const badge = document.createElement("div");
                     badge.className = "mini-na";
@@ -1397,8 +1525,12 @@
         // daily_merged = cheapest across rotations, no single StoreId → buy at catalog price
         // season shop = single named store → must pass StoreId so PlayFab uses store pricing
         const payload = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
+        // daily_merged = cheapest across all rotations, no single StoreId → buy at catalog price
+        // season shop = single named store → must pass StoreId so PlayFab uses store pricing
+        // any other store = same, pass StoreId
         if (storeMode === "store" && activeStoreId && activeStoreId !== "daily_merged") {
             payload.StoreId = activeStoreId;
+            console.log(`[buyItem] Using StoreId="${activeStoreId}" for "${trimmed}"`);
         }
 
         const res = await fetch(`${HOST}/Client/PurchaseItem`, {
