@@ -230,38 +230,85 @@
         .savings-line.orange { color: #f39c12; }
         .savings-line.blue { color: #3498db; }
 
-        .bundle-buy-btn {
-            padding: 8px 18px;
-            background: #e94560;
-            color: white;
+        /* BUNDLE IMAGE CARD on right */
+        .bundle-image-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        .bundle-image-card img {
+            width: 90px; height: 90px;
+            object-fit: contain;
+            background: #0f3460;
+            border-radius: 10px;
+            border: 2px solid #2a2a4a;
+        }
+
+        .bundle-image-card .bundle-img-placeholder {
+            width: 90px; height: 90px;
+            background: #0f3460;
+            border-radius: 10px;
+            border: 2px solid #2a2a4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #555;
+        }
+
+        .bundle-image-card .bundle-price-tag {
+            font-size: 12px;
+            color: #e94560;
+            text-align: center;
+        }
+
+        .bundle-main-btn {
+            padding: 7px 14px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: bold;
+            width: 100%;
             transition: 0.2s;
-            white-space: nowrap;
         }
 
-        .bundle-buy-btn:hover { background: #c73652; }
-        .bundle-buy-btn.owned { background: #2ecc71; cursor: default; }
-        .bundle-buy-btn.grayed { background: #555; cursor: not-allowed; }
+        .bundle-main-btn.green { background: #2ecc71; color: white; }
+        .bundle-main-btn.green:hover { background: #27ae60; }
+        .bundle-main-btn.blue { background: #3498db; color: white; }
+        .bundle-main-btn.blue:hover { background: #2980b9; }
+        .bundle-main-btn.orange { background: #f39c12; color: white; }
+        .bundle-main-btn.orange:hover { background: #e67e22; }
+        .bundle-main-btn.grayed { background: #555; color: #aaa; cursor: not-allowed; }
+        .bundle-main-btn.owned-btn { background: #2ecc71; color: white; cursor: default; }
 
         .buy-anyway-btn {
-            padding: 5px 10px;
+            padding: 4px 8px;
             background: transparent;
             color: #aaa;
             border: 1px solid #555;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
-            margin-top: 5px;
-            display: block;
+            font-size: 10px;
+            width: 100%;
             transition: 0.2s;
+            margin-top: 2px;
         }
 
         .buy-anyway-btn:hover { border-color: #aaa; color: white; }
 
-        .bundle-singles { display: flex; flex-wrap: wrap; gap: 10px; }
+        /* SINGLES ROW */
+        .bundle-body {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .bundle-singles { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
 
         .mini-card {
             background: #0f3460;
@@ -305,11 +352,24 @@
             border: none; padding: 4px 8px;
             border-radius: 5px; cursor: pointer;
             font-size: 11px; width: 100%; margin-bottom: 3px;
+            transition: 0.2s;
         }
 
         .mini-buy:hover { background: #c73652; }
         .mini-buy:disabled { background: #555; cursor: not-allowed; }
-        .mini-buy.grayed { background: #555; cursor: not-allowed; }
+
+        /* CHECKBOX UNLOCK */
+        .checkbox-unlock {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            color: #aaa;
+        }
+
+        .checkbox-unlock input { cursor: pointer; }
 
         /* POPUP */
         .popup-overlay {
@@ -440,31 +500,32 @@
         "Ghost", "Guest", "Hunter", "Emotion"
     ];
 
-    // manual skin name aliases — maps inconsistent single names to bundle names
+    // skin name aliases: single skin name → bundle skin name
     const SKIN_ALIASES = {
-        "sr": "SpeedRunner",
-        "elf_01": "Elf",
+        "sr": "speedrunner",
+        "elf_01": "elf",
+        "scary": "pumpkin",  // Pumpkin singles have skin "Scary" → bundle is Scary_Bundle_Pumpkin
+        "pumpkin": "pumpkin",
     };
 
-    // normalize skin name for grouping — lowercase + apply aliases
     function normalizeSkin(rawSkin) {
         const lower = rawSkin.toLowerCase().trim();
-        return SKIN_ALIASES[lower] ? SKIN_ALIASES[lower].toLowerCase() : lower;
+        return SKIN_ALIASES[lower] !== undefined ? SKIN_ALIASES[lower] : lower;
     }
 
-    // display name for skin — capitalize first letter
     function displaySkin(normalized) {
-        // reverse alias lookup for display
-        const reverseAlias = Object.entries(SKIN_ALIASES).find(([k, v]) => v.toLowerCase() === normalized);
-        if (reverseAlias) return reverseAlias[1];
-        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+        const display = {
+            "speedrunner": "SpeedRunner",
+            "elf": "Elf",
+            "pumpkin": "Pumpkin",
+        };
+        return display[normalized] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
     }
 
     function getCharacter(itemId) {
         const raw = itemId.trim().split("_")[0];
         if (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(raw.toLowerCase())) return "Neighbor";
         if (raw.toLowerCase() === "emotion") return "Emotion";
-        // capitalize first letter for display
         return raw.charAt(0).toUpperCase() + raw.slice(1);
     }
 
@@ -501,10 +562,12 @@
         return "";
     }
 
-    // get skin parts from itemId — handles 3 and 4 part names
+    function isBundle(itemId) {
+        return itemId.trim().split("_")[1].toLowerCase() === "bundle";
+    }
+
     function getSkinKey(itemId) {
         const parts = itemId.trim().split("_");
-        // parts[0] = char, parts[1] = slot, parts[2..] = skin name
         const skinRaw = parts.slice(2).join("_");
         return normalizeSkin(skinRaw);
     }
@@ -513,30 +576,27 @@
         return itemId.trim().split("_")[1] || "";
     }
 
-    function isBundle(itemId) {
-        return itemId.trim().split("_")[1].toLowerCase() === "bundle";
-    }
-
-    // find bundle across aliases and skin alias mapping
+    // find bundle — searches across neighbor aliases and skin aliases
     function findBundle(rawChar, normalizedSkin) {
-        const charsToSearch = NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase())
-            ? NEIGHBOR_ALIASES
-            : [rawChar];
+        const isNeighbor = NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase());
+        const charsToSearch = isNeighbor ? NEIGHBOR_ALIASES : [rawChar];
 
-        // possible bundle skin names (original + reverse alias)
-        const skinVariants = [normalizedSkin];
-        const reverseAlias = Object.entries(SKIN_ALIASES).find(([k, v]) => v.toLowerCase() === normalizedSkin);
-        if (reverseAlias) skinVariants.push(reverseAlias[0]);
-        // also try capitalized
-        skinVariants.push(normalizedSkin.charAt(0).toUpperCase() + normalizedSkin.slice(1));
-        if (reverseAlias) skinVariants.push(reverseAlias[1]);
+        // possible bundle skin name variants
+        const skinVariants = new Set([normalizedSkin]);
+        // add display version
+        skinVariants.add(displaySkin(normalizedSkin).toLowerCase());
+        // add original before alias
+        Object.entries(SKIN_ALIASES).forEach(([k, v]) => {
+            if (v === normalizedSkin) skinVariants.add(k);
+        });
 
         for (const char of charsToSearch) {
             for (const skin of skinVariants) {
-                const b = catalog.find(i =>
-                    i.ItemId.trim().toLowerCase() === `${char.toLowerCase()}_bundle_${skin.toLowerCase()}`
-                );
-                if (b) return b;
+                const found = catalog.find(i => {
+                    const t = i.ItemId.trim().toLowerCase();
+                    return t === `${char.toLowerCase()}_bundle_${skin}`;
+                });
+                if (found) return found;
             }
         }
         return null;
@@ -735,7 +795,6 @@
         grid.innerHTML = "";
 
         const q = getSearchQuery();
-        // bundle view ignores currency filters
         let items = getTabItems();
         if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
 
@@ -744,7 +803,7 @@
         items.forEach(item => {
             const trimmed = item.ItemId.trim();
             const rawChar = getRawCharacter(trimmed);
-            const normChar = getCharacter(trimmed); // already normalized (Neighbor etc)
+            const normChar = getCharacter(trimmed);
             const skinKey = getSkinKey(trimmed);
             const key = `${normChar.toLowerCase()}_${skinKey}`;
 
@@ -752,7 +811,6 @@
                 groups[key] = {
                     normChar,
                     skinKey,
-                    displaySkinName: displaySkin(skinKey),
                     bundle: null,
                     singles: [],
                     rawChars: new Set()
@@ -760,15 +818,11 @@
             }
 
             groups[key].rawChars.add(rawChar);
-
-            if (isBundle(trimmed)) {
-                groups[key].bundle = item;
-            } else {
-                groups[key].singles.push(item);
-            }
+            if (isBundle(trimmed)) groups[key].bundle = item;
+            else groups[key].singles.push(item);
         });
 
-        // for groups without bundle — cross-alias search
+        // cross-alias bundle search for groups without bundle
         Object.values(groups).forEach(group => {
             if (!group.bundle) {
                 for (const rc of group.rawChars) {
@@ -778,12 +832,10 @@
             }
         });
 
-        // sort groups: Scary-Pumpkin always shown as one group under Scary
-        // merge duplicate groups (e.g. Pumpkin-Scary and Scary-Pumpkin)
+        // deduplicate groups (same normChar + skinKey)
         const seen = new Set();
         const finalGroups = [];
-        Object.values(groups).forEach(group => {
-            const key = `${group.normChar.toLowerCase()}_${group.skinKey}`;
+        Object.entries(groups).forEach(([key, group]) => {
             if (!seen.has(key)) {
                 seen.add(key);
                 finalGroups.push(group);
@@ -797,7 +849,6 @@
             const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
             const allSinglesOwned = group.singles.length > 0 && group.singles.every(i => userInventory.includes(i.ItemId.trim()));
 
-            // border color
             let groupClass = "bundle-group";
             if (cmp) {
                 if (cmp.type === "cheaper") groupClass = "bundle-group cheaper";
@@ -806,67 +857,62 @@
                 else if (cmp.type === "same") groupClass = "bundle-group same";
             }
 
-            // savings line
             let savingsHtml = "";
             if (cmp) {
-                if (cmp.type === "cheaper") {
-                    savingsHtml = `<div class="savings-line green">✅ Bundle saves ${cmp.savings} ${currencyFull(cmp.bundleCur)}</div>`;
-                } else if (cmp.type === "expensive") {
-                    savingsHtml = `<div class="savings-line red">Bundle is more expensive — Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`;
-                } else if (cmp.type === "mixed") {
-                    savingsHtml = `<div class="savings-line orange">⚠️ Different currencies — your choice<br>
-                        Bundle: ${cmp.bundlePrice} ${currencyFull(cmp.bundleCur)}<br>
-                        Singles: ${cmp.singlesTotal} ${currencyFull(cmp.singlesCur)}</div>`;
-                } else if (cmp.type === "same") {
-                    savingsHtml = `<div class="savings-line blue">Same price either way</div>`;
-                } else if (cmp.type === "all_owned") {
-                    savingsHtml = `<div class="savings-line" style="color:#2ecc71">✅ All singles already owned</div>`;
-                }
+                if (cmp.type === "cheaper") savingsHtml = `<div class="savings-line green">✅ Bundle saves ${cmp.savings} ${currencyFull(cmp.bundleCur)}</div>`;
+                else if (cmp.type === "expensive") savingsHtml = `<div class="savings-line red">Bundle is more expensive — Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`;
+                else if (cmp.type === "mixed") savingsHtml = `<div class="savings-line orange">⚠️ Different currencies — your choice<br>Bundle: ${cmp.bundlePrice} ${currencyFull(cmp.bundleCur)}<br>Singles: ${cmp.singlesTotal} ${currencyFull(cmp.singlesCur)}</div>`;
+                else if (cmp.type === "same") savingsHtml = `<div class="savings-line blue">Same price either way</div>`;
+                else if (cmp.type === "all_owned") savingsHtml = `<div class="savings-line green">✅ All singles already owned</div>`;
             }
 
-            // bundle button logic
-            let bundleBtnHtml = "";
+            // preferred display char
+            const rawCharsArr = [...group.rawChars];
+            const preferredChar = rawCharsArr.find(c => c.toLowerCase() === "scary") || rawCharsArr[0];
+            const displayTitle = `${preferredChar} — ${displaySkin(group.skinKey)}`;
+
+            const safeKey = `${group.normChar}-${group.skinKey}`.replace(/[^a-z0-9]/gi, "_");
+
+            // bundle image card (right side)
+            let bundleImageHtml = "";
             if (group.bundle) {
                 const bp = group.bundle.VirtualCurrencyPrices || {};
                 const bpe = encodeURIComponent(JSON.stringify(bp));
                 const bCur = getCurrencyType(group.bundle);
                 const singlesTotal = cmp ? cmp.singlesTotal : null;
                 const sCur = cmp ? cmp.singlesCur : null;
+                const bundleId = group.bundle.ItemId.trim();
 
-                if (bundleOwned) {
-                    bundleBtnHtml = `<button class="bundle-buy-btn owned" disabled>✅ Bundle Owned</button>`;
-                } else if (bCur === "NA") {
-                    bundleBtnHtml = `<button class="bundle-buy-btn grayed" disabled>🚫 N/A</button>`;
-                } else if (allSinglesOwned && !bundleOwned) {
-                    // all singles owned but not bundle — gray it out
-                    bundleBtnHtml = `
-                        <div style="text-align:right">
-                            <button class="bundle-buy-btn grayed" disabled>Buy Bundle — ${priceTag(bp)}</button>
-                            <button class="buy-anyway-btn" onclick="showBundlePopup('${group.bundle.ItemId.trim()}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">Buy anyway?</button>
-                        </div>`;
-                } else if (cmp && cmp.type === "expensive") {
-                    // bundle more expensive — gray it out with buy anyway
-                    bundleBtnHtml = `
-                        <div style="text-align:right">
-                            <button class="bundle-buy-btn grayed" disabled>Buy Bundle — ${priceTag(bp)}</button>
-                            <button class="buy-anyway-btn" onclick="showBundlePopup('${group.bundle.ItemId.trim()}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">Buy bundle anyway?</button>
-                        </div>`;
-                } else {
-                    bundleBtnHtml = `
-                        <button class="bundle-buy-btn" onclick="showBundlePopup('${group.bundle.ItemId.trim()}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">
-                            Buy Bundle — ${priceTag(bp)}
-                        </button>`;
-                }
+                // button color based on comparison
+                let btnClass = "bundle-main-btn orange";
+                if (bundleOwned || allSinglesOwned) btnClass = "bundle-main-btn grayed";
+                else if (cmp && cmp.type === "cheaper") btnClass = "bundle-main-btn green";
+                else if (cmp && cmp.type === "same") btnClass = "bundle-main-btn blue";
+                else if (cmp && cmp.type === "expensive") btnClass = "bundle-main-btn grayed";
+                else if (bCur === "NA") btnClass = "bundle-main-btn grayed";
+
+                const isGrayed = btnClass.includes("grayed");
+                const showBuyAnyway = (cmp && cmp.type === "expensive" && !bundleOwned) ||
+                                      (allSinglesOwned && !bundleOwned);
+
+                bundleImageHtml = `
+                    <div class="bundle-image-card">
+                        <img src="images/${bundleId}.png"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                        <div class="bundle-img-placeholder" style="display:none">📦</div>
+                        <div class="bundle-price-tag">${priceTag(bp)}</div>
+                        ${bundleOwned
+                            ? `<button class="bundle-main-btn owned-btn" disabled>✅ Owned</button>`
+                            : bCur === "NA"
+                                ? `<button class="bundle-main-btn grayed" disabled>🚫 N/A</button>`
+                                : `<button class="${btnClass}" ${isGrayed ? "disabled" : `onclick="showBundlePopup('${bundleId}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')"`}>
+                                    Buy Bundle
+                                   </button>`
+                        }
+                        ${showBuyAnyway ? `<button class="buy-anyway-btn" onclick="showBundlePopup('${bundleId}', '${bpe}', ${JSON.stringify(singlesTotal)}, '${sCur}')">Buy anyway?</button>` : ""}
+                    </div>
+                `;
             }
-
-            // display title — prefer Scary over Pumpkin for Neighbor
-            const rawCharsArr = [...group.rawChars];
-            const preferredChar = rawCharsArr.includes("Scary") ? "Scary"
-                : rawCharsArr.includes("Neighbor") ? "Neighbor"
-                : rawCharsArr[0];
-            const displayTitle = `${preferredChar} — ${group.displaySkinName}`;
-
-            const safeKey = `${group.normChar}-${group.skinKey}`.replace(/[^a-z0-9-]/gi, "_");
 
             const groupEl = document.createElement("div");
             groupEl.className = groupClass;
@@ -879,14 +925,28 @@
                             : `<div class="bundle-price-line" style="color:#555">No bundle available</div>`}
                         ${savingsHtml}
                     </div>
-                    ${bundleBtnHtml}
                 </div>
-                <div class="bundle-singles" id="singles-${safeKey}"></div>
+                <div class="bundle-body">
+                    <div class="bundle-singles" id="singles-${safeKey}"></div>
+                    ${bundleImageHtml}
+                </div>
             `;
             grid.appendChild(groupEl);
 
             const singlesContainer = document.getElementById(`singles-${safeKey}`);
             const bundleCheaper = cmp && cmp.type === "cheaper";
+            const cbId = `cb-${safeKey}`;
+
+            // if bundle cheaper — add one checkbox above singles
+            if (bundleCheaper && singlesContainer) {
+                const cbRow = document.createElement("div");
+                cbRow.style.cssText = "width:100%; margin-bottom:8px; display:flex; align-items:center; gap:6px; font-size:12px; color:#aaa;";
+                cbRow.innerHTML = `
+                    <input type="checkbox" id="${cbId}" onchange="toggleSinglesBuy('${safeKey}', this.checked)"/>
+                    <label for="${cbId}" style="cursor:pointer">I want to buy singles anyway</label>
+                `;
+                singlesContainer.appendChild(cbRow);
+            }
 
             group.singles.forEach(item => {
                 const trimmed = item.ItemId.trim();
@@ -903,13 +963,14 @@
                 } else if (isNA) {
                     btnHtml = `<div class="mini-na">🚫</div>`;
                 } else if (bundleCheaper) {
-                    // bundle cheaper — gray out single buy, add buy single anyway
-                    btnHtml = `
-                        <button class="mini-buy grayed" disabled>Buy</button>
-                        <button class="buy-anyway-btn" onclick="buyItem('${trimmed}', ${JSON.stringify(prices)})">Buy single anyway</button>
-                    `;
+                    // grayed buy — unlocked by checkbox
+                    btnHtml = `<button class="mini-buy" id="btn-${trimmed}" disabled
+                        data-prices="${pe}" data-itemid="${trimmed}" data-group="${safeKey}"
+                        onclick="buyItem('${trimmed}', ${JSON.stringify(prices)})">Buy</button>`;
                 } else {
-                    btnHtml = `<button class="mini-buy" id="btn-${trimmed}" onclick="checkBundle('${trimmed}', '${pe}')">Buy</button>`;
+                    // normal buy — works directly
+                    btnHtml = `<button class="mini-buy" id="btn-${trimmed}"
+                        onclick="buyItem('${trimmed}', ${JSON.stringify(prices)})">Buy</button>`;
                 }
 
                 const mini = document.createElement("div");
@@ -924,6 +985,15 @@
                 `;
                 singlesContainer.appendChild(mini);
             });
+        });
+    }
+
+    // toggle single buy buttons when checkbox is checked
+    function toggleSinglesBuy(safeKey, checked) {
+        const container = document.getElementById(`singles-${safeKey}`);
+        if (!container) return;
+        container.querySelectorAll(".mini-buy[data-group]").forEach(btn => {
+            btn.disabled = !checked;
         });
     }
 
@@ -976,8 +1046,8 @@
             const rc = getRawCharacter(t);
             const sk = getSkinKey(t);
             const sameChar = rc.toLowerCase() === rawChar.toLowerCase() ||
-                (NEIGHBOR_ALIASES.map(a=>a.toLowerCase()).includes(rc.toLowerCase()) &&
-                 NEIGHBOR_ALIASES.map(a=>a.toLowerCase()).includes(rawChar.toLowerCase()));
+                (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rc.toLowerCase()) &&
+                 NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase()));
             return sameChar && sk === skinKey;
         });
 
