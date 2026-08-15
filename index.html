@@ -402,7 +402,55 @@
 
         .checkbox-row input { cursor: pointer; }
 
-        .popup-overlay {
+        /* compact card — used when all singles owned, only bundle left */
+        .bundle-group.compact {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 18px;
+        }
+
+        .compact-img {
+            width: 56px; height: 56px;
+            object-fit: contain;
+            background: #0f3460;
+            border-radius: 8px;
+            border: 2px solid #2a2a4a;
+            flex-shrink: 0;
+        }
+
+        .compact-placeholder {
+            width: 56px; height: 56px;
+            background: #0f3460;
+            border-radius: 8px;
+            border: 2px solid #2a2a4a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .compact-info { flex: 1; min-width: 0; }
+        .compact-title { font-size: 14px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .compact-sub   { font-size: 12px; color: #aaa; margin-top: 2px; }
+        .compact-sub b { color: white; }
+        .compact-status { font-size: 11px; margin-top: 3px; }
+        .compact-status.green { color: #2ecc71; }
+        .compact-status.red   { color: #e94560; }
+
+        .compact-action { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+
+        .compact-price { font-size: 12px; color: #e94560; text-align: right; }
+
+        .compact-buy {
+            padding: 6px 14px;
+            background: #e94560; color: white;
+            border: none; border-radius: 6px;
+            cursor: pointer; font-size: 12px; font-weight: bold;
+            transition: 0.2s; white-space: nowrap;
+        }
+        .compact-buy:hover { background: #c73652; }
+        .compact-buy.grayed { background: #555; color: #aaa; cursor: not-allowed; }
+        .compact-buy.owned  { background: #2ecc71; cursor: default; }
             display: none;
             position: fixed;
             top: 0; left: 0;
@@ -1058,6 +1106,7 @@
             const cmp = compareBundle(group.bundle, group.singles);
             const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
             const allSinglesOwned = group.singles.length > 0 && group.singles.every(i => userInventory.includes(i.ItemId.trim()));
+            // note: group.singles.length === 0 does NOT mean all owned — store just didn't list singles
 
             let groupClass = "bundle-group";
             if (cmp) {
@@ -1117,6 +1166,52 @@
                 `;
             }
 
+            // ── COMPACT CARD: all singles owned (or no singles) but bundle exists ──
+            // compact only when singles are genuinely ALL owned — empty array = store just has no singles listed, not "all owned"
+            const showCompact = group.bundle && allSinglesOwned;
+
+            if (showCompact) {
+                const bundleId = group.bundle.ItemId.trim();
+                const bp = group.bundle.VirtualCurrencyPrices || {};
+                const bCur = getCurrencyType(group.bundle);
+
+                const compactEl = document.createElement("div");
+                compactEl.className = `bundle-group compact ${bundleOwned ? "same" : bCur === "NA" ? "" : ""}`;
+                compactEl.style.borderColor = bundleOwned ? "#2ecc71" : bCur === "NA" ? "#555" : "#3498db";
+
+                let statusHtml = "";
+                if (bundleOwned) statusHtml = `<div class="compact-status green">✅ Bundle owned</div>`;
+                else if (allSinglesOwned) statusHtml = `<div class="compact-status green">✅ All singles owned</div>`;
+
+                compactEl.innerHTML = `
+                    <img class="compact-img" src="images/${bundleId}.png"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                    <div class="compact-placeholder" style="display:none">📦</div>
+                    <div class="compact-info">
+                        <div class="compact-title">${displayTitle}</div>
+                        <div class="compact-sub">Bundle: <b>${priceTag(bp)}</b></div>
+                        ${statusHtml}
+                    </div>
+                    <div class="compact-action">
+                        ${bundleOwned
+                            ? `<button class="compact-buy owned" disabled>✅ Owned</button>`
+                            : bCur === "NA"
+                                ? `<button class="compact-buy grayed" disabled>🚫 N/A</button>`
+                                : `<button class="compact-buy" id="compactbtn-${safeKey}">Buy Bundle</button>`
+                        }
+                    </div>
+                `;
+                grid.appendChild(compactEl);
+
+                // wire buy button
+                if (!bundleOwned && bCur !== "NA") {
+                    const cb = document.getElementById(`compactbtn-${safeKey}`);
+                    if (cb) cb.onclick = () => showBundlePopup(bundleId, null, null);
+                }
+                return; // done — skip full render below
+            }
+
+            // ── FULL GROUP RENDER ─────────────────────────────────────────────────
             const groupEl = document.createElement("div");
             groupEl.className = groupClass;
             groupEl.innerHTML = `
@@ -1299,8 +1394,8 @@
         const btn = document.getElementById(`btn-${trimmed}`);
         if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
-        // include StoreId only when viewing a single named store (not the merged daily view)
-        // daily_merged pulls cheapest across rotations → we buy at catalog-matched price, no StoreId
+        // daily_merged = cheapest across rotations, no single StoreId → buy at catalog price
+        // season shop = single named store → must pass StoreId so PlayFab uses store pricing
         const payload = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
         if (storeMode === "store" && activeStoreId && activeStoreId !== "daily_merged") {
             payload.StoreId = activeStoreId;
