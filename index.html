@@ -57,7 +57,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.92);
             z-index: 200;
             align-items: center;
             justify-content: center;
@@ -66,21 +66,24 @@
         .login-overlay.show { display: flex; }
 
         .login-box {
-            max-width: 500px;
+            max-width: 440px;
             width: 90%;
             background: #16213e;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 35px 30px;
+            border-radius: 12px;
             text-align: center;
             border: 2px solid #e94560;
         }
 
+        .login-box h2 { color: #e94560; margin-bottom: 8px; }
+        .login-box p { color: #aaa; font-size: 13px; margin-bottom: 18px; }
+
         .login-box input {
             width: 100%;
-            padding: 10px;
-            margin: 15px 0;
-            border-radius: 5px;
-            border: none;
+            padding: 11px 14px;
+            margin-bottom: 14px;
+            border-radius: 6px;
+            border: 1px solid #2a2a4a;
             background: #0f3460;
             color: white;
             font-size: 14px;
@@ -92,31 +95,38 @@
             background: #e94560;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .login-box button:hover { background: #c73652; }
+        .login-loading { color: #aaa; font-size: 13px; margin-top: 12px; min-height: 20px; }
 
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
 
         .stats {
             background: #16213e;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 15px;
+            margin-bottom: 12px;
+            font-size: 14px;
             color: #aaa;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
         }
 
         .stats span { color: #e94560; font-weight: bold; }
+        .stats-deal { color: #2ecc71 !important; }
 
-        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 
         .tab-btn {
-            padding: 7px 14px;
+            padding: 6px 13px;
             background: #16213e;
             color: #aaa;
             border: 2px solid transparent;
@@ -133,14 +143,14 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             align-items: center;
         }
 
-        .filter-label { color: #aaa; font-size: 13px; margin-right: 4px; }
+        .filter-label { color: #aaa; font-size: 13px; margin-right: 2px; }
 
         .toggle-btn {
-            padding: 6px 14px;
+            padding: 6px 13px;
             border-radius: 20px;
             border: 2px solid #e94560;
             background: #e94560;
@@ -153,10 +163,10 @@
         .toggle-btn.off { background: transparent; color: #aaa; border-color: #444; }
         .toggle-btn:hover { opacity: 0.8; }
 
-        .divider { width: 1px; height: 28px; background: #333; margin: 0 4px; }
+        .divider { width: 1px; height: 26px; background: #333; margin: 0 3px; }
 
         .sort-btn {
-            padding: 6px 14px;
+            padding: 6px 13px;
             border-radius: 20px;
             border: 2px solid #444;
             background: transparent;
@@ -170,7 +180,7 @@
         .sort-btn:hover { border-color: #e94560; color: white; }
 
         .search-box {
-            padding: 6px 14px;
+            padding: 6px 13px;
             border-radius: 20px;
             border: 2px solid #444;
             background: #0f3460;
@@ -186,39 +196,44 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 14px;
         }
 
         .card {
             background: #16213e;
             border-radius: 10px;
-            padding: 15px;
+            padding: 14px;
             text-align: center;
             border: 2px solid transparent;
             transition: 0.2s;
+            position: relative;
         }
 
         .card:hover { border-color: #e94560; }
         .card.owned { border-color: #2ecc71; }
         .card.na { opacity: 0.4; }
         .card.promo { border-color: #f39c12; }
+        .card.deal { border-color: #2ecc71; }
 
         .card img {
-            width: 100px; height: 100px;
+            width: 96px; height: 96px;
             object-fit: contain;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             background: #0f3460;
             border-radius: 8px;
         }
 
-        .card .name { font-size: 11px; color: #aaa; margin-bottom: 8px; word-break: break-all; }
-        .card .price { font-size: 12px; color: #e94560; margin-bottom: 8px; }
+        .card .name { font-size: 10px; color: #aaa; margin-bottom: 6px; word-break: break-all; }
+        .card .price { font-size: 12px; color: #e94560; margin-bottom: 6px; }
         .card .price.promo-price { color: #f39c12; }
-        .card .original-price { font-size: 10px; color: #555; text-decoration: line-through; margin-bottom: 4px; }
+        .card .price.deal-price { color: #2ecc71; }
+        .card .original-price { font-size: 10px; color: #555; text-decoration: line-through; margin-bottom: 3px; }
         .card .owned-badge { background: #2ecc71; color: white; padding: 5px; border-radius: 5px; font-size: 12px; }
         .card .na-badge { background: #555; color: #aaa; padding: 5px; border-radius: 5px; font-size: 11px; }
-        .card .promo-badge { background: #f39c12; color: white; padding: 3px 6px; border-radius: 5px; font-size: 10px; margin-bottom: 4px; display: inline-block; }
+        .card .promo-badge { background: #f39c12; color: white; padding: 2px 6px; border-radius: 5px; font-size: 10px; margin-bottom: 3px; display: inline-block; }
+        .card .deal-badge { background: #2ecc71; color: #000; padding: 2px 6px; border-radius: 5px; font-size: 10px; margin-bottom: 3px; display: inline-block; font-weight: bold; }
+        .card .deal-source { font-size: 9px; color: #2ecc71; margin-bottom: 3px; }
 
         .card .buy-btn {
             background: #e94560; color: white;
@@ -227,13 +242,15 @@
             font-size: 12px; width: 100%; transition: 0.2s;
         }
 
+        .card .buy-btn.deal-btn { background: #2ecc71; color: #000; font-weight: bold; }
         .card .buy-btn:hover { background: #c73652; }
+        .card .buy-btn.deal-btn:hover { background: #27ae60; }
         .card .buy-btn:disabled { background: #555; cursor: not-allowed; }
 
         .no-img {
-            width: 100px; height: 100px;
+            width: 96px; height: 96px;
             background: #0f3460; border-radius: 8px;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
             display: flex; align-items: center;
             justify-content: center;
             font-size: 11px; color: #555;
@@ -242,8 +259,8 @@
         /* BUNDLE VIEW */
         .bundle-group {
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 18px;
+            margin-bottom: 18px;
             border: 2px solid #2a2a4a;
             background: #16213e;
         }
@@ -257,15 +274,15 @@
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
             gap: 10px;
         }
 
-        .bundle-group-title { font-size: 16px; font-weight: bold; color: white; margin-bottom: 4px; }
+        .bundle-group-title { font-size: 15px; font-weight: bold; color: white; margin-bottom: 3px; }
         .bundle-price-line { font-size: 13px; color: #aaa; margin-bottom: 3px; }
         .bundle-price-line b { color: white; }
-        .savings-line { font-size: 13px; margin-top: 4px; font-weight: bold; }
+        .savings-line { font-size: 13px; margin-top: 3px; font-weight: bold; }
         .savings-line.green { color: #2ecc71; }
         .savings-line.red { color: #e94560; }
         .savings-line.orange { color: #f39c12; }
@@ -275,12 +292,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            min-width: 110px;
+            gap: 7px;
+            min-width: 105px;
         }
 
         .bundle-image-card img {
-            width: 90px; height: 90px;
+            width: 86px; height: 86px;
             object-fit: contain;
             background: #0f3460;
             border-radius: 10px;
@@ -288,19 +305,19 @@
         }
 
         .bundle-img-placeholder {
-            width: 90px; height: 90px;
+            width: 86px; height: 86px;
             background: #0f3460;
             border-radius: 10px;
             border: 2px solid #2a2a4a;
             display: flex; align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
         }
 
         .bundle-price-tag { font-size: 12px; color: #e94560; text-align: center; }
 
         .bundle-main-btn {
-            padding: 7px 14px;
+            padding: 6px 12px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -318,7 +335,7 @@
         .bundle-main-btn.owned-btn { background: #2ecc71; color: white; cursor: default; }
 
         .buy-anyway-btn {
-            padding: 4px 8px;
+            padding: 3px 7px;
             background: transparent;
             color: #aaa;
             border: 1px solid #555;
@@ -332,16 +349,16 @@
 
         .buy-anyway-btn:hover { border-color: #aaa; color: white; }
 
-        .bundle-body { display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
-        .bundle-singles { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
+        .bundle-body { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+        .bundle-singles { display: flex; flex-wrap: wrap; gap: 9px; flex: 1; }
 
         .mini-card {
             background: #0f3460;
             border-radius: 8px;
-            padding: 10px;
+            padding: 9px;
             text-align: center;
             border: 2px solid transparent;
-            width: 120px;
+            width: 115px;
             transition: 0.2s;
         }
 
@@ -350,33 +367,33 @@
         .mini-card.same-price { border-color: #3498db; }
 
         .mini-card img {
-            width: 70px; height: 70px;
+            width: 66px; height: 66px;
             object-fit: contain;
             background: #16213e;
             border-radius: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .mini-no-img {
-            width: 70px; height: 70px;
+            width: 66px; height: 66px;
             background: #16213e; border-radius: 6px;
-            margin: 0 auto 6px;
+            margin: 0 auto 5px;
             display: flex; align-items: center;
             justify-content: center;
             font-size: 10px; color: #555;
         }
 
-        .mini-name { font-size: 10px; color: #aaa; margin-bottom: 4px; }
-        .mini-price { font-size: 11px; color: #e94560; margin-bottom: 6px; }
+        .mini-name { font-size: 10px; color: #aaa; margin-bottom: 3px; }
+        .mini-price { font-size: 11px; color: #e94560; margin-bottom: 5px; }
         .mini-price.blue { color: #3498db; }
-        .mini-owned { background: #2ecc71; color: white; padding: 4px; border-radius: 5px; font-size: 11px; }
-        .mini-na { background: #555; color: #aaa; padding: 4px; border-radius: 5px; font-size: 10px; }
+        .mini-owned { background: #2ecc71; color: white; padding: 3px; border-radius: 5px; font-size: 11px; }
+        .mini-na { background: #555; color: #aaa; padding: 3px; border-radius: 5px; font-size: 10px; }
 
         .mini-buy {
             background: #e94560; color: white;
-            border: none; padding: 4px 8px;
+            border: none; padding: 4px 7px;
             border-radius: 5px; cursor: pointer;
-            font-size: 11px; width: 100%; margin-bottom: 3px;
+            font-size: 11px; width: 100%; margin-bottom: 2px;
             transition: 0.2s;
         }
 
@@ -385,7 +402,7 @@
 
         .checkbox-row {
             width: 100%;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -395,18 +412,42 @@
 
         .checkbox-row input { cursor: pointer; }
 
+        /* STORE SECTION + DAILY SUB-TABS */
         .store-section {
             background: #16213e;
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 18px;
+            margin-bottom: 18px;
             border: 2px solid #2a2a4a;
         }
 
-        .store-section-title { font-size: 18px; font-weight: bold; color: #e94560; margin-bottom: 5px; }
-        .store-section-sub { font-size: 13px; color: #aaa; margin-bottom: 15px; }
+        .store-section-title { font-size: 17px; font-weight: bold; color: #e94560; margin-bottom: 4px; }
+        .store-section-sub { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+
+        .daily-char-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .dct-btn {
+            padding: 5px 11px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            background: #0f3460;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .dct-btn:hover { border-color: #e94560; color: white; }
+        .dct-btn.active { background: #e94560; color: white; border-color: #e94560; }
+
         .loading-text { color: #aaa; font-size: 14px; padding: 20px; text-align: center; }
 
+        /* POPUP */
         .popup-overlay {
             display: none;
             position: fixed;
@@ -424,18 +465,18 @@
             background: #16213e;
             border: 2px solid #e94560;
             border-radius: 12px;
-            padding: 30px;
+            padding: 28px;
             max-width: 420px;
             width: 90%;
             text-align: center;
         }
 
-        .popup h3 { color: #e94560; margin-bottom: 15px; font-size: 18px; }
-        .popup p { color: #aaa; font-size: 14px; margin-bottom: 20px; line-height: 1.8; }
+        .popup h3 { color: #e94560; margin-bottom: 14px; font-size: 17px; }
+        .popup p { color: #aaa; font-size: 14px; margin-bottom: 18px; line-height: 1.8; }
         .popup-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
         .popup-btns button {
-            padding: 10px 20px;
+            padding: 9px 18px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
@@ -466,45 +507,25 @@
     <button class="main-nav-btn" onclick="switchPage('special')">🌟 Special Shops</button>
 </div>
 
-<!-- LOGIN OVERLAY — shown on top of everything -->
+<!-- LOGIN OVERLAY -->
 <div class="login-overlay show" id="loginOverlay">
-    <div style="display:flex; flex-direction:column; align-items:center; gap:20px; width:90%; max-width:600px;">
-        <div class="login-box" style="width:100%">
-            <h2>Enter Your Token</h2>
-            <p style="color: #aaa; margin-top: 10px; font-size: 13px;">
-                paste your X-Authorization token from Fiddler
-            </p>
-            <input type="text" id="tokenInput" placeholder="paste token here..."/>
-            <button onclick="loadShop()">Load Shop</button>
-        </div>
-        <!-- criteria panel visible before login -->
-        <div style="background:#16213e; border:2px solid #0f3460; border-radius:10px; padding:18px 22px; width:100%; font-size:13px; color:#aaa; line-height:1.9;">
-            <div style="color:#e94560; font-weight:bold; font-size:15px; margin-bottom:10px;">📋 Shop Sections</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 20px;">
-                <div>🛒 <b style="color:white">Our Catalog</b> — all skins by character</div>
-                <div>📅 <b style="color:white">December 2023</b> — Daily_December_2023_01–31</div>
-                <div>🎫 <b style="color:white">Cert Daily</b> — cert_Daily00–05</div>
-                <div>🎃 <b style="color:white">Halloween 2023</b> — steamPSxbox_Featured_Halloween_2023_00–31</div>
-                <div>☀️ <b style="color:white">Season Shop</b> — Summer 2025 exclusives</div>
-                <div>🚀 <b style="color:white">Featured Shop</b> — Featured_Space24_00–06</div>
-            </div>
-            <div style="margin-top:10px; border-top:1px solid #2a2a4a; padding-top:10px;">
-                <span style="color:#f39c12">🔥 PROMO</span> = discounted vs catalog price &nbsp;|&nbsp;
-                <span style="color:#2ecc71">🪙 FE</span> = Coins &nbsp;|&nbsp;
-                <span style="color:#e94560">🎟️ AC</span> = Tickets &nbsp;|&nbsp;
-                <span style="color:#555">🚫 N/A</span> = not purchasable &nbsp;|&nbsp;
-                Duplicates: cheapest price wins
-            </div>
-        </div>
+    <div class="login-box">
+        <h2>🏠 Secret Neighbor Shop</h2>
+        <p>Paste your X-Authorization token from Fiddler to load your account</p>
+        <input type="text" id="tokenInput" placeholder="X-Authorization token..."/>
+        <button onclick="loadShop()">Load Shop</button>
+        <div class="login-loading" id="loginLoading"></div>
     </div>
 </div>
 
 <!-- OUR CATALOG -->
 <div class="page active" id="page-catalog">
-    <div class="stats">
+    <div class="stats" id="catalogStats">
         items: <span id="totalCount">0</span> |
         owned: <span id="ownedCount">0</span> |
         not owned: <span id="notOwnedCount">0</span>
+        <span id="dealCountWrap" style="display:none">| 🏷️ deals from stores: <span id="dealCount" class="stats-deal">0</span></span>
+        <span id="storeLoadStatus" style="font-size:12px; color:#555; margin-left:8px;"></span>
     </div>
     <div class="tabs" id="tabsBar"></div>
     <div class="filter-bar">
@@ -512,6 +533,7 @@
         <button class="toggle-btn" id="toggle-FE" onclick="toggleFilter('FE')">🪙 FE (Coins)</button>
         <button class="toggle-btn" id="toggle-AC" onclick="toggleFilter('AC')">🎟️ AC (Tickets)</button>
         <button class="toggle-btn" id="toggle-NA" onclick="toggleFilter('NA')">🚫 N/A</button>
+        <button class="toggle-btn off" id="toggle-DEAL" onclick="toggleFilter('DEAL')">🏷️ Deals Only</button>
         <div class="divider"></div>
         <span class="filter-label">Sort:</span>
         <button class="sort-btn" id="sort-asc" onclick="setSort('asc')">Price ↑</button>
@@ -555,11 +577,13 @@
     let catalog = [];
     let activeTab = "ALL";
     let sortMode = null;
-    let filters = { FE: true, AC: true, NA: true };
+    let filters = { FE: true, AC: true, NA: true, DEAL: false };
     let bundleView = false;
     let dailyLoaded = false;
     let specialLoaded = false;
     const priceMap = {};
+    // storeDeals[itemId] = { price, currency, storeId, label }
+    const storeDeals = {};
 
     const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
     const HIDDEN_PREFIXES = [
@@ -578,26 +602,24 @@
         "scary": "pumpkin", "pumpkin": "pumpkin",
     };
 
-    // daily store groups — each group shown as separate section
     const DAILY_GROUPS = [
         {
             label: "📅 December 2023",
-            sub: "Daily rotation — December 2023 (Daily_December_2023_01–31)",
+            sub: "Daily_December_2023_01–31",
             ids: Array.from({length: 31}, (_, i) => `Daily_December_2023_${String(i+1).padStart(2,"0")}`)
         },
         {
             label: "🎫 Cert Daily",
-            sub: "Cert daily rotation (cert_Daily00–05)",
-            ids: ["cert_Daily00","cert_Daily01","cert_Daily02","cert_Daily03","cert_Daily04","cert_Daily05"]
+            sub: "cert_Daily00–06",
+            ids: ["cert_Daily00","cert_Daily01","cert_Daily02","cert_Daily03","cert_Daily04","cert_Daily05","cert_Daily06"]
         },
         {
             label: "🎃 Halloween 2023",
-            sub: "Halloween 2023 featured rotation (steamPSxbox_Featured_Halloween_2023_00–31)",
+            sub: "steamPSxbox_Featured_Halloween_2023_00–31",
             ids: Array.from({length: 32}, (_, i) => `steamPSxbox_Featured_Halloween_2023_${String(i).padStart(2,"0")}`)
         }
     ];
 
-    // special stores
     const SEASON_STORES = [
         { id: "shop_season_Summer2025", label: "☀️ Season Shop — Summer 2025", sub: "Current season exclusives" },
     ];
@@ -607,7 +629,7 @@
         "Featured_Space24_03","Featured_Space24_04","Featured_Space24_05","Featured_Space24_06",
     ];
 
-    // helpers
+    // ─── HELPERS ───────────────────────────────────────────────────────────
     function normalizeSkin(rawSkin) {
         const lower = rawSkin.toLowerCase().trim();
         return SKIN_ALIASES[lower] !== undefined ? SKIN_ALIASES[lower] : lower;
@@ -642,8 +664,8 @@
 
     function priceTag(prices) {
         if (!prices) return "Not Purchasable";
-        if (prices.FE !== undefined) return `🪙 (C.) ${prices.FE} FE`;
-        if (prices.AC !== undefined) return `🎟️ (T.) ${prices.AC} AC`;
+        if (prices.FE !== undefined) return `🪙 ${prices.FE} FE`;
+        if (prices.AC !== undefined) return `🎟️ ${prices.AC} AC`;
         return "Not Purchasable";
     }
 
@@ -653,7 +675,7 @@
         return "";
     }
 
-    function isBundle(itemId) { return itemId.trim().split("_")[1].toLowerCase() === "bundle"; }
+    function isBundle(itemId) { return itemId.trim().split("_")[1]?.toLowerCase() === "bundle"; }
 
     function getSkinKey(itemId) {
         const parts = itemId.trim().split("_");
@@ -662,45 +684,8 @@
 
     function getSlot(itemId) { return itemId.trim().split("_")[1] || ""; }
 
-    function findBundle(rawChar, normalizedSkin) {
-        const isNeighbor = NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase());
-        const charsToSearch = isNeighbor ? NEIGHBOR_ALIASES : [rawChar];
-        const skinVariants = new Set([normalizedSkin, displaySkin(normalizedSkin).toLowerCase()]);
-        Object.entries(SKIN_ALIASES).forEach(([k, v]) => { if (v === normalizedSkin) skinVariants.add(k); });
-        for (const char of charsToSearch) {
-            for (const skin of skinVariants) {
-                const found = catalog.find(i =>
-                    i.ItemId.trim().toLowerCase() === `${char.toLowerCase()}_bundle_${skin}`
-                );
-                if (found) return found;
-            }
-        }
-        return null;
-    }
-
-    function compareBundle(bundle, singles) {
-        if (!bundle) return null;
-        const bp = bundle.VirtualCurrencyPrices || {};
-        const bundleCur = bp.FE !== undefined ? "FE" : bp.AC !== undefined ? "AC" : null;
-        if (!bundleCur) return null;
-        const bundlePrice = bp[bundleCur];
-        const notOwned = singles.filter(i => !userInventory.includes(i.ItemId.trim()));
-        if (notOwned.length === 0) return { type: "all_owned" };
-        const purchasable = notOwned.filter(i => getCurrencyType(i) !== "NA");
-        if (purchasable.length === 0) return null;
-        const singleCurs = [...new Set(purchasable.map(i => getCurrencyType(i)))];
-        const singleCur = singleCurs.length === 1 ? singleCurs[0] : "MIXED";
-        if (singleCur === "MIXED" || singleCur !== bundleCur) {
-            const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
-            return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur };
-        }
-        const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
-        const diff = singlesTotal - bundlePrice;
-        if (diff > 0) return { type: "cheaper", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: diff };
-        if (diff < 0) return { type: "expensive", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: Math.abs(diff) };
-        return { type: "same", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: 0 };
-    }
-
+    // ─── STORE DEALS ENGINE ────────────────────────────────────────────────
+    // Background fetch ALL store items after login and build storeDeals map
     async function fetchStore(storeId) {
         try {
             const res = await fetch(`${HOST}/Client/GetStoreItems`, {
@@ -714,7 +699,6 @@
         return null;
     }
 
-    // merge items from multiple stores — keep cheapest price per item, tag _storeId source
     function mergeStoreItems(allItems) {
         const best = {};
         allItems.forEach(item => {
@@ -728,6 +712,63 @@
         return Object.values(best).map(v => v.item);
     }
 
+    // Register a deal: cheapest store price for an item (only if cheaper than catalog)
+    function registerDeal(itemId, storePrices, storeId, sourceLabel) {
+        const catPrices = priceMap[itemId] || {};
+        const storeFE = storePrices.FE;
+        const storeAC = storePrices.AC;
+        const catFE = catPrices.FE;
+        const catAC = catPrices.AC;
+
+        let storePrice = storeFE ?? storeAC;
+        let storeCur = storeFE !== undefined ? "FE" : storeAC !== undefined ? "AC" : null;
+        if (storePrice === undefined || !storeCur) return;
+
+        let catPrice = catFE ?? catAC;
+
+        // Record if cheaper than catalog (or catalog has no price = N/A in catalog but available in store)
+        const isCheaper = catPrice === undefined || storePrice < catPrice;
+        if (!isCheaper) return;
+
+        // Keep the cheapest deal across all stores
+        const existing = storeDeals[itemId];
+        if (!existing || storePrice < existing.price) {
+            storeDeals[itemId] = { price: storePrice, currency: storeCur, storeId, sourceLabel, prices: storePrices };
+        }
+    }
+
+    async function loadAllStoreDeals() {
+        const status = document.getElementById("storeLoadStatus");
+        if (status) status.textContent = "⏳ loading store deals...";
+
+        const allSources = [
+            ...DAILY_GROUPS.flatMap(g => g.ids.map(id => ({ id, label: g.label }))),
+            ...SEASON_STORES.map(s => ({ id: s.id, label: s.label })),
+            ...FEATURED_STORE_IDS.map(id => ({ id, label: "🚀 Featured" }))
+        ];
+
+        for (const src of allSources) {
+            const items = await fetchStore(src.id);
+            if (items) {
+                items.forEach(item => {
+                    const trimmed = item.ItemId.trim();
+                    registerDeal(trimmed, item.VirtualCurrencyPrices || {}, src.id, src.label);
+                });
+            }
+        }
+
+        const dealCount = Object.keys(storeDeals).length;
+        if (status) status.textContent = dealCount > 0 ? "" : "no deals found";
+        const wrap = document.getElementById("dealCountWrap");
+        if (wrap) {
+            wrap.style.display = dealCount > 0 ? "inline" : "none";
+            document.getElementById("dealCount").textContent = dealCount;
+        }
+        // re-render to show deal badges
+        renderItems();
+    }
+
+    // ─── NAVIGATION ────────────────────────────────────────────────────────
     function switchPage(page) {
         document.querySelectorAll(".main-nav-btn").forEach((btn, i) => {
             const pages = ["catalog", "daily", "special"];
@@ -739,26 +780,24 @@
         if (page === "special" && !specialLoaded) loadSpecialShops();
     }
 
+    // ─── DAILY SHOP ────────────────────────────────────────────────────────
     async function loadDailyShop() {
         dailyLoaded = true;
         const content = document.getElementById("dailyContent");
         content.innerHTML = '<div class="loading-text">Fetching daily stores...</div>';
 
         const sections = [];
-
         for (const group of DAILY_GROUPS) {
             const allItems = [];
             for (const storeId of group.ids) {
                 const items = await fetchStore(storeId);
                 if (items) {
-                    // tag each item with the store it came from (for promo purchase)
                     items.forEach(item => { item._storeId = storeId; });
                     allItems.push(...items);
                 }
             }
             if (allItems.length > 0) {
-                const merged = mergeStoreItems(allItems);
-                sections.push({ ...group, items: merged });
+                sections.push({ ...group, items: mergeStoreItems(allItems) });
             }
         }
 
@@ -767,28 +806,61 @@
             return;
         }
 
-        let html = "";
-        sections.forEach(s => {
-            const safeId = s.label.replace(/[^a-z0-9]/gi, "_");
-            html += `
-                <div class="store-section">
-                    <div class="store-section-title">${s.label}</div>
-                    <div class="store-section-sub">${s.sub} — ${s.items.length} unique items</div>
-                    <div class="grid" id="dgrid-${safeId}"></div>
-                </div>
-            `;
-        });
-
-        content.innerHTML = html;
-
-        sections.forEach(s => {
-            const safeId = s.label.replace(/[^a-z0-9]/gi, "_");
-            const grid = document.getElementById(`dgrid-${safeId}`);
-            // pass null as storeId — each item already has _storeId tagged from merge
-            if (grid) renderStoreGrid(grid, s.items, null);
-        });
+        content.innerHTML = "";
+        sections.forEach(s => buildDailySection(content, s));
     }
 
+    function buildDailySection(container, section) {
+        // Group items by character
+        const byChar = {};
+        section.items.forEach(item => {
+            const char = getCharacter(item.ItemId);
+            if (!byChar[char]) byChar[char] = [];
+            byChar[char].push(item);
+        });
+
+        const chars = Object.keys(byChar).sort();
+        const allChars = ["ALL", ...chars];
+
+        const sectionEl = document.createElement("div");
+        sectionEl.className = "store-section";
+
+        const safeId = section.label.replace(/[^a-z0-9]/gi, "_");
+        sectionEl.innerHTML = `
+            <div class="store-section-title">${section.label}</div>
+            <div class="store-section-sub">${section.sub} — ${section.items.length} unique items</div>
+            <div class="daily-char-tabs" id="dct-${safeId}"></div>
+            <div class="grid" id="dgrid-${safeId}"></div>
+        `;
+        container.appendChild(sectionEl);
+
+        const tabsEl = document.getElementById(`dct-${safeId}`);
+        const gridEl = document.getElementById(`dgrid-${safeId}`);
+
+        let activeChar = "ALL";
+
+        function renderDailyGrid() {
+            const shown = activeChar === "ALL" ? section.items : (byChar[activeChar] || []);
+            renderStoreGrid(gridEl, shown, null);
+        }
+
+        allChars.forEach(char => {
+            const btn = document.createElement("button");
+            btn.className = `dct-btn ${char === "ALL" ? "active" : ""}`;
+            btn.textContent = char === "ALL" ? `All (${section.items.length})` : `${char} (${byChar[char].length})`;
+            btn.onclick = () => {
+                activeChar = char;
+                tabsEl.querySelectorAll(".dct-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderDailyGrid();
+            };
+            tabsEl.appendChild(btn);
+        });
+
+        renderDailyGrid();
+    }
+
+    // ─── SPECIAL SHOPS ─────────────────────────────────────────────────────
     async function loadSpecialShops() {
         specialLoaded = true;
         const content = document.getElementById("specialContent");
@@ -814,12 +886,7 @@
         }
         if (featuredAll.length > 0) {
             const merged = mergeStoreItems(featuredAll);
-            sections.push({
-                id: "featured-all",
-                label: "🚀 Featured Shop",
-                sub: `All featured rotations merged — ${merged.length} unique items`,
-                items: merged
-            });
+            sections.push({ id: "featured-all", label: "🚀 Featured Shop", sub: `All featured rotations merged — ${merged.length} unique items`, items: merged });
         }
 
         if (sections.length === 0) {
@@ -827,37 +894,29 @@
             return;
         }
 
-        let html = "";
+        content.innerHTML = "";
         sections.forEach(s => {
             const safeId = (s.id || s.label).replace(/[^a-z0-9]/gi, "_");
-            html += `
-                <div class="store-section">
-                    <div class="store-section-title">${s.label}</div>
-                    <div class="store-section-sub">${s.sub}</div>
-                    <div class="grid" id="sgrid-${safeId}"></div>
-                </div>
+            const el = document.createElement("div");
+            el.className = "store-section";
+            el.innerHTML = `
+                <div class="store-section-title">${s.label}</div>
+                <div class="store-section-sub">${s.sub}</div>
+                <div class="grid" id="sgrid-${safeId}"></div>
             `;
-        });
-
-        content.innerHTML = html;
-
-        sections.forEach(s => {
-            const safeId = (s.id || s.label).replace(/[^a-z0-9]/gi, "_");
+            content.appendChild(el);
             const grid = document.getElementById(`sgrid-${safeId}`);
             if (grid) renderStoreGrid(grid, s.items, null);
         });
     }
 
-    // renders a store grid — uses STORE prices for buying, not catalog prices
-    // storeId is passed so PlayFab accepts the promo price correctly
+    // ─── STORE GRID RENDERER ───────────────────────────────────────────────
     function renderStoreGrid(grid, items, storeId) {
         grid.innerHTML = "";
         items.forEach(item => {
             const trimmed = item.ItemId.trim();
             const owned = userInventory.includes(trimmed);
-            // store prices — what we use for buying
             const storePrices = item.VirtualCurrencyPrices || {};
-            // catalog prices — for promo comparison only
             const catalogPrices = priceMap[trimmed] || {};
 
             const storeFE = storePrices.FE;
@@ -874,7 +933,7 @@
             let priceHtml = "";
             if (isPromo) {
                 const origPrice = catFE !== undefined ? `🪙 ${catFE} FE` : `🎟️ ${catAC} AC`;
-                const newPrice = storeFE !== undefined ? `🪙 (C.) ${storeFE} FE` : `🎟️ (T.) ${storeAC} AC`;
+                const newPrice = storeFE !== undefined ? `🪙 ${storeFE} FE` : `🎟️ ${storeAC} AC`;
                 priceHtml = `
                     <div class="promo-badge">🔥 PROMO</div>
                     <div class="original-price">${origPrice}</div>
@@ -904,7 +963,6 @@
                 btn.className = "buy-btn";
                 btn.id = `btn-${trimmed}`;
                 btn.textContent = "Buy";
-                // pass storeId so PlayFab honours the promo price
                 btn.onclick = () => buyItem(trimmed, storePrices, storeId || item._storeId || null);
                 card.appendChild(btn);
             }
@@ -913,6 +971,7 @@
         });
     }
 
+    // ─── CATALOG FILTERS ───────────────────────────────────────────────────
     function toggleFilter(type) {
         filters[type] = !filters[type];
         document.getElementById(`toggle-${type}`).className = `toggle-btn ${filters[type] ? "" : "off"}`;
@@ -937,57 +996,72 @@
         renderItems();
     }
 
+    // ─── LOAD SHOP ─────────────────────────────────────────────────────────
     async function loadShop() {
         const token = document.getElementById("tokenInput").value.trim();
         if (!token) { alert("paste your token first!"); return; }
         userToken = token;
 
-        const [profileRes, inventoryRes, catalogRes] = await Promise.all([
-            fetch(`${HOST}/Client/GetAccountInfo`, {
-                method: "POST",
-                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-                body: JSON.stringify({})
-            }),
-            fetch(`${HOST}/Client/GetUserInventory`, {
-                method: "POST",
-                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-                body: JSON.stringify({})
-            }),
-            fetch(`${HOST}/Client/GetCatalogItems`, {
-                method: "POST",
-                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-                body: JSON.stringify({ "CatalogVersion": "Ingame" })
-            })
-        ]);
+        const loginLoading = document.getElementById("loginLoading");
+        loginLoading.textContent = "⏳ Loading...";
 
-        const profileData = await profileRes.json();
-        const inventoryData = await inventoryRes.json();
-        const catalogData = await catalogRes.json();
+        try {
+            const [profileRes, inventoryRes, catalogRes] = await Promise.all([
+                fetch(`${HOST}/Client/GetAccountInfo`, {
+                    method: "POST",
+                    headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                }),
+                fetch(`${HOST}/Client/GetUserInventory`, {
+                    method: "POST",
+                    headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                }),
+                fetch(`${HOST}/Client/GetCatalogItems`, {
+                    method: "POST",
+                    headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({ "CatalogVersion": "Ingame" })
+                })
+            ]);
 
-        const displayName = profileData.data.AccountInfo.TitleInfo.DisplayName;
-        const currencies = inventoryData.data.VirtualCurrency;
-        document.getElementById("profileName").textContent = displayName;
-        document.getElementById("profileFE").textContent = currencies.FE || 0;
-        document.getElementById("profileAC").textContent = currencies.AC || 0;
-        document.getElementById("profileBar").style.display = "block";
-        document.getElementById("mainNav").style.display = "block";
+            const profileData = await profileRes.json();
+            const inventoryData = await inventoryRes.json();
+            const catalogData = await catalogRes.json();
 
-        // hide login overlay
-        document.getElementById("loginOverlay").className = "login-overlay";
+            if (profileData.code !== 200) {
+                loginLoading.textContent = "❌ Invalid token";
+                return;
+            }
 
-        userInventory = inventoryData.data.Inventory.map(i => i.ItemId.trim());
-        catalog = catalogData.data.Catalog.filter(i =>
-            (i.ItemClass === "Customization" || i.ItemClass === "Emotion" || i.ItemClass === "Bundle") &&
-            !isHidden(i.ItemId)
-        );
+            const displayName = profileData.data.AccountInfo.TitleInfo.DisplayName;
+            const currencies = inventoryData.data.VirtualCurrency;
+            document.getElementById("profileName").textContent = displayName;
+            document.getElementById("profileFE").textContent = currencies.FE || 0;
+            document.getElementById("profileAC").textContent = currencies.AC || 0;
+            document.getElementById("profileBar").style.display = "block";
+            document.getElementById("mainNav").style.display = "block";
+            document.getElementById("loginOverlay").className = "login-overlay";
 
-        catalog.forEach(i => { priceMap[i.ItemId.trim()] = i.VirtualCurrencyPrices || {}; });
+            userInventory = inventoryData.data.Inventory.map(i => i.ItemId.trim());
+            catalog = catalogData.data.Catalog.filter(i =>
+                (i.ItemClass === "Customization" || i.ItemClass === "Emotion" || i.ItemClass === "Bundle") &&
+                !isHidden(i.ItemId)
+            );
+            catalog.forEach(i => { priceMap[i.ItemId.trim()] = i.VirtualCurrencyPrices || {}; });
 
-        updateStats();
-        buildTabs();
-        renderItems();
+            updateStats();
+            buildTabs();
+            renderItems();
+
+            // Background: fetch all store deals and inject into catalog
+            loadAllStoreDeals();
+
+        } catch(e) {
+            loginLoading.textContent = "❌ Failed to load. Check your token.";
+        }
     }
 
+    // ─── TABS ───────────────────────────────────────────────────────────────
     function buildTabs() {
         const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
         const tabsBar = document.getElementById("tabsBar");
@@ -1034,9 +1108,21 @@
     function applyFiltersAndSort(items) {
         const q = getSearchQuery();
         if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
-        items = items.filter(i => filters[getCurrencyType(i)]);
-        if (sortMode === "asc") items = [...items].sort((a, b) => getPrice(a) - getPrice(b));
-        else if (sortMode === "desc") items = [...items].sort((a, b) => getPrice(b) - getPrice(a));
+        if (filters.DEAL) {
+            items = items.filter(i => storeDeals[i.ItemId.trim()]);
+        } else {
+            items = items.filter(i => filters[getCurrencyType(i)]);
+        }
+        if (sortMode === "asc") items = [...items].sort((a, b) => {
+            const pa = storeDeals[a.ItemId.trim()]?.price ?? getPrice(a);
+            const pb = storeDeals[b.ItemId.trim()]?.price ?? getPrice(b);
+            return pa - pb;
+        });
+        else if (sortMode === "desc") items = [...items].sort((a, b) => {
+            const pa = storeDeals[a.ItemId.trim()]?.price ?? getPrice(a);
+            const pb = storeDeals[b.ItemId.trim()]?.price ?? getPrice(b);
+            return pb - pa;
+        });
         return items;
     }
 
@@ -1045,6 +1131,7 @@
     function safeBuy(itemId) { checkBundle(itemId, priceMap[itemId] || {}); }
     function safeBuyDirect(itemId) { buyItem(itemId, priceMap[itemId] || {}); }
 
+    // ─── CATALOG GRID RENDERER (with deal overlay) ─────────────────────────
     function renderGridView() {
         let items = applyFiltersAndSort(getTabItems());
         const grid = document.getElementById("itemGrid");
@@ -1056,21 +1143,41 @@
             const owned = userInventory.includes(trimmed);
             const prices = item.VirtualCurrencyPrices || {};
             const isNA = getCurrencyType(item) === "NA";
+            const deal = storeDeals[trimmed];
 
             const card = document.createElement("div");
-            card.className = `card ${owned ? "owned" : ""} ${isNA ? "na" : ""}`;
+            card.className = `card ${owned ? "owned" : ""} ${isNA && !deal ? "na" : ""} ${deal && !owned ? "deal" : ""}`;
             card.id = `card-${trimmed}`;
+
+            let priceSection = "";
+            if (deal && !owned) {
+                const catPriceStr = (prices.FE !== undefined || prices.AC !== undefined) ? priceTag(prices) : null;
+                priceSection = `
+                    <div class="deal-badge">🏷️ STORE DEAL</div>
+                    ${catPriceStr ? `<div class="original-price">${catPriceStr}</div>` : ""}
+                    <div class="price deal-price">${deal.currency === "FE" ? `🪙 ${deal.price} FE` : `🎟️ ${deal.price} AC`}</div>
+                    <div class="deal-source">${deal.sourceLabel}</div>
+                `;
+            } else {
+                priceSection = `<div class="price">${priceTag(prices)}</div>`;
+            }
+
             card.innerHTML = `
                 <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                 <div class="no-img" style="display:none">no image</div>
                 <div class="name">${trimmed}</div>
-                <div class="price">${priceTag(prices)}</div>
+                ${priceSection}
             `;
 
             if (owned) {
                 const b = document.createElement("div"); b.className = "owned-badge"; b.textContent = "✅ owned"; card.appendChild(b);
+            } else if (deal) {
+                const btn = document.createElement("button");
+                btn.className = "buy-btn deal-btn"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy (Deal)";
+                btn.onclick = () => buyItem(trimmed, deal.prices, deal.storeId);
+                card.appendChild(btn);
             } else if (isNA) {
-                const b = document.createElement("div"); b.className = "na-badge"; b.textContent = "🚫 Not Purchasable"; card.appendChild(b);
+                const b = document.createElement("div"); b.className = "na-badge"; b.textContent = "🚫 N/A"; card.appendChild(b);
             } else {
                 const btn = document.createElement("button");
                 btn.className = "buy-btn"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy";
@@ -1081,6 +1188,7 @@
         });
     }
 
+    // ─── BUNDLE VIEW ────────────────────────────────────────────────────────
     function renderBundleView() {
         const grid = document.getElementById("itemGrid");
         grid.className = "";
@@ -1090,80 +1198,60 @@
         let items = getTabItems();
         if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
 
+        // group non-bundle items by character+skin
         const groups = {};
         items.forEach(item => {
             const trimmed = item.ItemId.trim();
-            const normChar = getCharacter(trimmed);
+            if (isBundle(trimmed)) return;
+            const rawChar = getRawCharacter(trimmed);
             const skinKey = getSkinKey(trimmed);
-            const key = `${normChar.toLowerCase()}_${skinKey}`;
-            if (!groups[key]) groups[key] = { normChar, skinKey, bundle: null, singles: [], rawChars: new Set() };
-            groups[key].rawChars.add(getRawCharacter(trimmed));
-            if (isBundle(trimmed)) groups[key].bundle = item;
-            else groups[key].singles.push(item);
+            const groupKey = `${rawChar.toLowerCase()}__${skinKey}`;
+            if (!groups[groupKey]) groups[groupKey] = { rawChar, skinKey, singles: [], bundle: null };
+            groups[groupKey].singles.push(item);
         });
 
-        Object.values(groups).forEach(group => {
-            if (!group.bundle) {
-                for (const rc of group.rawChars) {
-                    const b = findBundle(rc, group.skinKey);
-                    if (b) { group.bundle = b; break; }
-                }
-            }
+        // attach bundles
+        items.forEach(item => {
+            const trimmed = item.ItemId.trim();
+            if (!isBundle(trimmed)) return;
+            const rawChar = getRawCharacter(trimmed);
+            const skinKey = getSkinKey(trimmed);
+            const groupKey = `${rawChar.toLowerCase()}__${skinKey}`;
+            if (!groups[groupKey]) groups[groupKey] = { rawChar, skinKey, singles: [], bundle: null };
+            groups[groupKey].bundle = item;
         });
 
-        const seen = new Set();
-        const finalGroups = [];
-        Object.entries(groups).forEach(([key, group]) => {
-            if (!seen.has(key)) { seen.add(key); finalGroups.push(group); }
-        });
+        Object.entries(groups).forEach(([groupKey, group]) => {
+            const char = getCharacter(group.rawChar);
+            const skinDisp = displaySkin(group.skinKey);
+            const displayTitle = `${char} — ${skinDisp}`;
+            const safeKey = groupKey.replace(/[^a-z0-9]/gi,"_");
 
-        finalGroups.forEach(group => {
-            if (group.singles.length === 0 && !group.bundle) return;
-
-            const cmp = compareBundle(group.bundle, group.singles);
+            const bp = group.bundle?.VirtualCurrencyPrices || {};
             const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
-            const allSinglesOwned = group.singles.length > 0 && group.singles.every(i => userInventory.includes(i.ItemId.trim()));
+            const bCur = getCurrencyType({ VirtualCurrencyPrices: bp });
+            const cmp = group.bundle ? compareBundle(group.bundle, group.singles) : null;
 
             let groupClass = "bundle-group";
-            if (cmp) {
-                if (cmp.type === "cheaper") groupClass = "bundle-group cheaper";
-                else if (cmp.type === "expensive") groupClass = "bundle-group expensive";
-                else if (cmp.type === "mixed") groupClass = "bundle-group mixed";
-                else if (cmp.type === "same") groupClass = "bundle-group same";
-            }
-
             let savingsHtml = "";
             if (cmp) {
-                if (cmp.type === "cheaper") savingsHtml = `<div class="savings-line green">✅ Bundle saves ${cmp.savings} ${currencyFull(cmp.bundleCur)}</div>`;
-                else if (cmp.type === "expensive") savingsHtml = `<div class="savings-line red">Bundle is more expensive — Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`;
-                else if (cmp.type === "mixed") savingsHtml = `<div class="savings-line orange">⚠️ Different currencies — your choice<br>Bundle: ${cmp.bundlePrice} ${currencyFull(cmp.bundleCur)}<br>Singles: ${cmp.singlesTotal} ${currencyFull(cmp.singlesCur)}</div>`;
-                else if (cmp.type === "same") savingsHtml = `<div class="savings-line blue">Same price either way</div>`;
-                else if (cmp.type === "all_owned") savingsHtml = `<div class="savings-line green">✅ All singles already owned</div>`;
+                if (cmp.type === "cheaper") { groupClass += " cheaper"; savingsHtml = `<div class="savings-line green">✅ Bundle saves ${cmp.savings} ${currencyFull(cmp.bundleCur)}</div>`; }
+                else if (cmp.type === "expensive") { groupClass += " expensive"; savingsHtml = `<div class="savings-line red">Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`; }
+                else if (cmp.type === "mixed") { groupClass += " mixed"; savingsHtml = `<div class="savings-line orange">⚠️ Mixed currencies</div>`; }
+                else if (cmp.type === "same") { groupClass += " same"; savingsHtml = `<div class="savings-line blue">Same price either way</div>`; }
             }
 
-            const rawCharsArr = [...group.rawChars];
-            const preferredChar = rawCharsArr.find(c => c.toLowerCase() === "scary") || rawCharsArr[0];
-            const displayTitle = `${preferredChar} — ${displaySkin(group.skinKey)}`;
-            const safeKey = `${group.normChar}-${group.skinKey}`.replace(/[^a-z0-9]/gi, "_");
+            let btnClass = "bundle-main-btn orange";
+            if (cmp && cmp.type === "cheaper") btnClass = "bundle-main-btn orange";
+            else if (cmp && cmp.type === "same") btnClass = "bundle-main-btn blue";
+            const isGrayed = !group.bundle || bCur === "NA" || bundleOwned;
+            const allSinglesOwned = group.singles.every(i => userInventory.includes(i.ItemId.trim()));
+            const showBuyAnyway = group.bundle && !bundleOwned && bCur !== "NA" &&
+                ((cmp && cmp.type === "expensive") || allSinglesOwned);
 
             let bundleImageHtml = "";
             if (group.bundle) {
                 const bundleId = group.bundle.ItemId.trim();
-                const bp = group.bundle.VirtualCurrencyPrices || {};
-                const bCur = getCurrencyType(group.bundle);
-                const singlesTotal = cmp ? cmp.singlesTotal : null;
-                const sCur = cmp ? cmp.singlesCur : null;
-
-                let btnClass = "bundle-main-btn orange";
-                if (bundleOwned || allSinglesOwned) btnClass = "bundle-main-btn grayed";
-                else if (cmp && cmp.type === "same") btnClass = "bundle-main-btn blue";
-                else if (cmp && cmp.type === "expensive") btnClass = "bundle-main-btn grayed";
-                else if (bCur === "NA") btnClass = "bundle-main-btn grayed";
-
-                const isGrayed = btnClass.includes("grayed");
-                const showBuyAnyway = !bundleOwned && bCur !== "NA" &&
-                    ((cmp && cmp.type === "expensive") || allSinglesOwned);
-
                 bundleImageHtml = `
                     <div class="bundle-image-card">
                         <img src="images/${bundleId}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
@@ -1261,10 +1349,50 @@
         container.querySelectorAll(`.mini-buy[data-group="${safeKey}"]`).forEach(btn => { btn.disabled = !checked; });
     }
 
+    // ─── BUNDLE POPUP ──────────────────────────────────────────────────────
+    function findBundle(rawChar, normalizedSkin) {
+        const isNeighbor = NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase());
+        const charsToSearch = isNeighbor ? NEIGHBOR_ALIASES : [rawChar];
+        const skinVariants = new Set([normalizedSkin, displaySkin(normalizedSkin).toLowerCase()]);
+        Object.entries(SKIN_ALIASES).forEach(([k, v]) => { if (v === normalizedSkin) skinVariants.add(k); });
+        for (const char of charsToSearch) {
+            for (const skin of skinVariants) {
+                const found = catalog.find(i =>
+                    i.ItemId.trim().toLowerCase() === `${char.toLowerCase()}_bundle_${skin}`
+                );
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
+    function compareBundle(bundle, singles) {
+        if (!bundle) return null;
+        const bp = bundle.VirtualCurrencyPrices || {};
+        const bundleCur = bp.FE !== undefined ? "FE" : bp.AC !== undefined ? "AC" : null;
+        if (!bundleCur) return null;
+        const bundlePrice = bp[bundleCur];
+        const notOwned = singles.filter(i => !userInventory.includes(i.ItemId.trim()));
+        if (notOwned.length === 0) return { type: "all_owned" };
+        const purchasable = notOwned.filter(i => getCurrencyType(i) !== "NA");
+        if (purchasable.length === 0) return null;
+        const singleCurs = [...new Set(purchasable.map(i => getCurrencyType(i)))];
+        const singleCur = singleCurs.length === 1 ? singleCurs[0] : "MIXED";
+        if (singleCur === "MIXED" || singleCur !== bundleCur) {
+            const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
+            return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur };
+        }
+        const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
+        const diff = singlesTotal - bundlePrice;
+        if (diff > 0) return { type: "cheaper", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: diff };
+        if (diff < 0) return { type: "expensive", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: Math.abs(diff) };
+        return { type: "same", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: 0 };
+    }
+
     function showBundlePopup(bundleId, singlesTotal, singlesCur) {
         const prices = priceMap[bundleId] || {};
         const bundleCur = getCurrencyType({ VirtualCurrencyPrices: prices });
-        const bundlePrice = getPrice({ VirtualCurrencyPrices: prices });
+        const bundlePrice = prices[bundleCur] || 0;
 
         let compHtml = "";
         if (singlesTotal != null && singlesCur && singlesCur !== "null") {
@@ -1320,6 +1448,7 @@
 
     function closePopup() { document.getElementById("bundlePopup").className = "popup-overlay"; }
 
+    // ─── BUY ────────────────────────────────────────────────────────────────
     async function buyItem(itemId, prices, storeId) {
         const trimmed = itemId.trim();
         const currency = prices.FE !== undefined ? "FE" : "AC";
@@ -1348,15 +1477,18 @@
                     parseInt(document.getElementById("profileAC").textContent) - price;
             }
             userInventory.push(trimmed);
+            // clear deal since now owned
+            delete storeDeals[trimmed];
             updateStats();
             renderItems();
             alert(`✅ ${trimmed} unlocked!`);
         } else {
-            if (btn) { btn.disabled = false; btn.textContent = "Buy"; }
+            if (btn) { btn.disabled = false; btn.textContent = btn.classList.contains("deal-btn") ? "Buy (Deal)" : "Buy"; }
             alert(`❌ failed: ${data.errorMessage}`);
         }
     }
 
+    // ─── STATS ──────────────────────────────────────────────────────────────
     function updateStats() {
         const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId.trim())).length;
         document.getElementById("totalCount").textContent = catalog.length;
