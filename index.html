@@ -21,54 +21,35 @@
             display: none;
             background: #16213e;
             padding: 12px 25px;
-            border-bottom: 2px solid #e94560;
+            text-align: center;
             font-size: 15px;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
+            border-bottom: 2px solid #e94560;
         }
 
-        .profile-bar span { margin: 0 8px; color: #e94560; font-weight: bold; }
+        .profile-bar span { margin: 0 15px; color: #e94560; font-weight: bold; }
 
-        /* three-column layout */
-        .profile-left   { display: flex; align-items: center; }
-        .profile-center { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; justify-content: center; flex: 1; }
-        .profile-right  { display: flex; align-items: center; gap: 8px; }
-
-        .store-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .main-nav {
+            display: none;
             background: #0f3460;
-            border: 1px solid #3a3a6a;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 12px;
-            color: #aaa;
-            margin-left: 10px;
+            padding: 0 20px;
+            border-bottom: 2px solid #e94560;
         }
 
-        .store-badge b { color: #e94560; font-size: 13px; }
-
-        .shop-mode-btn {
-            padding: 7px 16px;
-            border-radius: 20px;
-            border: 2px solid #444;
+        .main-nav-btn {
+            padding: 14px 24px;
             background: transparent;
             color: #aaa;
+            border: none;
+            border-bottom: 3px solid transparent;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: bold;
             transition: 0.2s;
+            margin-bottom: -2px;
         }
 
-        .shop-mode-btn:hover { border-color: #e94560; color: white; }
-        .shop-mode-btn.active { background: #e94560; border-color: #e94560; color: white; }
-        .shop-mode-btn.daily-active { background: #2ecc71; border-color: #2ecc71; color: white; }
-        .shop-mode-btn.season-active { background: #3498db; border-color: #3498db; color: white; }
-
-
+        .main-nav-btn:hover { color: white; }
+        .main-nav-btn.active { color: #e94560; border-bottom-color: #e94560; }
 
         .login-box {
             max-width: 500px;
@@ -103,7 +84,8 @@
 
         .login-box button:hover { background: #c73652; }
 
-        #shopSection { display: none; padding: 20px; }
+        .page { display: none; padding: 20px; }
+        .page.active { display: block; }
 
         .stats {
             background: #16213e;
@@ -205,6 +187,7 @@
         .card:hover { border-color: #e94560; }
         .card.owned { border-color: #2ecc71; }
         .card.na { opacity: 0.4; }
+        .card.promo { border-color: #f39c12; }
 
         .card img {
             width: 100px; height: 100px;
@@ -216,8 +199,11 @@
 
         .card .name { font-size: 11px; color: #aaa; margin-bottom: 8px; word-break: break-all; }
         .card .price { font-size: 12px; color: #e94560; margin-bottom: 8px; }
+        .card .price.promo-price { color: #f39c12; }
+        .card .original-price { font-size: 10px; color: #555; text-decoration: line-through; margin-bottom: 4px; }
         .card .owned-badge { background: #2ecc71; color: white; padding: 5px; border-radius: 5px; font-size: 12px; }
         .card .na-badge { background: #555; color: #aaa; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .card .promo-badge { background: #f39c12; color: white; padding: 3px 6px; border-radius: 5px; font-size: 10px; margin-bottom: 4px; display: inline-block; }
 
         .card .buy-btn {
             background: #e94560; color: white;
@@ -238,6 +224,7 @@
             font-size: 11px; color: #555;
         }
 
+        /* BUNDLE VIEW */
         .bundle-group {
             border-radius: 12px;
             padding: 20px;
@@ -263,7 +250,6 @@
         .bundle-group-title { font-size: 16px; font-weight: bold; color: white; margin-bottom: 4px; }
         .bundle-price-line { font-size: 13px; color: #aaa; margin-bottom: 3px; }
         .bundle-price-line b { color: white; }
-
         .savings-line { font-size: 13px; margin-top: 4px; font-weight: bold; }
         .savings-line.green { color: #2ecc71; }
         .savings-line.red { color: #e94560; }
@@ -291,8 +277,7 @@
             background: #0f3460;
             border-radius: 10px;
             border: 2px solid #2a2a4a;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             justify-content: center;
             font-size: 24px;
         }
@@ -332,13 +317,7 @@
 
         .buy-anyway-btn:hover { border-color: #aaa; color: white; }
 
-        .bundle-body {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-
+        .bundle-body { display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
         .bundle-singles { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
 
         .mini-card {
@@ -397,60 +376,21 @@
             gap: 6px;
             font-size: 12px;
             color: #aaa;
-            cursor: pointer;
         }
 
         .checkbox-row input { cursor: pointer; }
 
-        /* compact card — used when all singles owned, only bundle left */
-        .bundle-group.compact {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 18px;
-        }
-
-        .compact-img {
-            width: 56px; height: 56px;
-            object-fit: contain;
-            background: #0f3460;
-            border-radius: 8px;
+        .store-section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
             border: 2px solid #2a2a4a;
-            flex-shrink: 0;
         }
 
-        .compact-placeholder {
-            width: 56px; height: 56px;
-            background: #0f3460;
-            border-radius: 8px;
-            border: 2px solid #2a2a4a;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .compact-info { flex: 1; min-width: 0; }
-        .compact-title { font-size: 14px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .compact-sub   { font-size: 12px; color: #aaa; margin-top: 2px; }
-        .compact-sub b { color: white; }
-        .compact-status { font-size: 11px; margin-top: 3px; }
-        .compact-status.green { color: #2ecc71; }
-        .compact-status.red   { color: #e94560; }
-
-        .compact-action { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-
-        .compact-price { font-size: 12px; color: #e94560; text-align: right; }
-
-        .compact-buy {
-            padding: 6px 14px;
-            background: #e94560; color: white;
-            border: none; border-radius: 6px;
-            cursor: pointer; font-size: 12px; font-weight: bold;
-            transition: 0.2s; white-space: nowrap;
-        }
-        .compact-buy:hover { background: #c73652; }
-        .compact-buy.grayed { background: #555; color: #aaa; cursor: not-allowed; }
-        .compact-buy.owned  { background: #2ecc71; cursor: default; }
+        .store-section-title { font-size: 18px; font-weight: bold; color: #e94560; margin-bottom: 5px; }
+        .store-section-sub { font-size: 13px; color: #aaa; margin-bottom: 15px; }
+        .loading-text { color: #aaa; font-size: 14px; padding: 20px; text-align: center; }
 
         .popup-overlay {
             display: none;
@@ -464,31 +404,6 @@
         }
 
         .popup-overlay.show { display: flex; }
-
-        .ban-warning {
-            display: inline-block;
-            background: #7b0000;
-            border: 1px solid #e94560;
-            color: #ff6b6b;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 3px 7px;
-            border-radius: 5px;
-            margin-top: 4px;
-            letter-spacing: 0.3px;
-        }
-
-        .mini-ban-warning {
-            display: block;
-            background: #7b0000;
-            border: 1px solid #e94560;
-            color: #ff6b6b;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 5px;
-            border-radius: 4px;
-            margin-top: 3px;
-        }
 
         .popup {
             background: #16213e;
@@ -525,28 +440,15 @@
 <div class="header">🏠 Secret Neighbor Shop</div>
 
 <div class="profile-bar" id="profileBar">
-    <!-- LEFT: All button -->
-    <div class="profile-left">
-        <button class="shop-mode-btn active" id="btnAllStore" onclick="switchToAllStore()">📦 All</button>
-    </div>
+    👤 <span id="profileName"></span> |
+    🪙 FE (Coins): <span id="profileFE"></span> |
+    🎟️ AC (Tickets): <span id="profileAC"></span>
+</div>
 
-    <!-- CENTER: player info + active store badge -->
-    <div class="profile-center">
-        👤 <span id="profileName"></span>
-        <span style="color:#555;font-weight:normal">|</span>
-        🪙 FE: <span id="profileFE"></span>
-        <span style="color:#555;font-weight:normal">|</span>
-        🎟️ AC: <span id="profileAC"></span>
-        <div class="store-badge">
-            🏪 <b id="storeBadgeLabel">All Items</b>
-        </div>
-    </div>
-
-    <!-- RIGHT: Daily + Season -->
-    <div class="profile-right">
-        <button class="shop-mode-btn" id="btnDailyShop" onclick="loadDailyShop()">🗓️ Daily Shop</button>
-        <button class="shop-mode-btn" id="btnSeasonShop" onclick="loadSeasonShop()">🌟 Season Shop</button>
-    </div>
+<div class="main-nav" id="mainNav">
+    <button class="main-nav-btn active" onclick="switchPage('catalog')">🛒 Our Catalog</button>
+    <button class="main-nav-btn" onclick="switchPage('daily')">📅 Daily Shop</button>
+    <button class="main-nav-btn" onclick="switchPage('special')">🌟 Special Shops</button>
 </div>
 
 <div class="login-box" id="loginBox">
@@ -558,15 +460,14 @@
     <button onclick="loadShop()">Load Shop</button>
 </div>
 
-<div id="shopSection">
+<!-- OUR CATALOG -->
+<div class="page active" id="page-catalog">
     <div class="stats">
         items: <span id="totalCount">0</span> |
         owned: <span id="ownedCount">0</span> |
         not owned: <span id="notOwnedCount">0</span>
     </div>
-
     <div class="tabs" id="tabsBar"></div>
-
     <div class="filter-bar">
         <span class="filter-label">Show:</span>
         <button class="toggle-btn" id="toggle-FE" onclick="toggleFilter('FE')">🪙 FE (Coins)</button>
@@ -582,10 +483,20 @@
         <div class="divider"></div>
         <input class="search-box" id="searchBox" type="text" placeholder="🔍 Search..." oninput="renderItems()"/>
     </div>
-
     <div id="itemGrid"></div>
 </div>
 
+<!-- DAILY SHOP -->
+<div class="page" id="page-daily">
+    <div id="dailyContent"><div class="loading-text">Loading daily shop...</div></div>
+</div>
+
+<!-- SPECIAL SHOPS -->
+<div class="page" id="page-special">
+    <div id="specialContent"><div class="loading-text">Loading special shops...</div></div>
+</div>
+
+<!-- POPUP -->
 <div class="popup-overlay" id="bundlePopup">
     <div class="popup">
         <h3>💡 Bundle vs Singles</h3>
@@ -602,43 +513,14 @@
     const HOST = "https://bdff1.playfabapi.com";
     let userToken = "";
     let userInventory = [];
-    let catalog = [];           // full catalog (980+ items)
+    let catalog = [];
     let activeTab = "ALL";
     let sortMode = null;
     let filters = { FE: true, AC: true, NA: true };
     let bundleView = false;
-
-    // store prices by itemId for safe lookup — avoids inline JSON in onclick
+    let dailyLoaded = false;
+    let specialLoaded = false;
     const priceMap = {};
-
-    // ── Store mode ──────────────────────────────────────────────────────────
-    // "all"    → full catalog, no StoreId, priceMap from catalog
-    // "store"  → filtered to storeItems, prices from store
-    let storeMode = "all";          // "all" | "store"
-    let activeStoreId = null;       // e.g. "Daily_December_2023_01"
-    let storeItems = [];            // items returned by GetStoreItems
-    let storePriceOverride = {};    // itemId → VirtualCurrencyPrices (store prices)
-
-    // known store IDs parsed from stores_found.txt — hardcoded so no extra API call needed
-    const DAILY_STORES = [
-        "Daily_December_2023_01","Daily_December_2023_02","Daily_December_2023_03",
-        "Daily_December_2023_04","Daily_December_2023_05","Daily_December_2023_06",
-        "Daily_December_2023_07","Daily_December_2023_08","Daily_December_2023_09",
-        "Daily_December_2023_10","Daily_December_2023_11","Daily_December_2023_12",
-        "Daily_December_2023_13","Daily_December_2023_14","Daily_December_2023_15",
-        "Daily_December_2023_16","Daily_December_2023_17","Daily_December_2023_18",
-        "Daily_December_2023_19","Daily_December_2023_20","Daily_December_2023_21",
-        "Daily_December_2023_22","Daily_December_2023_23","Daily_December_2023_24",
-        "Daily_December_2023_25","Daily_December_2023_26","Daily_December_2023_27",
-        "Daily_December_2023_28","Daily_December_2023_29","Daily_December_2023_30",
-        "Daily_December_2023_31"
-    ];
-
-    const SEASON_STORES = [
-        "Featured_Space24_00","Featured_Space24_01","Featured_Space24_02",
-        "Featured_Space24_03","Featured_Space24_04","Featured_Space24_05",
-        "Featured_Space24_06"
-    ];
 
     const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
     const HIDDEN_PREFIXES = [
@@ -652,41 +534,29 @@
         "Journalist", "Scout", "Neighbor", "Butcher", "Clown",
         "Ghost", "Guest", "Hunter", "Emotion"
     ];
-
-    // ── Ban-risk items: owning these can get you banned ──────────────────────
-    // Scout — Winter: neighbor_tennis skin, neighbor_tennis_2 skin, x emote
-    // Leader — Basketball: basketball_skin_1, basketball_skin_2
-    const BAN_RISK_ITEMS = new Set([
-        // Scout Winter singles
-        "Scout_bundle_winter",
-        "Scout_skin_winter",
-        "Neighbor_tennis",
-        "Neighbor_tennis_2",
-        "Scout_emote_x",
-        // Leader Basketball singles
-        "Leader_bundle_basketball",
-        "Leader_skin_basketball_1",
-        "Leader_skin_basketball_2",
-    ]);
-
-    function isBanRisk(itemId) {
-        const t = itemId.trim();
-        // exact match
-        if (BAN_RISK_ITEMS.has(t)) return true;
-        // case-insensitive match
-        for (const b of BAN_RISK_ITEMS) {
-            if (b.toLowerCase() === t.toLowerCase()) return true;
-        }
-        return false;
-    }
-
     const SKIN_ALIASES = {
-        "sr": "speedrunner",
-        "elf_01": "elf",
-        "scary": "pumpkin",
-        "pumpkin": "pumpkin",
+        "sr": "speedrunner", "elf_01": "elf",
+        "scary": "pumpkin", "pumpkin": "pumpkin",
     };
 
+    // daily store IDs — all December 2023
+    const DAILY_STORE_IDS = [];
+    for (let d = 1; d <= 31; d++) {
+        DAILY_STORE_IDS.push(`Daily_December_2023_${String(d).padStart(2, "0")}`);
+    }
+
+    // special store IDs
+    const SEASON_STORES = [
+        { id: "shop_season_Summer2025", label: "☀️ Season Shop — Summer 2025", sub: "Current season exclusives" },
+    ];
+
+    const FEATURED_STORE_IDS = [
+        "Featured_Space24_00", "Featured_Space24_01", "Featured_Space24_02",
+        "Featured_Space24_03", "Featured_Space24_04", "Featured_Space24_05",
+        "Featured_Space24_06",
+    ];
+
+    // helpers
     function normalizeSkin(rawSkin) {
         const lower = rawSkin.toLowerCase().trim();
         return SKIN_ALIASES[lower] !== undefined ? SKIN_ALIASES[lower] : lower;
@@ -705,7 +575,6 @@
     }
 
     function getRawCharacter(itemId) { return itemId.trim().split("_")[0]; }
-
     function isHidden(itemId) { return HIDDEN_PREFIXES.includes(itemId.trim().split("_")[0]); }
 
     function getCurrencyType(item) {
@@ -734,12 +603,10 @@
     }
 
     function isBundle(itemId) { return itemId.trim().split("_")[1].toLowerCase() === "bundle"; }
-
     function getSkinKey(itemId) {
         const parts = itemId.trim().split("_");
         return normalizeSkin(parts.slice(2).join("_"));
     }
-
     function getSlot(itemId) { return itemId.trim().split("_")[1] || ""; }
 
     function findBundle(rawChar, normalizedSkin) {
@@ -747,7 +614,6 @@
         const charsToSearch = isNeighbor ? NEIGHBOR_ALIASES : [rawChar];
         const skinVariants = new Set([normalizedSkin, displaySkin(normalizedSkin).toLowerCase()]);
         Object.entries(SKIN_ALIASES).forEach(([k, v]) => { if (v === normalizedSkin) skinVariants.add(k); });
-
         for (const char of charsToSearch) {
             for (const skin of skinVariants) {
                 const found = catalog.find(i =>
@@ -765,26 +631,201 @@
         const bundleCur = bp.FE !== undefined ? "FE" : bp.AC !== undefined ? "AC" : null;
         if (!bundleCur) return null;
         const bundlePrice = bp[bundleCur];
-
         const notOwned = singles.filter(i => !userInventory.includes(i.ItemId.trim()));
         if (notOwned.length === 0) return { type: "all_owned" };
-
         const purchasable = notOwned.filter(i => getCurrencyType(i) !== "NA");
         if (purchasable.length === 0) return null;
-
         const singleCurs = [...new Set(purchasable.map(i => getCurrencyType(i)))];
         const singleCur = singleCurs.length === 1 ? singleCurs[0] : "MIXED";
-
         if (singleCur === "MIXED" || singleCur !== bundleCur) {
             const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
             return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur };
         }
-
         const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
         const diff = singlesTotal - bundlePrice;
         if (diff > 0) return { type: "cheaper", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: diff };
         if (diff < 0) return { type: "expensive", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: Math.abs(diff) };
         return { type: "same", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: 0 };
+    }
+
+    // fetch a store — returns items array or null
+    async function fetchStore(storeId) {
+        try {
+            const res = await fetch(`${HOST}/Client/GetStoreItems`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
+            });
+            const data = await res.json();
+            if (data.code === 200) return data.data.Store;
+        } catch (e) {}
+        return null;
+    }
+
+    // merge items from multiple stores — keep cheapest price per item, no duplicates
+    function mergeStoreItems(allItems) {
+        const best = {};
+        allItems.forEach(item => {
+            const id = item.ItemId.trim();
+            const p = item.VirtualCurrencyPrices || {};
+            const price = p.FE ?? p.AC ?? Infinity;
+            if (!best[id] || price < (best[id].price)) {
+                best[id] = { item, price };
+            }
+        });
+        return Object.values(best).map(v => v.item);
+    }
+
+    function switchPage(page) {
+        document.querySelectorAll(".main-nav-btn").forEach((btn, i) => {
+            const pages = ["catalog", "daily", "special"];
+            btn.className = `main-nav-btn ${pages[i] === page ? "active" : ""}`;
+        });
+        document.querySelectorAll(".page").forEach(p => p.className = "page");
+        document.getElementById(`page-${page}`).className = "page active";
+        if (page === "daily" && !dailyLoaded) loadDailyShop();
+        if (page === "special" && !specialLoaded) loadSpecialShops();
+    }
+
+    async function loadDailyShop() {
+        dailyLoaded = true;
+        const content = document.getElementById("dailyContent");
+        content.innerHTML = '<div class="loading-text">Fetching daily stores...</div>';
+
+        const allItems = [];
+        for (const id of DAILY_STORE_IDS) {
+            const items = await fetchStore(id);
+            if (items) allItems.push(...items);
+        }
+
+        const merged = mergeStoreItems(allItems);
+
+        if (merged.length === 0) {
+            content.innerHTML = '<div class="loading-text">No daily shop items found</div>';
+            return;
+        }
+
+        content.innerHTML = `
+            <div class="store-section">
+                <div class="store-section-title">📅 Daily Shop</div>
+                <div class="store-section-sub">All daily rotations merged — showing cheapest price per item (${merged.length} unique items)</div>
+                <div class="grid" id="daily-grid"></div>
+            </div>
+        `;
+
+        renderStoreGrid(document.getElementById("daily-grid"), merged);
+    }
+
+    async function loadSpecialShops() {
+        specialLoaded = true;
+        const content = document.getElementById("specialContent");
+        content.innerHTML = '<div class="loading-text">Fetching special shops...</div>';
+
+        let html = "";
+        const sections = [];
+
+        // season shops
+        for (const store of SEASON_STORES) {
+            const items = await fetchStore(store.id);
+            if (items && items.length > 0) {
+                sections.push({ ...store, items: mergeStoreItems(items) });
+            }
+        }
+
+        // featured stores — merge all into one section
+        const featuredAll = [];
+        for (const id of FEATURED_STORE_IDS) {
+            const items = await fetchStore(id);
+            if (items) featuredAll.push(...items);
+        }
+        if (featuredAll.length > 0) {
+            sections.push({
+                id: "featured-all",
+                label: "🚀 Featured Shop",
+                sub: `All featured rotations merged — ${mergeStoreItems(featuredAll).length} unique items`,
+                items: mergeStoreItems(featuredAll)
+            });
+        }
+
+        if (sections.length === 0) {
+            content.innerHTML = '<div class="loading-text">No special shops found</div>';
+            return;
+        }
+
+        sections.forEach(s => {
+            html += `
+                <div class="store-section">
+                    <div class="store-section-title">${s.label}</div>
+                    <div class="store-section-sub">${s.sub}</div>
+                    <div class="grid" id="sgrid-${s.id}"></div>
+                </div>
+            `;
+        });
+
+        content.innerHTML = html;
+        sections.forEach(s => {
+            const grid = document.getElementById(`sgrid-${s.id}`);
+            if (grid) renderStoreGrid(grid, s.items);
+        });
+    }
+
+    function renderStoreGrid(grid, items) {
+        grid.innerHTML = "";
+        items.forEach(item => {
+            const trimmed = item.ItemId.trim();
+            const owned = userInventory.includes(trimmed);
+            const storePrices = item.VirtualCurrencyPrices || {};
+            const catalogPrices = priceMap[trimmed] || {};
+
+            const storeFE = storePrices.FE;
+            const storeAC = storePrices.AC;
+            const catFE = catalogPrices.FE;
+            const catAC = catalogPrices.AC;
+            const isPromo = (storeFE && catFE && storeFE < catFE) || (storeAC && catAC && storeAC < catAC);
+
+            const card = document.createElement("div");
+            card.className = `card ${owned ? "owned" : ""} ${isPromo ? "promo" : ""}`;
+
+            let priceHtml = "";
+            if (isPromo) {
+                const origPrice = catFE ? `🪙 ${catFE} FE` : `🎟️ ${catAC} AC`;
+                const newPrice = storeFE ? `🪙 (C.) ${storeFE} FE` : `🎟️ (T.) ${storeAC} AC`;
+                priceHtml = `
+                    <div class="promo-badge">🔥 PROMO</div>
+                    <div class="original-price">${origPrice}</div>
+                    <div class="price promo-price">${newPrice}</div>
+                `;
+            } else {
+                priceHtml = `<div class="price">${priceTag(storePrices)}</div>`;
+            }
+
+            card.innerHTML = `
+                <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                <div class="no-img" style="display:none">no image</div>
+                <div class="name">${trimmed}</div>
+                ${priceHtml}
+            `;
+
+            if (owned) {
+                const badge = document.createElement("div");
+                badge.className = "owned-badge";
+                badge.textContent = "✅ owned";
+                card.appendChild(badge);
+            } else if (!storeFE && !storeAC) {
+                const badge = document.createElement("div");
+                badge.className = "na-badge";
+                badge.textContent = "🚫 N/A";
+                card.appendChild(badge);
+            } else {
+                const btn = document.createElement("button");
+                btn.className = "buy-btn";
+                btn.textContent = "Buy";
+                btn.onclick = () => buyItem(trimmed, storePrices);
+                card.appendChild(btn);
+            }
+
+            grid.appendChild(card);
+        });
     }
 
     function toggleFilter(type) {
@@ -809,178 +850,6 @@
         bundleView = !bundleView;
         document.getElementById("view-bundle").className = `sort-btn ${bundleView ? "active" : ""}`;
         renderItems();
-    }
-
-    // ── Store switcher logic ─────────────────────────────────────────────────
-
-    // helper: fetch a single store, returns its items array or []
-    async function fetchStore(storeId) {
-        try {
-            const res = await fetch(`${HOST}/Client/GetStoreItems`, {
-                method: "POST",
-                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-                body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
-            });
-            const data = await res.json();
-            if (data.code === 200) return data.data.Store;
-        } catch {}
-        return [];
-    }
-
-    // Merge multiple store arrays → cheapest price per item across all rotations.
-    // Returns { itemId → VirtualCurrencyPrices } with the cheapest seen price.
-    function mergeStoresCheapest(storeArrays) {
-        const best = {}; // itemId → { prices, bestNumeric }
-        storeArrays.forEach(items => {
-            items.forEach(si => {
-                const id = si.ItemId.trim();
-                const prices = si.VirtualCurrencyPrices || {};
-                const cur = prices.FE !== undefined ? "FE" : prices.AC !== undefined ? "AC" : null;
-                if (!cur) return; // not purchasable in this rotation — skip
-                const num = prices[cur];
-                if (!best[id] || num < best[id].bestNumeric) {
-                    best[id] = { prices, bestNumeric: num };
-                }
-            });
-        });
-        // flatten to itemId → prices
-        const result = {};
-        Object.entries(best).forEach(([id, v]) => { result[id] = v.prices; });
-        return result;
-    }
-
-    // Daily Shop: pulls ALL Daily_December_2023_XX + ALL Featured_Space24_XX rotations,
-    // merges them, shows each item at its cheapest available price.
-    async function loadDailyShop() {
-        setBadgeLoading();
-
-        // fetch all daily + featured rotations in parallel
-        const allStoreIds = [...DAILY_STORES, ...SEASON_STORES];
-        const storeArrays = await Promise.all(allStoreIds.map(id => fetchStore(id)));
-
-        storePriceOverride = mergeStoresCheapest(storeArrays);
-
-        // build storeItems as the union of all unique item IDs found
-        const seenIds = new Set(Object.keys(storePriceOverride));
-        storeItems = [...seenIds].map(id => ({ ItemId: id, VirtualCurrencyPrices: storePriceOverride[id] }));
-
-        storeMode = "store";
-        activeStoreId = "daily_merged";
-
-        document.getElementById("storeBadgeLabel").textContent = "Daily Shop (cheapest)";
-        document.getElementById("btnAllStore").className = "shop-mode-btn";
-        document.getElementById("btnDailyShop").className = "shop-mode-btn daily-active";
-        document.getElementById("btnSeasonShop").className = "shop-mode-btn";
-
-        updateStats();
-        buildTabs();
-        renderItems();
-    }
-
-    // Season Shop: tries multiple known season store IDs until one returns items.
-    const SEASON_SHOP_IDS = [
-        "shop_season_Summer2025",
-        "shop_season_Summer_2025",
-        "Season_Summer2025",
-        "Featured_Summer2025_00",
-    ];
-
-    async function fetchStoreDebug(storeId) {
-        try {
-            const res = await fetch(`${HOST}/Client/GetStoreItems`, {
-                method: "POST",
-                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-                body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
-            });
-            const data = await res.json();
-            console.log(`[SeasonShop] StoreId="${storeId}" → code=${data.code}`, data);
-            if (data.code === 200 && data.data && data.data.Store && data.data.Store.length > 0) {
-                return { items: data.data.Store, storeId };
-            }
-        } catch(e) {
-            console.warn(`[SeasonShop] fetchStoreDebug error for "${storeId}":`, e);
-        }
-        return null;
-    }
-
-    async function loadSeasonShop() {
-        setBadgeLoading();
-
-        let result = null;
-        for (const sid of SEASON_SHOP_IDS) {
-            result = await fetchStoreDebug(sid);
-            if (result) break;
-        }
-
-        // re-enable buttons regardless of outcome
-        document.getElementById("btnDailyShop").disabled = false;
-        document.getElementById("btnSeasonShop").disabled = false;
-
-        if (!result) {
-            alert("❌ Season shop returned no items.\n\nTried store IDs:\n" + SEASON_SHOP_IDS.join("\n") + "\n\nCheck console (F12) for details. The store ID might have changed.");
-            document.getElementById("storeBadgeLabel").textContent = activeStoreId ? "—" : "All Items";
-            // revert button states
-            document.getElementById("btnAllStore").className = storeMode === "all" ? "shop-mode-btn active" : "shop-mode-btn";
-            document.getElementById("btnDailyShop").className = activeStoreId === "daily_merged" ? "shop-mode-btn daily-active" : "shop-mode-btn";
-            document.getElementById("btnSeasonShop").className = "shop-mode-btn";
-            return;
-        }
-
-        const { items, storeId: foundId } = result;
-        storePriceOverride = {};
-        items.forEach(si => { storePriceOverride[si.ItemId.trim()] = si.VirtualCurrencyPrices || {}; });
-        storeItems = items;
-        storeMode = "store";
-        activeStoreId = foundId;
-
-        document.getElementById("storeBadgeLabel").textContent = `Season Shop (${foundId})`;
-        document.getElementById("btnAllStore").className = "shop-mode-btn";
-        document.getElementById("btnDailyShop").className = "shop-mode-btn";
-        document.getElementById("btnSeasonShop").className = "shop-mode-btn season-active";
-
-        updateStats();
-        buildTabs();
-        renderItems();
-    }
-
-    function switchToAllStore() {
-        storeMode = "all";
-        activeStoreId = null;
-        storeItems = [];
-        storePriceOverride = {};
-        document.getElementById("storeBadgeLabel").textContent = "All Items";
-        document.getElementById("btnAllStore").className = "shop-mode-btn active";
-        document.getElementById("btnDailyShop").className = "shop-mode-btn";
-        document.getElementById("btnSeasonShop").className = "shop-mode-btn";
-        updateStats();
-        buildTabs();
-        renderItems();
-    }
-
-    function setBadgeLoading() {
-        document.getElementById("storeBadgeLabel").textContent = "Loading…";
-        document.getElementById("btnDailyShop").disabled = true;
-        document.getElementById("btnSeasonShop").disabled = true;
-        // re-enable after a tick (will be re-enabled after render anyway)
-        setTimeout(() => {
-            document.getElementById("btnDailyShop").disabled = false;
-            document.getElementById("btnSeasonShop").disabled = false;
-        }, 8000);
-    }
-
-    // returns the items to show based on current store mode
-    function getActiveCatalog() {
-        if (storeMode === "store") {
-            // intersect storeItems with full catalog to get full item objects + store prices
-            const storeIds = new Set(storeItems.map(si => si.ItemId.trim()));
-            return catalog
-                .filter(ci => storeIds.has(ci.ItemId.trim()))
-                .map(ci => {
-                    const override = storePriceOverride[ci.ItemId.trim()];
-                    return override ? { ...ci, VirtualCurrencyPrices: override } : ci;
-                });
-        }
-        return catalog;
     }
 
     async function loadShop() {
@@ -1016,6 +885,7 @@
         document.getElementById("profileFE").textContent = currencies.FE || 0;
         document.getElementById("profileAC").textContent = currencies.AC || 0;
         document.getElementById("profileBar").style.display = "block";
+        document.getElementById("mainNav").style.display = "block";
 
         userInventory = inventoryData.data.Inventory.map(i => i.ItemId.trim());
         catalog = catalogData.data.Catalog.filter(i =>
@@ -1023,23 +893,16 @@
             !isHidden(i.ItemId)
         );
 
-        // build price map for safe onclick access
         catalog.forEach(i => { priceMap[i.ItemId.trim()] = i.VirtualCurrencyPrices || {}; });
 
         document.getElementById("loginBox").style.display = "none";
-        document.getElementById("shopSection").style.display = "block";
-
-        // default: all store button active
-        document.getElementById("btnAllStore").className = "shop-mode-btn active";
-
         updateStats();
         buildTabs();
         renderItems();
     }
 
     function buildTabs() {
-        const src = getActiveCatalog();
-        const present = new Set(src.map(i => getCharacter(i.ItemId)));
+        const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
         const tabsBar = document.getElementById("tabsBar");
         tabsBar.innerHTML = "";
 
@@ -1072,16 +935,13 @@
         renderItems();
     }
 
-    function getSearchQuery() {
-        return (document.getElementById("searchBox")?.value || "").toLowerCase().trim();
-    }
+    function getSearchQuery() { return (document.getElementById("searchBox")?.value || "").toLowerCase().trim(); }
 
     function getTabItems() {
-        const src = getActiveCatalog();
-        if (activeTab === "OWNED") return src.filter(i => userInventory.includes(i.ItemId.trim()));
-        if (activeTab === "NOT OWNED") return src.filter(i => !userInventory.includes(i.ItemId.trim()));
-        if (activeTab !== "ALL") return src.filter(i => getCharacter(i.ItemId) === activeTab);
-        return src;
+        if (activeTab === "OWNED") return catalog.filter(i => userInventory.includes(i.ItemId.trim()));
+        if (activeTab === "NOT OWNED") return catalog.filter(i => !userInventory.includes(i.ItemId.trim()));
+        if (activeTab !== "ALL") return catalog.filter(i => getCharacter(i.ItemId) === activeTab);
+        return catalog;
     }
 
     function applyFiltersAndSort(items) {
@@ -1093,20 +953,10 @@
         return items;
     }
 
-    function renderItems() {
-        bundleView ? renderBundleView() : renderGridView();
-    }
+    function renderItems() { bundleView ? renderBundleView() : renderGridView(); }
 
-    // safe buy — uses priceMap instead of inline JSON
-    function safeBuy(itemId) {
-        const prices = priceMap[itemId] || {};
-        checkBundle(itemId, prices);
-    }
-
-    function safeBuyDirect(itemId) {
-        const prices = priceMap[itemId] || {};
-        buyItem(itemId, prices);
-    }
+    function safeBuy(itemId) { checkBundle(itemId, priceMap[itemId] || {}); }
+    function safeBuyDirect(itemId) { buyItem(itemId, priceMap[itemId] || {}); }
 
     function renderGridView() {
         let items = applyFiltersAndSort(getTabItems());
@@ -1123,13 +973,6 @@
             const card = document.createElement("div");
             card.className = `card ${owned ? "owned" : ""} ${isNA ? "na" : ""}`;
             card.id = `card-${trimmed}`;
-
-            const btn = document.createElement("button");
-            btn.className = "buy-btn";
-            btn.id = `btn-${trimmed}`;
-            btn.textContent = "Buy";
-            btn.onclick = () => safeBuy(trimmed);
-
             card.innerHTML = `
                 <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                 <div class="no-img" style="display:none">no image</div>
@@ -1138,25 +981,15 @@
             `;
 
             if (owned) {
-                const badge = document.createElement("div");
-                badge.className = "owned-badge";
-                badge.textContent = "✅ owned";
-                card.appendChild(badge);
-                if (isBanRisk(trimmed)) {
-                    const warn = document.createElement("div");
-                    warn.className = "ban-warning";
-                    warn.textContent = "⚠️ BAN RISK — owning this may get you banned!";
-                    card.appendChild(warn);
-                }
+                const b = document.createElement("div"); b.className = "owned-badge"; b.textContent = "✅ owned"; card.appendChild(b);
             } else if (isNA) {
-                const badge = document.createElement("div");
-                badge.className = "na-badge";
-                badge.textContent = "🚫 Not Purchasable";
-                card.appendChild(badge);
+                const b = document.createElement("div"); b.className = "na-badge"; b.textContent = "🚫 Not Purchasable"; card.appendChild(b);
             } else {
+                const btn = document.createElement("button");
+                btn.className = "buy-btn"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy";
+                btn.onclick = () => safeBuy(trimmed);
                 card.appendChild(btn);
             }
-
             grid.appendChild(card);
         });
     }
@@ -1176,14 +1009,12 @@
             const normChar = getCharacter(trimmed);
             const skinKey = getSkinKey(trimmed);
             const key = `${normChar.toLowerCase()}_${skinKey}`;
-
             if (!groups[key]) groups[key] = { normChar, skinKey, bundle: null, singles: [], rawChars: new Set() };
             groups[key].rawChars.add(getRawCharacter(trimmed));
             if (isBundle(trimmed)) groups[key].bundle = item;
             else groups[key].singles.push(item);
         });
 
-        // cross-alias bundle search
         Object.values(groups).forEach(group => {
             if (!group.bundle) {
                 for (const rc of group.rawChars) {
@@ -1204,31 +1035,7 @@
 
             const cmp = compareBundle(group.bundle, group.singles);
             const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
-
-            // allSinglesOwned: if we have singles in this group, check all of them.
-            // ALSO: if this is a bundle group with no singles listed (store mode), look up
-            // matching singles from full catalog to see if user owns them all.
-            let allSinglesOwned = false;
-            if (group.singles.length > 0) {
-                allSinglesOwned = group.singles.every(i => userInventory.includes(i.ItemId.trim()));
-            } else if (group.bundle) {
-                // find matching singles from full catalog for this char+skin combo
-                const rawChar = group.bundle.ItemId.trim().split("_")[0];
-                const fullMatchSingles = catalog.filter(i => {
-                    const t = i.ItemId.trim();
-                    if (isBundle(t)) return false;
-                    const rc = getRawCharacter(t);
-                    const sk = getSkinKey(t);
-                    const sameChar = rc.toLowerCase() === rawChar.toLowerCase() ||
-                        (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rc.toLowerCase()) &&
-                         NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase()));
-                    return sameChar && sk === group.skinKey;
-                });
-                if (fullMatchSingles.length > 0) {
-                    allSinglesOwned = fullMatchSingles.every(i => userInventory.includes(i.ItemId.trim()));
-                }
-            }
-            // note: group.singles.length === 0 AND no catalog match → NOT treated as all owned
+            const allSinglesOwned = group.singles.length > 0 && group.singles.every(i => userInventory.includes(i.ItemId.trim()));
 
             let groupClass = "bundle-group";
             if (cmp) {
@@ -1252,7 +1059,6 @@
             const displayTitle = `${preferredChar} — ${displaySkin(group.skinKey)}`;
             const safeKey = `${group.normChar}-${group.skinKey}`.replace(/[^a-z0-9]/gi, "_");
 
-            // bundle image card
             let bundleImageHtml = "";
             if (group.bundle) {
                 const bundleId = group.bundle.ItemId.trim();
@@ -1273,12 +1079,11 @@
 
                 bundleImageHtml = `
                     <div class="bundle-image-card">
-                        <img src="images/${bundleId}.png"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                        <img src="images/${bundleId}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                         <div class="bundle-img-placeholder" style="display:none">📦</div>
                         <div class="bundle-price-tag">${priceTag(bp)}</div>
                         ${bundleOwned
-                            ? `<button class="bundle-main-btn owned-btn" disabled>✅ Owned</button>${isBanRisk(bundleId) ? `<span class="mini-ban-warning">⚠️ BAN RISK</span>` : ""}`
+                            ? `<button class="bundle-main-btn owned-btn" disabled>✅ Owned</button>`
                             : bCur === "NA"
                                 ? `<button class="bundle-main-btn grayed" disabled>🚫 N/A</button>`
                                 : `<button class="${btnClass}" ${isGrayed ? "disabled" : ""} id="bundlebtn-${safeKey}">Buy Bundle</button>`
@@ -1288,52 +1093,6 @@
                 `;
             }
 
-            // ── COMPACT CARD: all singles owned (or no singles) but bundle exists ──
-            // compact only when singles are genuinely ALL owned — empty array = store just has no singles listed, not "all owned"
-            const showCompact = group.bundle && allSinglesOwned;
-
-            if (showCompact) {
-                const bundleId = group.bundle.ItemId.trim();
-                const bp = group.bundle.VirtualCurrencyPrices || {};
-                const bCur = getCurrencyType(group.bundle);
-
-                const compactEl = document.createElement("div");
-                compactEl.className = `bundle-group compact ${bundleOwned ? "same" : bCur === "NA" ? "" : ""}`;
-                compactEl.style.borderColor = bundleOwned ? "#2ecc71" : bCur === "NA" ? "#555" : "#3498db";
-
-                let statusHtml = "";
-                if (bundleOwned) statusHtml = `<div class="compact-status green">✅ Bundle owned</div>`;
-                else if (allSinglesOwned) statusHtml = `<div class="compact-status green">✅ All singles owned</div>`;
-
-                compactEl.innerHTML = `
-                    <img class="compact-img" src="images/${bundleId}.png"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
-                    <div class="compact-placeholder" style="display:none">📦</div>
-                    <div class="compact-info">
-                        <div class="compact-title">${displayTitle}</div>
-                        <div class="compact-sub">Bundle: <b>${priceTag(bp)}</b></div>
-                        ${statusHtml}
-                    </div>
-                    <div class="compact-action">
-                        ${bundleOwned
-                            ? `<button class="compact-buy owned" disabled>✅ Owned</button>`
-                            : bCur === "NA"
-                                ? `<button class="compact-buy grayed" disabled>🚫 N/A</button>`
-                                : `<button class="compact-buy" id="compactbtn-${safeKey}">Buy Bundle</button>`
-                        }
-                    </div>
-                `;
-                grid.appendChild(compactEl);
-
-                // wire buy button
-                if (!bundleOwned && bCur !== "NA") {
-                    const cb = document.getElementById(`compactbtn-${safeKey}`);
-                    if (cb) cb.onclick = () => showBundlePopup(bundleId, null, null);
-                }
-                return; // done — skip full render below
-            }
-
-            // ── FULL GROUP RENDER ─────────────────────────────────────────────────
             const groupEl = document.createElement("div");
             groupEl.className = groupClass;
             groupEl.innerHTML = `
@@ -1353,15 +1112,12 @@
             `;
             grid.appendChild(groupEl);
 
-            // wire up bundle buttons after DOM insert
             if (group.bundle && !bundleOwned && getCurrencyType(group.bundle) !== "NA") {
                 const bundleId = group.bundle.ItemId.trim();
                 const singlesTotal = cmp ? cmp.singlesTotal : null;
                 const sCur = cmp ? cmp.singlesCur : null;
-
                 const mainBtn = document.getElementById(`bundlebtn-${safeKey}`);
                 if (mainBtn) mainBtn.onclick = () => showBundlePopup(bundleId, singlesTotal, sCur);
-
                 const anywayBtn = document.getElementById(`bundleanyway-${safeKey}`);
                 if (anywayBtn) anywayBtn.onclick = () => showBundlePopup(bundleId, singlesTotal, sCur);
             }
@@ -1370,19 +1126,12 @@
             const bundleCheaper = cmp && cmp.type === "cheaper";
             const cbId = `cb-${safeKey}`;
 
-            // checkbox row for bundle cheaper
             if (bundleCheaper) {
                 const cbRow = document.createElement("div");
                 cbRow.className = "checkbox-row";
-                cbRow.innerHTML = `
-                    <input type="checkbox" id="${cbId}"/>
-                    <label for="${cbId}">I want to buy singles anyway</label>
-                `;
+                cbRow.innerHTML = `<input type="checkbox" id="${cbId}"/><label for="${cbId}">I want to buy singles anyway</label>`;
                 singlesContainer.appendChild(cbRow);
-
-                document.getElementById(cbId).onchange = function() {
-                    toggleSinglesBuy(safeKey, this.checked);
-                };
+                document.getElementById(cbId).onchange = function() { toggleSinglesBuy(safeKey, this.checked); };
             }
 
             group.singles.forEach(item => {
@@ -1404,35 +1153,16 @@
                 `;
 
                 if (owned) {
-                    const badge = document.createElement("div");
-                    badge.className = "mini-owned";
-                    badge.textContent = "✅";
-                    mini.appendChild(badge);
-                    if (isBanRisk(trimmed)) {
-                        const warn = document.createElement("span");
-                        warn.className = "mini-ban-warning";
-                        warn.textContent = "⚠️ BAN RISK";
-                        mini.appendChild(warn);
-                    }
+                    const b = document.createElement("div"); b.className = "mini-owned"; b.textContent = "✅"; mini.appendChild(b);
                 } else if (isNA) {
-                    const badge = document.createElement("div");
-                    badge.className = "mini-na";
-                    badge.textContent = "🚫";
-                    mini.appendChild(badge);
+                    const b = document.createElement("div"); b.className = "mini-na"; b.textContent = "🚫"; mini.appendChild(b);
                 } else {
                     const btn = document.createElement("button");
-                    btn.className = "mini-buy";
-                    btn.id = `btn-${trimmed}`;
-                    btn.textContent = "Buy";
-                    if (bundleCheaper) {
-                        btn.disabled = true;
-                        btn.dataset.group = safeKey;
-                    }
-                    // always wire onclick directly — no inline JSON
+                    btn.className = "mini-buy"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy";
+                    if (bundleCheaper) { btn.disabled = true; btn.dataset.group = safeKey; }
                     btn.onclick = () => safeBuyDirect(trimmed);
                     mini.appendChild(btn);
                 }
-
                 singlesContainer.appendChild(mini);
             });
         });
@@ -1441,9 +1171,7 @@
     function toggleSinglesBuy(safeKey, checked) {
         const container = document.getElementById(`singles-${safeKey}`);
         if (!container) return;
-        container.querySelectorAll(`.mini-buy[data-group="${safeKey}"]`).forEach(btn => {
-            btn.disabled = !checked;
-        });
+        container.querySelectorAll(`.mini-buy[data-group="${safeKey}"]`).forEach(btn => { btn.disabled = !checked; });
     }
 
     function showBundlePopup(bundleId, singlesTotal, singlesCur) {
@@ -1452,23 +1180,22 @@
         const bundlePrice = getPrice({ VirtualCurrencyPrices: prices });
 
         let compHtml = "";
-        if (singlesTotal !== null && singlesTotal !== undefined && singlesCur && singlesCur !== "null") {
+        if (singlesTotal != null && singlesCur && singlesCur !== "null") {
             if (singlesCur === bundleCur) {
                 const diff = singlesTotal - bundlePrice;
                 if (diff > 0) compHtml = `<span style="color:#2ecc71">✅ Bundle saves ${diff} ${currencyFull(bundleCur)}</span>`;
                 else if (diff < 0) compHtml = `<span style="color:#e94560">Bundle is more expensive — Singles save ${Math.abs(diff)} ${currencyFull(singlesCur)}</span>`;
                 else compHtml = `<span style="color:#3498db">Same price either way</span>`;
             } else {
-                compHtml = `<span style="color:#f39c12">⚠️ Different currencies — your choice</span>`;
+                compHtml = `<span style="color:#f39c12">⚠️ Different currencies</span>`;
             }
         }
 
         document.getElementById("popupText").innerHTML = `
             <b>${bundleId}</b><br><br>
             Bundle: <b>${priceTag(prices)}</b><br>
-            ${singlesTotal !== null && singlesTotal !== undefined && singlesCur && singlesCur !== "null"
-                ? `Singles total: <b>${singlesTotal} ${currencyFull(singlesCur)}</b><br>`
-                : ""}
+            ${singlesTotal != null && singlesCur && singlesCur !== "null"
+                ? `Singles total: <b>${singlesTotal} ${currencyFull(singlesCur)}</b><br>` : ""}
             <br>${compHtml}
         `;
 
@@ -1481,12 +1208,8 @@
         const trimmed = itemId.trim();
         const rawChar = getRawCharacter(trimmed);
         const skinKey = getSkinKey(trimmed);
-
         const bundle = findBundle(rawChar, skinKey);
-        if (!bundle || userInventory.includes(bundle.ItemId.trim())) {
-            buyItem(trimmed, prices);
-            return;
-        }
+        if (!bundle || userInventory.includes(bundle.ItemId.trim())) { buyItem(trimmed, prices); return; }
 
         const singles = catalog.filter(i => {
             const t = i.ItemId.trim();
@@ -1502,17 +1225,13 @@
         const cmp = compareBundle(bundle, singles);
         if (!cmp || cmp.type === "all_owned") { buyItem(trimmed, prices); return; }
 
-        const bundleId = bundle.ItemId.trim();
-        showBundlePopup(bundleId, cmp.singlesTotal, cmp.singlesCur);
-
+        showBundlePopup(bundle.ItemId.trim(), cmp.singlesTotal, cmp.singlesCur);
         document.getElementById("popupSingleBtn").style.display = "inline-block";
         document.getElementById("popupSingleBtn").textContent = "Buy Single";
         document.getElementById("popupSingleBtn").onclick = () => { closePopup(); buyItem(trimmed, prices); };
     }
 
-    function closePopup() {
-        document.getElementById("bundlePopup").className = "popup-overlay";
-    }
+    function closePopup() { document.getElementById("bundlePopup").className = "popup-overlay"; }
 
     async function buyItem(itemId, prices) {
         const trimmed = itemId.trim();
@@ -1522,21 +1241,10 @@
         const btn = document.getElementById(`btn-${trimmed}`);
         if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
-        // daily_merged = cheapest across rotations, no single StoreId → buy at catalog price
-        // season shop = single named store → must pass StoreId so PlayFab uses store pricing
-        const payload = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
-        // daily_merged = cheapest across all rotations, no single StoreId → buy at catalog price
-        // season shop = single named store → must pass StoreId so PlayFab uses store pricing
-        // any other store = same, pass StoreId
-        if (storeMode === "store" && activeStoreId && activeStoreId !== "daily_merged") {
-            payload.StoreId = activeStoreId;
-            console.log(`[buyItem] Using StoreId="${activeStoreId}" for "${trimmed}"`);
-        }
-
         const res = await fetch(`${HOST}/Client/PurchaseItem`, {
             method: "POST",
             headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency })
         });
 
         const data = await res.json();
@@ -1560,11 +1268,9 @@
     }
 
     function updateStats() {
-        const src = getActiveCatalog();
-        const notOwned = src.filter(i => !userInventory.includes(i.ItemId.trim())).length;
-        const ownedInView = src.filter(i => userInventory.includes(i.ItemId.trim())).length;
-        document.getElementById("totalCount").textContent = src.length;
-        document.getElementById("ownedCount").textContent = ownedInView;
+        const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId.trim())).length;
+        document.getElementById("totalCount").textContent = catalog.length;
+        document.getElementById("ownedCount").textContent = userInventory.length;
         document.getElementById("notOwnedCount").textContent = notOwned;
     }
 </script>
