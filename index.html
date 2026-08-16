@@ -51,13 +51,28 @@
         .main-nav-btn:hover { color: white; }
         .main-nav-btn.active { color: #e94560; border-bottom-color: #e94560; }
 
+        /* LOGIN OVERLAY */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.show { display: flex; }
+
         .login-box {
             max-width: 500px;
-            margin: 100px auto;
+            width: 90%;
             background: #16213e;
             padding: 30px;
             border-radius: 10px;
             text-align: center;
+            border: 2px solid #e94560;
         }
 
         .login-box input {
@@ -451,13 +466,37 @@
     <button class="main-nav-btn" onclick="switchPage('special')">🌟 Special Shops</button>
 </div>
 
-<div class="login-box" id="loginBox">
-    <h2>Enter Your Token</h2>
-    <p style="color: #aaa; margin-top: 10px; font-size: 13px;">
-        paste your X-Authorization token from Fiddler
-    </p>
-    <input type="text" id="tokenInput" placeholder="paste token here..."/>
-    <button onclick="loadShop()">Load Shop</button>
+<!-- LOGIN OVERLAY — shown on top of everything -->
+<div class="login-overlay show" id="loginOverlay">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:20px; width:90%; max-width:600px;">
+        <div class="login-box" style="width:100%">
+            <h2>Enter Your Token</h2>
+            <p style="color: #aaa; margin-top: 10px; font-size: 13px;">
+                paste your X-Authorization token from Fiddler
+            </p>
+            <input type="text" id="tokenInput" placeholder="paste token here..."/>
+            <button onclick="loadShop()">Load Shop</button>
+        </div>
+        <!-- criteria panel visible before login -->
+        <div style="background:#16213e; border:2px solid #0f3460; border-radius:10px; padding:18px 22px; width:100%; font-size:13px; color:#aaa; line-height:1.9;">
+            <div style="color:#e94560; font-weight:bold; font-size:15px; margin-bottom:10px;">📋 Shop Sections</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 20px;">
+                <div>🛒 <b style="color:white">Our Catalog</b> — all skins by character</div>
+                <div>📅 <b style="color:white">December 2023</b> — Daily_December_2023_01–31</div>
+                <div>🎫 <b style="color:white">Cert Daily</b> — cert_Daily00–05</div>
+                <div>🎃 <b style="color:white">Halloween 2023</b> — steamPSxbox_Featured_Halloween_2023_00–31</div>
+                <div>☀️ <b style="color:white">Season Shop</b> — Summer 2025 exclusives</div>
+                <div>🚀 <b style="color:white">Featured Shop</b> — Featured_Space24_00–06</div>
+            </div>
+            <div style="margin-top:10px; border-top:1px solid #2a2a4a; padding-top:10px;">
+                <span style="color:#f39c12">🔥 PROMO</span> = discounted vs catalog price &nbsp;|&nbsp;
+                <span style="color:#2ecc71">🪙 FE</span> = Coins &nbsp;|&nbsp;
+                <span style="color:#e94560">🎟️ AC</span> = Tickets &nbsp;|&nbsp;
+                <span style="color:#555">🚫 N/A</span> = not purchasable &nbsp;|&nbsp;
+                Duplicates: cheapest price wins
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- OUR CATALOG -->
@@ -488,7 +527,7 @@
 
 <!-- DAILY SHOP -->
 <div class="page" id="page-daily">
-    <div id="dailyContent"><div class="loading-text">Loading daily shop...</div></div>
+    <div id="dailyContent"><div class="loading-text">Loading daily shops...</div></div>
 </div>
 
 <!-- SPECIAL SHOPS -->
@@ -539,21 +578,33 @@
         "scary": "pumpkin", "pumpkin": "pumpkin",
     };
 
-    // daily store IDs — all December 2023
-    const DAILY_STORE_IDS = [];
-    for (let d = 1; d <= 31; d++) {
-        DAILY_STORE_IDS.push(`Daily_December_2023_${String(d).padStart(2, "0")}`);
-    }
+    // daily store groups — each group shown as separate section
+    const DAILY_GROUPS = [
+        {
+            label: "📅 December 2023",
+            sub: "Daily rotation — December 2023 (Daily_December_2023_01–31)",
+            ids: Array.from({length: 31}, (_, i) => `Daily_December_2023_${String(i+1).padStart(2,"0")}`)
+        },
+        {
+            label: "🎫 Cert Daily",
+            sub: "Cert daily rotation (cert_Daily00–05)",
+            ids: ["cert_Daily00","cert_Daily01","cert_Daily02","cert_Daily03","cert_Daily04","cert_Daily05"]
+        },
+        {
+            label: "🎃 Halloween 2023",
+            sub: "Halloween 2023 featured rotation (steamPSxbox_Featured_Halloween_2023_00–31)",
+            ids: Array.from({length: 32}, (_, i) => `steamPSxbox_Featured_Halloween_2023_${String(i).padStart(2,"0")}`)
+        }
+    ];
 
-    // special store IDs
+    // special stores
     const SEASON_STORES = [
         { id: "shop_season_Summer2025", label: "☀️ Season Shop — Summer 2025", sub: "Current season exclusives" },
     ];
 
     const FEATURED_STORE_IDS = [
-        "Featured_Space24_00", "Featured_Space24_01", "Featured_Space24_02",
-        "Featured_Space24_03", "Featured_Space24_04", "Featured_Space24_05",
-        "Featured_Space24_06",
+        "Featured_Space24_00","Featured_Space24_01","Featured_Space24_02",
+        "Featured_Space24_03","Featured_Space24_04","Featured_Space24_05","Featured_Space24_06",
     ];
 
     // helpers
@@ -603,10 +654,12 @@
     }
 
     function isBundle(itemId) { return itemId.trim().split("_")[1].toLowerCase() === "bundle"; }
+
     function getSkinKey(itemId) {
         const parts = itemId.trim().split("_");
         return normalizeSkin(parts.slice(2).join("_"));
     }
+
     function getSlot(itemId) { return itemId.trim().split("_")[1] || ""; }
 
     function findBundle(rawChar, normalizedSkin) {
@@ -648,7 +701,6 @@
         return { type: "same", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: 0 };
     }
 
-    // fetch a store — returns items array or null
     async function fetchStore(storeId) {
         try {
             const res = await fetch(`${HOST}/Client/GetStoreItems`, {
@@ -658,19 +710,19 @@
             });
             const data = await res.json();
             if (data.code === 200) return data.data.Store;
-        } catch (e) {}
+        } catch(e) {}
         return null;
     }
 
-    // merge items from multiple stores — keep cheapest price per item, no duplicates
+    // merge items from multiple stores — keep cheapest price per item, tag _storeId source
     function mergeStoreItems(allItems) {
         const best = {};
         allItems.forEach(item => {
             const id = item.ItemId.trim();
             const p = item.VirtualCurrencyPrices || {};
             const price = p.FE ?? p.AC ?? Infinity;
-            if (!best[id] || price < (best[id].price)) {
-                best[id] = { item, price };
+            if (!best[id] || price < best[id].price) {
+                best[id] = { item: { ...item, ItemId: id }, price };
             }
         });
         return Object.values(best).map(v => v.item);
@@ -692,28 +744,49 @@
         const content = document.getElementById("dailyContent");
         content.innerHTML = '<div class="loading-text">Fetching daily stores...</div>';
 
-        const allItems = [];
-        for (const id of DAILY_STORE_IDS) {
-            const items = await fetchStore(id);
-            if (items) allItems.push(...items);
+        const sections = [];
+
+        for (const group of DAILY_GROUPS) {
+            const allItems = [];
+            for (const storeId of group.ids) {
+                const items = await fetchStore(storeId);
+                if (items) {
+                    // tag each item with the store it came from (for promo purchase)
+                    items.forEach(item => { item._storeId = storeId; });
+                    allItems.push(...items);
+                }
+            }
+            if (allItems.length > 0) {
+                const merged = mergeStoreItems(allItems);
+                sections.push({ ...group, items: merged });
+            }
         }
 
-        const merged = mergeStoreItems(allItems);
-
-        if (merged.length === 0) {
-            content.innerHTML = '<div class="loading-text">No daily shop items found</div>';
+        if (sections.length === 0) {
+            content.innerHTML = '<div class="loading-text">No daily shops found</div>';
             return;
         }
 
-        content.innerHTML = `
-            <div class="store-section">
-                <div class="store-section-title">📅 Daily Shop</div>
-                <div class="store-section-sub">All daily rotations merged — showing cheapest price per item (${merged.length} unique items)</div>
-                <div class="grid" id="daily-grid"></div>
-            </div>
-        `;
+        let html = "";
+        sections.forEach(s => {
+            const safeId = s.label.replace(/[^a-z0-9]/gi, "_");
+            html += `
+                <div class="store-section">
+                    <div class="store-section-title">${s.label}</div>
+                    <div class="store-section-sub">${s.sub} — ${s.items.length} unique items</div>
+                    <div class="grid" id="dgrid-${safeId}"></div>
+                </div>
+            `;
+        });
 
-        renderStoreGrid(document.getElementById("daily-grid"), merged);
+        content.innerHTML = html;
+
+        sections.forEach(s => {
+            const safeId = s.label.replace(/[^a-z0-9]/gi, "_");
+            const grid = document.getElementById(`dgrid-${safeId}`);
+            // pass null as storeId — each item already has _storeId tagged from merge
+            if (grid) renderStoreGrid(grid, s.items, null);
+        });
     }
 
     async function loadSpecialShops() {
@@ -721,29 +794,31 @@
         const content = document.getElementById("specialContent");
         content.innerHTML = '<div class="loading-text">Fetching special shops...</div>';
 
-        let html = "";
         const sections = [];
 
-        // season shops
         for (const store of SEASON_STORES) {
             const items = await fetchStore(store.id);
             if (items && items.length > 0) {
+                items.forEach(item => { item._storeId = store.id; });
                 sections.push({ ...store, items: mergeStoreItems(items) });
             }
         }
 
-        // featured stores — merge all into one section
         const featuredAll = [];
         for (const id of FEATURED_STORE_IDS) {
             const items = await fetchStore(id);
-            if (items) featuredAll.push(...items);
+            if (items) {
+                items.forEach(item => { item._storeId = id; });
+                featuredAll.push(...items);
+            }
         }
         if (featuredAll.length > 0) {
+            const merged = mergeStoreItems(featuredAll);
             sections.push({
                 id: "featured-all",
                 label: "🚀 Featured Shop",
-                sub: `All featured rotations merged — ${mergeStoreItems(featuredAll).length} unique items`,
-                items: mergeStoreItems(featuredAll)
+                sub: `All featured rotations merged — ${merged.length} unique items`,
+                items: merged
             });
         }
 
@@ -752,44 +827,54 @@
             return;
         }
 
+        let html = "";
         sections.forEach(s => {
+            const safeId = (s.id || s.label).replace(/[^a-z0-9]/gi, "_");
             html += `
                 <div class="store-section">
                     <div class="store-section-title">${s.label}</div>
                     <div class="store-section-sub">${s.sub}</div>
-                    <div class="grid" id="sgrid-${s.id}"></div>
+                    <div class="grid" id="sgrid-${safeId}"></div>
                 </div>
             `;
         });
 
         content.innerHTML = html;
+
         sections.forEach(s => {
-            const grid = document.getElementById(`sgrid-${s.id}`);
-            if (grid) renderStoreGrid(grid, s.items);
+            const safeId = (s.id || s.label).replace(/[^a-z0-9]/gi, "_");
+            const grid = document.getElementById(`sgrid-${safeId}`);
+            if (grid) renderStoreGrid(grid, s.items, null);
         });
     }
 
-    function renderStoreGrid(grid, items) {
+    // renders a store grid — uses STORE prices for buying, not catalog prices
+    // storeId is passed so PlayFab accepts the promo price correctly
+    function renderStoreGrid(grid, items, storeId) {
         grid.innerHTML = "";
         items.forEach(item => {
             const trimmed = item.ItemId.trim();
             const owned = userInventory.includes(trimmed);
+            // store prices — what we use for buying
             const storePrices = item.VirtualCurrencyPrices || {};
+            // catalog prices — for promo comparison only
             const catalogPrices = priceMap[trimmed] || {};
 
             const storeFE = storePrices.FE;
             const storeAC = storePrices.AC;
             const catFE = catalogPrices.FE;
             const catAC = catalogPrices.AC;
-            const isPromo = (storeFE && catFE && storeFE < catFE) || (storeAC && catAC && storeAC < catAC);
+            const isPromo = (storeFE !== undefined && catFE !== undefined && storeFE < catFE) ||
+                            (storeAC !== undefined && catAC !== undefined && storeAC < catAC);
+            const hasPrice = storeFE !== undefined || storeAC !== undefined;
 
             const card = document.createElement("div");
             card.className = `card ${owned ? "owned" : ""} ${isPromo ? "promo" : ""}`;
 
             let priceHtml = "";
             if (isPromo) {
-                const origPrice = catFE ? `🪙 ${catFE} FE` : `🎟️ ${catAC} AC`;
-                const newPrice = storeFE ? `🪙 (C.) ${storeFE} FE` : `🎟️ (T.) ${storeAC} AC`;
+                const origPrice = catFE !== undefined ? `🪙 ${catFE} FE` : `🎟️ ${catAC} AC`;
+                const newPrice = storeFE !== undefined ? `🪙 (C.) ${storeFE} FE` : `🎟️ (T.) ${storeAC} AC`;
                 priceHtml = `
                     <div class="promo-badge">🔥 PROMO</div>
                     <div class="original-price">${origPrice}</div>
@@ -807,20 +892,20 @@
             `;
 
             if (owned) {
-                const badge = document.createElement("div");
-                badge.className = "owned-badge";
-                badge.textContent = "✅ owned";
-                card.appendChild(badge);
-            } else if (!storeFE && !storeAC) {
-                const badge = document.createElement("div");
-                badge.className = "na-badge";
-                badge.textContent = "🚫 N/A";
-                card.appendChild(badge);
+                const b = document.createElement("div");
+                b.className = "owned-badge"; b.textContent = "✅ owned";
+                card.appendChild(b);
+            } else if (!hasPrice) {
+                const b = document.createElement("div");
+                b.className = "na-badge"; b.textContent = "🚫 N/A";
+                card.appendChild(b);
             } else {
                 const btn = document.createElement("button");
                 btn.className = "buy-btn";
+                btn.id = `btn-${trimmed}`;
                 btn.textContent = "Buy";
-                btn.onclick = () => buyItem(trimmed, storePrices);
+                // pass storeId so PlayFab honours the promo price
+                btn.onclick = () => buyItem(trimmed, storePrices, storeId || item._storeId || null);
                 card.appendChild(btn);
             }
 
@@ -887,6 +972,9 @@
         document.getElementById("profileBar").style.display = "block";
         document.getElementById("mainNav").style.display = "block";
 
+        // hide login overlay
+        document.getElementById("loginOverlay").className = "login-overlay";
+
         userInventory = inventoryData.data.Inventory.map(i => i.ItemId.trim());
         catalog = catalogData.data.Catalog.filter(i =>
             (i.ItemClass === "Customization" || i.ItemClass === "Emotion" || i.ItemClass === "Bundle") &&
@@ -895,7 +983,6 @@
 
         catalog.forEach(i => { priceMap[i.ItemId.trim()] = i.VirtualCurrencyPrices || {}; });
 
-        document.getElementById("loginBox").style.display = "none";
         updateStats();
         buildTabs();
         renderItems();
@@ -1233,7 +1320,7 @@
 
     function closePopup() { document.getElementById("bundlePopup").className = "popup-overlay"; }
 
-    async function buyItem(itemId, prices) {
+    async function buyItem(itemId, prices, storeId) {
         const trimmed = itemId.trim();
         const currency = prices.FE !== undefined ? "FE" : "AC";
         const price = prices[currency] || 0;
@@ -1241,10 +1328,13 @@
         const btn = document.getElementById(`btn-${trimmed}`);
         if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
 
+        const body = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
+        if (storeId) body.StoreId = storeId;
+
         const res = await fetch(`${HOST}/Client/PurchaseItem`, {
             method: "POST",
             headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
-            body: JSON.stringify({ CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency })
+            body: JSON.stringify(body)
         });
 
         const data = await res.json();
