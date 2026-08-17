@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Neighbor Shop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #1a1a2e; color: white; font-family: Arial, sans-serif; }
+
+        .header {
+            background-color: #16213e;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .profile-bar {
+            display: none;
+            background: #16213e;
+            padding: 12px 25px;
+            text-align: center;
+            font-size: 15px;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .profile-bar span { margin: 0 15px; color: #e94560; font-weight: bold; }
+
+        .main-nav {
+            display: flex;
+            background: #0f3460;
+            padding: 0 20px;
+            border-bottom: 2px solid #e94560;
+            justify-content: center;
+        }
+
+        .main-nav-btn {
+            padding: 14px 24px;
+            background: transparent;
+            color: #aaa;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .main-nav-btn:hover { color: white; }
+        .main-nav-btn.active { color: #e94560; border-bottom-color: #e94560; }
+
+        /* LEADERBOARD SECTION */
+        .leaderboard-section {
+            padding: 20px;
+            background: #16213e;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .leaderboard-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .leaderboard-stats {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .leaderboard-stats span { color: #e94560; font-weight: bold; }
+
+        .leaderboard-table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 2px solid #2a2a4a;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .leaderboard-table th {
+            background: #0f3460;
+            color: #e94560;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .leaderboard-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #2a2a4a;
+            color: #ddd;
+        }
+
+        .leaderboard-table tr:hover td {
+            background: #1a2a4a;
+        }
+
+        .leaderboard-table .rank-1 td { color: #ffd700; font-weight: bold; }
+        .leaderboard-table .rank-2 td { color: #c0c0c0; font-weight: bold; }
+        .leaderboard-table .rank-3 td { color: #cd7f32; font-weight: bold; }
+
+        .lb-loading {
+            padding: 30px;
+            text-align: center;
+            color: #aaa;
+        }
+
+        .lb-refresh-btn {
+            padding: 6px 16px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .lb-refresh-btn:hover { background: #c73652; }
+        .lb-refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* LOGIN OVERLAY */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.show { display: flex; }
+
+        .login-box {
+            max-width: 440px;
+            width: 90%;
+            background: #16213e;
+            padding: 35px 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e94560;
+        }
+
+        .login-box h2 { color: #e94560; margin-bottom: 8px; }
+        .login-box p { color: #aaa; font-size: 13px; margin-bottom: 18px; }
+
+        .login-box input {
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 14px;
+            border-radius: 6px;
+            border: 1px solid #2a2a4a;
+            background: #0f3460;
+            color: white;
+            font-size: 14px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .login-box button:hover { background: #c73652; }
+        .login-loading { color: #aaa; font-size: 13px; margin-top: 12px; min-height: 20px; }
+
+        .page { display: none; padding: 20px; }
+        .page.active { display: block; }
+
+        .stats {
+            background: #16213e;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #aaa;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stats span { color: #e94560; font-weight: bold; }
+        .stats-deal { color: #2ecc71 !important; }
+
+        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+
+        .tab-btn {
+            padding: 6px 13px;
+            background: #16213e;
+            color: #aaa;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover { border-color: #e94560; color: white; }
+        .tab-btn.active { background: #e94560; color: white; border-color: #e94560; }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            align-items: center;
+        }
+
+        .filter-label { color: #aaa; font-size: 13px; margin-right: 2px; }
+
+        .toggle-btn {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: 2px solid #e94560;
+            background: #e94560;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .toggle-btn.off { background: transparent; color: #aaa; border-color: #444; }
+        .toggle-btn:hover { opacity: 0.8; }
+
+        .divider { width: 1px; height: 26px; background: #333; margin: 0 3px; }
+
+        .sort-btn {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: 2px solid #444;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .sort-btn.active { border-color: #e94560; color: white; background: #16213e; }
+        .sort-btn:hover { border-color: #e94560; color: white; }
+
+        .search-box {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: 2px solid #444;
+            background: #0f3460;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            width: 180px;
+            transition: 0.2s;
+        }
+
+        .search-box:focus { border-color: #e94560; }
+        .search-box::placeholder { color: #555; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .card:hover { border-color: #e94560; }
+        .card.owned { border-color: #2ecc71; }
+        .card.na { opacity: 0.4; }
+        .card.promo { border-color: #f39c12; }
+        .card.deal { border-color: #2ecc71; }
+
+        .card img {
+            width: 96px; height: 96px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            background: #0f3460;
+            border-radius: 8px;
+        }
+
+        .card .name { font-size: 10px; color: #aaa; margin-bottom: 6px; word-break: break-all; }
+        .card .price { font-size: 12px; color: #e94560; margin-bottom: 6px; }
+        .card .price.promo-price { color: #f39c12; }
+        .card .price.deal-price { color: #2ecc71; }
+        .card .original-price { font-size: 10px; color: #555; text-decoration: line-through; margin-bottom: 3px; }
+        .card .owned-badge { background: #2ecc71; color: white; padding: 5px; border-radius: 5px; font-size: 12px; }
+        .card .na-badge { background: #555; color: #aaa; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .card .promo-badge { background: #f39c12; color: white; padding: 2px 6px; border-radius: 5px; font-size: 10px; margin-bottom: 3px; display: inline-block; }
+        .card .deal-badge { background: #2ecc71; color: #000; padding: 2px 6px; border-radius: 5px; font-size: 10px; margin-bottom: 3px; display: inline-block; font-weight: bold; }
+        .card .deal-source { font-size: 9px; color: #2ecc71; margin-bottom: 3px; }
+
+        .card .buy-btn {
+            background: #e94560; color: white;
+            border: none; padding: 6px 12px;
+            border-radius: 5px; cursor: pointer;
+            font-size: 12px; width: 100%; transition: 0.2s;
+        }
+
+        .card .buy-btn.deal-btn { background: #2ecc71; color: #000; font-weight: bold; }
+        .card .buy-btn:hover { background: #c73652; }
+        .card .buy-btn.deal-btn:hover { background: #27ae60; }
+        .card .buy-btn:disabled { background: #555; cursor: not-allowed; }
+
+        .no-img {
+            width: 96px; height: 96px;
+            background: #0f3460; border-radius: 8px;
+            margin: 0 auto 8px;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 11px; color: #555;
+        }
+
+        /* BUNDLE VIEW */
+        .bundle-group {
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 2px solid #2a2a4a;
+            background: #16213e;
+        }
+
+        .bundle-group.cheaper { border-color: #2ecc71; }
+        .bundle-group.expensive { border-color: #e94560; }
+        .bundle-group.mixed { border-color: #f39c12; }
+        .bundle-group.same { border-color: #3498db; }
+
+        .bundle-group-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .bundle-group-title { font-size: 15px; font-weight: bold; color: white; margin-bottom: 3px; }
+        .bundle-price-line { font-size: 13px; color: #aaa; margin-bottom: 3px; }
+        .bundle-price-line b { color: white; }
+        .savings-line { font-size: 13px; margin-top: 3px; font-weight: bold; }
+        .savings-line.green { color: #2ecc71; }
+        .savings-line.red { color: #e94560; }
+        .savings-line.orange { color: #f39c12; }
+        .savings-line.blue { color: #3498db; }
+
+        .bundle-image-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            min-width: 105px;
+        }
+
+        .bundle-image-card img {
+            width: 86px; height: 86px;
+            object-fit: contain;
+            background: #0f3460;
+            border-radius: 10px;
+            border: 2px solid #2a2a4a;
+        }
+
+        .bundle-img-placeholder {
+            width: 86px; height: 86px;
+            background: #0f3460;
+            border-radius: 10px;
+            border: 2px solid #2a2a4a;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .bundle-price-tag { font-size: 12px; color: #e94560; text-align: center; }
+
+        .bundle-main-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .bundle-main-btn.orange { background: #f39c12; color: white; }
+        .bundle-main-btn.orange:hover { background: #e67e22; }
+        .bundle-main-btn.blue { background: #3498db; color: white; }
+        .bundle-main-btn.blue:hover { background: #2980b9; }
+        .bundle-main-btn.grayed { background: #555; color: #aaa; cursor: not-allowed; }
+        .bundle-main-btn.owned-btn { background: #2ecc71; color: white; cursor: default; }
+
+        .buy-anyway-btn {
+            padding: 3px 7px;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            width: 100%;
+            transition: 0.2s;
+            margin-top: 2px;
+        }
+
+        .buy-anyway-btn:hover { border-color: #aaa; color: white; }
+
+        .bundle-body { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+        .bundle-singles { display: flex; flex-wrap: wrap; gap: 9px; flex: 1; }
+
+        .mini-card {
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 9px;
+            text-align: center;
+            border: 2px solid transparent;
+            width: 115px;
+            transition: 0.2s;
+        }
+
+        .mini-card.owned { border-color: #2ecc71; }
+        .mini-card.na { opacity: 0.4; }
+        .mini-card.same-price { border-color: #3498db; }
+
+        .mini-card img {
+            width: 66px; height: 66px;
+            object-fit: contain;
+            background: #16213e;
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+
+        .mini-no-img {
+            width: 66px; height: 66px;
+            background: #16213e; border-radius: 6px;
+            margin: 0 auto 5px;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 10px; color: #555;
+        }
+
+        .mini-name { font-size: 10px; color: #aaa; margin-bottom: 3px; }
+        .mini-price { font-size: 11px; color: #e94560; margin-bottom: 5px; }
+        .mini-price.blue { color: #3498db; }
+        .mini-owned { background: #2ecc71; color: white; padding: 3px; border-radius: 5px; font-size: 11px; }
+        .mini-na { background: #555; color: #aaa; padding: 3px; border-radius: 5px; font-size: 10px; }
+
+        .mini-buy {
+            background: #e94560; color: white;
+            border: none; padding: 4px 7px;
+            border-radius: 5px; cursor: pointer;
+            font-size: 11px; width: 100%; margin-bottom: 2px;
+            transition: 0.2s;
+        }
+
+        .mini-buy:hover { background: #c73652; }
+        .mini-buy:disabled { background: #555; cursor: not-allowed; }
+
+        .checkbox-row {
+            width: 100%;
+            margin-bottom: 7px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .checkbox-row input { cursor: pointer; }
+
+        .store-section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 2px solid #2a2a4a;
+        }
+
+        .store-section-title { font-size: 17px; font-weight: bold; color: #e94560; margin-bottom: 4px; }
+        .store-section-sub { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+
+        .daily-char-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .dct-btn {
+            padding: 5px 11px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            background: #0f3460;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .dct-btn:hover { border-color: #e94560; color: white; }
+        .dct-btn.active { background: #e94560; color: white; border-color: #e94560; }
+
+        .loading-text { color: #aaa; font-size: 14px; padding: 20px; text-align: center; }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-overlay.show { display: flex; }
+
+        .popup {
+            background: #16213e;
+            border: 2px solid #e94560;
+            border-radius: 12px;
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .popup h3 { color: #e94560; margin-bottom: 14px; font-size: 17px; }
+        .popup p { color: #aaa; font-size: 14px; margin-bottom: 18px; line-height: 1.8; }
+        .popup-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+        .popup-btns button {
+            padding: 9px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-bundle { background: #e94560; color: white; }
+        .btn-single { background: #0f3460; color: white; }
+        .btn-cancel { background: #333; color: #aaa; }
+        .btn-bundle:hover { background: #c73652; }
+        .btn-single:hover { background: #1a4a8a; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .main-nav { flex-wrap: wrap; }
+            .main-nav-btn { padding: 10px 14px; font-size: 13px; }
+            .leaderboard-header { flex-direction: column; align-items: stretch; }
+            .leaderboard-stats { text-align: center; }
+            .filter-bar { gap: 6px; }
+            .search-box { width: 120px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">🏠 Secret Neighbor Shop</div>
+
+<!-- LEADERBOARD - Always Visible -->
+<div class="leaderboard-section" id="leaderboardSection">
+    <div class="leaderboard-header">
+        <div class="leaderboard-title">🏆 Leaderboard — Account Level</div>
+        <div class="leaderboard-stats">
+            <span id="lbTotalPlayers">0</span> players &nbsp;|&nbsp;
+            <span id="lbTopLevel">0</span> max level &nbsp;|&nbsp;
+            <button class="lb-refresh-btn" id="lbRefreshBtn" onclick="refreshLeaderboard()">🔄 Refresh</button>
+        </div>
+    </div>
+    <div class="leaderboard-table-wrap">
+        <div id="leaderboardContainer">
+            <div class="lb-loading">Loading leaderboard...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Bar (shown after login) -->
+<div class="profile-bar" id="profileBar">
+    👤 <span id="profileName"></span> |
+    🪙 FE (Coins): <span id="profileFE"></span> |
+    🎟️ AC (Tickets): <span id="profileAC"></span>
+</div>
+
+<!-- Main Navigation -->
+<div class="main-nav" id="mainNav">
+    <button class="main-nav-btn active" onclick="switchPage('catalog')">🛒 Shop</button>
+    <button class="main-nav-btn" onclick="switchPage('daily')">📅 Daily Shop</button>
+    <button class="main-nav-btn" onclick="switchPage('special')">🌟 Special Shops</button>
+</div>
+
+<!-- LOGIN OVERLAY (only shows when clicking Shop and not logged in) -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <h2>🔐 Login Required</h2>
+        <p>Enter your X-Authorization token to browse and purchase items</p>
+        <input type="text" id="tokenInput" placeholder="X-Authorization token..."/>
+        <button onclick="loadShop()">Unlock Shop</button>
+        <div class="login-loading" id="loginLoading"></div>
+        <p style="margin-top:12px;font-size:12px;color:#555;">Token is stored locally. You can logout anytime.</p>
+        <button onclick="logout()" style="margin-top:8px;background:#333;padding:8px;font-size:12px;">Logout</button>
+    </div>
+</div>
+
+<!-- OUR CATALOG -->
+<div class="page active" id="page-catalog">
+    <div class="stats" id="catalogStats">
+        items: <span id="totalCount">0</span> |
+        owned: <span id="ownedCount">0</span> |
+        not owned: <span id="notOwnedCount">0</span>
+        <span id="dealCountWrap" style="display:none">| 🏷️ deals from stores: <span id="dealCount" class="stats-deal">0</span></span>
+        <span id="storeLoadStatus" style="font-size:12px; color:#555; margin-left:8px;"></span>
+    </div>
+    <div class="tabs" id="tabsBar"></div>
+    <div class="filter-bar">
+        <span class="filter-label">Show:</span>
+        <button class="toggle-btn" id="toggle-FE" onclick="toggleFilter('FE')">🪙 FE (Coins)</button>
+        <button class="toggle-btn" id="toggle-AC" onclick="toggleFilter('AC')">🎟️ AC (Tickets)</button>
+        <button class="toggle-btn" id="toggle-NA" onclick="toggleFilter('NA')">🚫 N/A</button>
+        <button class="toggle-btn off" id="toggle-DEAL" onclick="toggleFilter('DEAL')">🏷️ Deals Only</button>
+        <div class="divider"></div>
+        <span class="filter-label">Sort:</span>
+        <button class="sort-btn" id="sort-asc" onclick="setSort('asc')">Price ↑</button>
+        <button class="sort-btn" id="sort-desc" onclick="setSort('desc')">Price ↓</button>
+        <div class="divider"></div>
+        <span class="filter-label">View:</span>
+        <button class="sort-btn" id="view-bundle" onclick="toggleBundleView()">📦 By Bundle</button>
+        <div class="divider"></div>
+        <input class="search-box" id="searchBox" type="text" placeholder="🔍 Search..." oninput="renderItems()"/>
+    </div>
+    <div id="itemGrid"></div>
+</div>
+
+<!-- DAILY SHOP -->
+<div class="page" id="page-daily">
+    <div id="dailyContent"><div class="loading-text">Loading daily shops...</div></div>
+</div>
+
+<!-- SPECIAL SHOPS -->
+<div class="page" id="page-special">
+    <div id="specialContent"><div class="loading-text">Loading special shops...</div></div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="bundlePopup">
+    <div class="popup">
+        <h3>💡 Bundle vs Singles</h3>
+        <p id="popupText"></p>
+        <div class="popup-btns">
+            <button class="btn-bundle" id="popupBundleBtn">Buy Bundle</button>
+            <button class="btn-single" id="popupSingleBtn">Buy Single</button>
+            <button class="btn-cancel" onclick="closePopup()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── CONFIG ──────────────────────────────────────────────────────────────
+    const HOST = "https://bdff1.playfabapi.com";
+    const STAT_NAME = "LeaderBoard_AccountLevelSTEAM";
+    const PLAYFAB_ID = "BDFF1"; // from your screenshot
+
+    let userToken = localStorage.getItem("sn_token") || "";
+    let userInventory = [];
+    let catalog = [];
+    let activeTab = "ALL";
+    let sortMode = null;
+    let filters = { FE: true, AC: true, NA: true, DEAL: false };
+    let bundleView = false;
+    let dailyLoaded = false;
+    let specialLoaded = false;
+    const priceMap = {};
+    const storeDeals = {};
+    let leaderboardData = [];
+
+    // ─── CONSTANTS ──────────────────────────────────────────────────────────
+    const NEIGHBOR_ALIASES = ["Neighbor", "Pumpkin", "Scary", "Basic"];
+    const HIDDEN_PREFIXES = [
+        "2019", "2020", "2020-05", "00001V", "00001X", "00001Y", "00001Z", "00001W",
+        "9N15R5CPSDS7", "9N3TFBPS0S71", "9PF5VJVSLBTK", "9PHM1Z3BL1V7",
+        "SWITCH", "com", "2021", "2022", "2023"
+    ];
+    const TAB_ORDER = [
+        "ALL", "OWNED", "NOT OWNED",
+        "Bagger", "Brave", "Detective", "Engineer", "Inventor", "Leader", "Quentin",
+        "Journalist", "Scout", "Neighbor", "Butcher", "Clown",
+        "Ghost", "Guest", "Hunter", "Emotion"
+    ];
+    const SKIN_ALIASES = {
+        "sr": "speedrunner", "elf_01": "elf",
+        "scary": "pumpkin", "pumpkin": "pumpkin",
+    };
+
+    const DAILY_GROUPS = [
+        {
+            label: "📅 December 2023",
+            sub: "Daily_December_2023_01–31",
+            ids: Array.from({length: 31}, (_, i) => `Daily_December_2023_${String(i+1).padStart(2,"0")}`)
+        },
+        {
+            label: "🎫 Cert Daily",
+            sub: "cert_Daily00–06",
+            ids: ["cert_Daily00","cert_Daily01","cert_Daily02","cert_Daily03","cert_Daily04","cert_Daily05","cert_Daily06"]
+        },
+        {
+            label: "🎃 Halloween 2023",
+            sub: "steamPSxbox_Featured_Halloween_2023_00–31",
+            ids: Array.from({length: 32}, (_, i) => `steamPSxbox_Featured_Halloween_2023_${String(i).padStart(2,"0")}`)
+        }
+    ];
+
+    const SEASON_STORES = [
+        { id: "shop_season_Summer2025", label: "☀️ Season Shop — Summer 2025", sub: "Current season exclusives" },
+    ];
+
+    const FEATURED_STORE_IDS = [
+        "Featured_Space24_00","Featured_Space24_01","Featured_Space24_02",
+        "Featured_Space24_03","Featured_Space24_04","Featured_Space24_05","Featured_Space24_06",
+    ];
+
+    // ─── LEADERBOARD (NO AUTH NEEDED) ─────────────────────────────────────
+    async function loadLeaderboard() {
+        const container = document.getElementById("leaderboardContainer");
+        container.innerHTML = '<div class="lb-loading">Loading leaderboard...</div>';
+
+        try {
+            const body = {
+                MaxResultsCount: 50,
+                StartPosition: 0,
+                StatisticName: STAT_NAME
+            };
+
+            const res = await fetch(`${HOST}/Client/GetLeaderboard`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+
+            if (data.code === 200 && data.data && data.data.Leaderboard) {
+                leaderboardData = data.data.Leaderboard;
+                renderLeaderboard(leaderboardData);
+            } else {
+                // Try with title ID in body as fallback
+                const body2 = {
+                    MaxResultsCount: 50,
+                    StartPosition: 0,
+                    StatisticName: STAT_NAME,
+                    TitleId: PLAYFAB_ID
+                };
+                const res2 = await fetch(`${HOST}/Client/GetLeaderboard`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body2)
+                });
+                const data2 = await res2.json();
+                if (data2.code === 200 && data2.data && data2.data.Leaderboard) {
+                    leaderboardData = data2.data.Leaderboard;
+                    renderLeaderboard(leaderboardData);
+                } else {
+                    container.innerHTML = `<div class="lb-loading" style="color:#e94560;">⚠️ Could not load leaderboard: ${data2.errorMessage || "Unknown error"}</div>`;
+                }
+            }
+        } catch (e) {
+            container.innerHTML = `<div class="lb-loading" style="color:#e94560;">⚠️ Network error: ${e.message}</div>`;
+        }
+    }
+
+    function renderLeaderboard(entries) {
+        const container = document.getElementById("leaderboardContainer");
+        if (!entries || entries.length === 0) {
+            container.innerHTML = '<div class="lb-loading">No leaderboard data available</div>';
+            return;
+        }
+
+        document.getElementById("lbTotalPlayers").textContent = entries.length;
+        const maxLevel = entries.reduce((max, e) => Math.max(max, e.StatValue || 0), 0);
+        document.getElementById("lbTopLevel").textContent = maxLevel;
+
+        let html = `<table class="leaderboard-table">
+            <thead><tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Level</th>
+                <th>Position</th>
+            </tr></thead><tbody>`;
+
+        entries.forEach((entry, idx) => {
+            const rank = entry.Position !== undefined ? entry.Position + 1 : idx + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : "";
+            const level = entry.StatValue || 0;
+            // Determine if the player is the current user (we'll check after login)
+            const isYou = entry.PlayFabId && userToken && entry.PlayFabId === window._myPlayFabId;
+            const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
+            html += `<tr class="${rankClass}">
+                <td>${rank}</td>
+                <td>${displayName}${isYou ? ' 👈' : ''}</td>
+                <td>${level}</td>
+                <td>${entry.Position !== undefined ? `#${entry.Position + 1}` : '-'}</td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    async function refreshLeaderboard() {
+        const btn = document.getElementById("lbRefreshBtn");
+        btn.disabled = true;
+        btn.textContent = "⏳ Loading...";
+        await loadLeaderboard();
+        btn.disabled = false;
+        btn.textContent = "🔄 Refresh";
+    }
+
+    // ─── HELPERS ────────────────────────────────────────────────────────────
+    function normalizeSkin(rawSkin) {
+        const lower = rawSkin.toLowerCase().trim();
+        return SKIN_ALIASES[lower] !== undefined ? SKIN_ALIASES[lower] : lower;
+    }
+
+    function displaySkin(normalized) {
+        const display = { "speedrunner": "SpeedRunner", "elf": "Elf", "pumpkin": "Pumpkin" };
+        return display[normalized] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
+    }
+
+    function getCharacter(itemId) {
+        const raw = itemId.trim().split("_")[0];
+        if (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(raw.toLowerCase())) return "Neighbor";
+        if (raw.toLowerCase() === "emotion") return "Emotion";
+        return raw.charAt(0).toUpperCase() + raw.slice(1);
+    }
+
+    function getRawCharacter(itemId) { return itemId.trim().split("_")[0]; }
+    function isHidden(itemId) { return HIDDEN_PREFIXES.includes(itemId.trim().split("_")[0]); }
+
+    function getCurrencyType(item) {
+        const p = item.VirtualCurrencyPrices || {};
+        if (p.FE !== undefined) return "FE";
+        if (p.AC !== undefined) return "AC";
+        return "NA";
+    }
+
+    function getPrice(item) {
+        const p = item.VirtualCurrencyPrices || {};
+        return p.FE ?? p.AC ?? 0;
+    }
+
+    function priceTag(prices) {
+        if (!prices) return "Not Purchasable";
+        if (prices.FE !== undefined) return `🪙 ${prices.FE} FE`;
+        if (prices.AC !== undefined) return `🎟️ ${prices.AC} AC`;
+        return "Not Purchasable";
+    }
+
+    function currencyFull(cur) {
+        if (cur === "FE") return "🪙 FE (Coins)";
+        if (cur === "AC") return "🎟️ AC (Tickets)";
+        return "";
+    }
+
+    function isBundle(itemId) { return itemId.trim().split("_")[1]?.toLowerCase() === "bundle"; }
+
+    function getSkinKey(itemId) {
+        const parts = itemId.trim().split("_");
+        return normalizeSkin(parts.slice(2).join("_"));
+    }
+
+    function getSlot(itemId) { return itemId.trim().split("_")[1] || ""; }
+
+    // ─── STORE DEALS ENGINE ────────────────────────────────────────────────
+    async function fetchStore(storeId) {
+        try {
+            const res = await fetch(`${HOST}/Client/GetStoreItems`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify({ CatalogVersion: "Ingame", StoreId: storeId })
+            });
+            const data = await res.json();
+            if (data.code === 200) return data.data.Store;
+        } catch(e) {}
+        return null;
+    }
+
+    function mergeStoreItems(allItems) {
+        const best = {};
+        allItems.forEach(item => {
+            const id = item.ItemId.trim();
+            const p = item.VirtualCurrencyPrices || {};
+            const price = p.FE ?? p.AC ?? Infinity;
+            if (!best[id] || price < best[id].price) {
+                best[id] = { item: { ...item, ItemId: id }, price };
+            }
+        });
+        return Object.values(best).map(v => v.item);
+    }
+
+    function registerDeal(itemId, storePrices, storeId, sourceLabel) {
+        const catPrices = priceMap[itemId] || {};
+        const storeFE = storePrices.FE;
+        const storeAC = storePrices.AC;
+        const catFE = catPrices.FE;
+        const catAC = catPrices.AC;
+
+        let storePrice = storeFE ?? storeAC;
+        let storeCur = storeFE !== undefined ? "FE" : storeAC !== undefined ? "AC" : null;
+        if (storePrice === undefined || !storeCur) return;
+
+        let catPrice = catFE ?? catAC;
+        const isCheaper = catPrice === undefined || storePrice < catPrice;
+        if (!isCheaper) return;
+
+        const existing = storeDeals[itemId];
+        if (!existing || storePrice < existing.price) {
+            storeDeals[itemId] = { price: storePrice, currency: storeCur, storeId, sourceLabel, prices: storePrices };
+        }
+    }
+
+    async function loadAllStoreDeals() {
+        const status = document.getElementById("storeLoadStatus");
+        if (status) status.textContent = "⏳ loading store deals...";
+
+        const allSources = [
+            ...DAILY_GROUPS.flatMap(g => g.ids.map(id => ({ id, label: g.label }))),
+            ...SEASON_STORES.map(s => ({ id: s.id, label: s.label })),
+            ...FEATURED_STORE_IDS.map(id => ({ id, label: "🚀 Featured" }))
+        ];
+
+        for (const src of allSources) {
+            const items = await fetchStore(src.id);
+            if (items) {
+                items.forEach(item => {
+                    const trimmed = item.ItemId.trim();
+                    registerDeal(trimmed, item.VirtualCurrencyPrices || {}, src.id, src.label);
+                });
+            }
+        }
+
+        const dealCount = Object.keys(storeDeals).length;
+        if (status) status.textContent = dealCount > 0 ? "" : "no deals found";
+        const wrap = document.getElementById("dealCountWrap");
+        if (wrap) {
+            wrap.style.display = dealCount > 0 ? "inline" : "none";
+            document.getElementById("dealCount").textContent = dealCount;
+        }
+        renderItems();
+    }
+
+    // ─── NAVIGATION ──────────────────────────────────────────────────────────
+    function switchPage(page) {
+        document.querySelectorAll(".main-nav-btn").forEach((btn, i) => {
+            const pages = ["catalog", "daily", "special"];
+            btn.className = `main-nav-btn ${pages[i] === page ? "active" : ""}`;
+        });
+        document.querySelectorAll(".page").forEach(p => p.className = "page");
+        document.getElementById(`page-${page}`).className = "page active";
+
+        // Show login overlay if going to catalog and not logged in
+        if (page === "catalog" && !userToken) {
+            document.getElementById("loginOverlay").className = "login-overlay show";
+        }
+
+        if (page === "daily" && !dailyLoaded && userToken) loadDailyShop();
+        if (page === "special" && !specialLoaded && userToken) loadSpecialShops();
+    }
+
+    // ─── DAILY SHOP ──────────────────────────────────────────────────────────
+    async function loadDailyShop() {
+        dailyLoaded = true;
+        const content = document.getElementById("dailyContent");
+        content.innerHTML = '<div class="loading-text">Fetching daily stores...</div>';
+
+        const sections = [];
+        for (const group of DAILY_GROUPS) {
+            const allItems = [];
+            for (const storeId of group.ids) {
+                const items = await fetchStore(storeId);
+                if (items) {
+                    items.forEach(item => { item._storeId = storeId; });
+                    allItems.push(...items);
+                }
+            }
+            if (allItems.length > 0) {
+                sections.push({ ...group, items: mergeStoreItems(allItems) });
+            }
+        }
+
+        if (sections.length === 0) {
+            content.innerHTML = '<div class="loading-text">No daily shops found</div>';
+            return;
+        }
+
+        content.innerHTML = "";
+        sections.forEach(s => buildDailySection(content, s));
+    }
+
+    function buildDailySection(container, section) {
+        const byChar = {};
+        section.items.forEach(item => {
+            const char = getCharacter(item.ItemId);
+            if (!byChar[char]) byChar[char] = [];
+            byChar[char].push(item);
+        });
+
+        const chars = Object.keys(byChar).sort();
+        const allChars = ["ALL", ...chars];
+
+        const sectionEl = document.createElement("div");
+        sectionEl.className = "store-section";
+
+        const safeId = section.label.replace(/[^a-z0-9]/gi, "_");
+        sectionEl.innerHTML = `
+            <div class="store-section-title">${section.label}</div>
+            <div class="store-section-sub">${section.sub} — ${section.items.length} unique items</div>
+            <div class="daily-char-tabs" id="dct-${safeId}"></div>
+            <div class="grid" id="dgrid-${safeId}"></div>
+        `;
+        container.appendChild(sectionEl);
+
+        const tabsEl = document.getElementById(`dct-${safeId}`);
+        const gridEl = document.getElementById(`dgrid-${safeId}`);
+
+        let activeChar = "ALL";
+
+        function renderDailyGrid() {
+            const shown = activeChar === "ALL" ? section.items : (byChar[activeChar] || []);
+            renderStoreGrid(gridEl, shown, null);
+        }
+
+        allChars.forEach(char => {
+            const btn = document.createElement("button");
+            btn.className = `dct-btn ${char === "ALL" ? "active" : ""}`;
+            btn.textContent = char === "ALL" ? `All (${section.items.length})` : `${char} (${byChar[char].length})`;
+            btn.onclick = () => {
+                activeChar = char;
+                tabsEl.querySelectorAll(".dct-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderDailyGrid();
+            };
+            tabsEl.appendChild(btn);
+        });
+
+        renderDailyGrid();
+    }
+
+    // ─── SPECIAL SHOPS ──────────────────────────────────────────────────────
+    async function loadSpecialShops() {
+        specialLoaded = true;
+        const content = document.getElementById("specialContent");
+        content.innerHTML = '<div class="loading-text">Fetching special shops...</div>';
+
+        const sections = [];
+
+        for (const store of SEASON_STORES) {
+            const items = await fetchStore(store.id);
+            if (items && items.length > 0) {
+                items.forEach(item => { item._storeId = store.id; });
+                sections.push({ ...store, items: mergeStoreItems(items) });
+            }
+        }
+
+        const featuredAll = [];
+        for (const id of FEATURED_STORE_IDS) {
+            const items = await fetchStore(id);
+            if (items) {
+                items.forEach(item => { item._storeId = id; });
+                featuredAll.push(...items);
+            }
+        }
+        if (featuredAll.length > 0) {
+            const merged = mergeStoreItems(featuredAll);
+            sections.push({ id: "featured-all", label: "🚀 Featured Shop", sub: `All featured rotations merged — ${merged.length} unique items`, items: merged });
+        }
+
+        if (sections.length === 0) {
+            content.innerHTML = '<div class="loading-text">No special shops found</div>';
+            return;
+        }
+
+        content.innerHTML = "";
+        sections.forEach(s => {
+            const safeId = (s.id || s.label).replace(/[^a-z0-9]/gi, "_");
+            const el = document.createElement("div");
+            el.className = "store-section";
+            el.innerHTML = `
+                <div class="store-section-title">${s.label}</div>
+                <div class="store-section-sub">${s.sub}</div>
+                <div class="grid" id="sgrid-${safeId}"></div>
+            `;
+            content.appendChild(el);
+            const grid = document.getElementById(`sgrid-${safeId}`);
+            if (grid) renderStoreGrid(grid, s.items, null);
+        });
+    }
+
+    // ─── STORE GRID RENDERER ──────────────────────────────────────────────
+    function renderStoreGrid(grid, items, storeId) {
+        grid.innerHTML = "";
+        items.forEach(item => {
+            const trimmed = item.ItemId.trim();
+            const owned = userInventory.includes(trimmed);
+            const storePrices = item.VirtualCurrencyPrices || {};
+            const catalogPrices = priceMap[trimmed] || {};
+
+            const storeFE = storePrices.FE;
+            const storeAC = storePrices.AC;
+            const catFE = catalogPrices.FE;
+            const catAC = catalogPrices.AC;
+            const isPromo = (storeFE !== undefined && catFE !== undefined && storeFE < catFE) ||
+                            (storeAC !== undefined && catAC !== undefined && storeAC < catAC);
+            const hasPrice = storeFE !== undefined || storeAC !== undefined;
+
+            const card = document.createElement("div");
+            card.className = `card ${owned ? "owned" : ""} ${isPromo ? "promo" : ""}`;
+
+            let priceHtml = "";
+            if (isPromo) {
+                const origPrice = catFE !== undefined ? `🪙 ${catFE} FE` : `🎟️ ${catAC} AC`;
+                const newPrice = storeFE !== undefined ? `🪙 ${storeFE} FE` : `🎟️ ${storeAC} AC`;
+                priceHtml = `
+                    <div class="promo-badge">🔥 PROMO</div>
+                    <div class="original-price">${origPrice}</div>
+                    <div class="price promo-price">${newPrice}</div>
+                `;
+            } else {
+                priceHtml = `<div class="price">${priceTag(storePrices)}</div>`;
+            }
+
+            card.innerHTML = `
+                <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                <div class="no-img" style="display:none">no image</div>
+                <div class="name">${trimmed}</div>
+                ${priceHtml}
+            `;
+
+            if (owned) {
+                const b = document.createElement("div");
+                b.className = "owned-badge"; b.textContent = "✅ owned";
+                card.appendChild(b);
+            } else if (!hasPrice) {
+                const b = document.createElement("div");
+                b.className = "na-badge"; b.textContent = "🚫 N/A";
+                card.appendChild(b);
+            } else {
+                const btn = document.createElement("button");
+                btn.className = "buy-btn";
+                btn.id = `btn-${trimmed}`;
+                btn.textContent = "Buy";
+                btn.onclick = () => buyItem(trimmed, storePrices, storeId || item._storeId || null);
+                card.appendChild(btn);
+            }
+
+            grid.appendChild(card);
+        });
+    }
+
+    // ─── CATALOG FILTERS ────────────────────────────────────────────────────
+    function toggleFilter(type) {
+        filters[type] = !filters[type];
+        document.getElementById(`toggle-${type}`).className = `toggle-btn ${filters[type] ? "" : "off"}`;
+        renderItems();
+    }
+
+    function setSort(mode) {
+        if (sortMode === mode) {
+            sortMode = null;
+            document.getElementById(`sort-${mode}`).className = "sort-btn";
+        } else {
+            sortMode = mode;
+            document.getElementById("sort-asc").className = `sort-btn ${mode === "asc" ? "active" : ""}`;
+            document.getElementById("sort-desc").className = `sort-btn ${mode === "desc" ? "active" : ""}`;
+        }
+        renderItems();
+    }
+
+    function toggleBundleView() {
+        bundleView = !bundleView;
+        document.getElementById("view-bundle").className = `sort-btn ${bundleView ? "active" : ""}`;
+        renderItems();
+    }
+
+    // ─── LOAD SHOP ─────────────────────────────────────────────────────────
+    async function loadShop() {
+        const token = document.getElementById("tokenInput").value.trim();
+        if (!token) { alert("Please paste your X-Authorization token!"); return; }
+        userToken = token;
+        localStorage.setItem("sn_token", token);
+
+        const loginLoading = document.getElementById("loginLoading");
+        loginLoading.textContent = "⏳ Loading...";
+
+        try {
+            // Get account info to fetch PlayFabId for leaderboard highlighting
+            const accountRes = await fetch(`${HOST}/Client/GetAccountInfo`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify({})
+            });
+            const accountData = await accountRes.json();
+            if (accountData.code === 200 && accountData.data && accountData.data.AccountInfo) {
+                window._myPlayFabId = accountData.data.AccountInfo.PlayFabId;
+            }
+
+            const [inventoryRes, catalogRes] = await Promise.all([
+                fetch(`${HOST}/Client/GetUserInventory`, {
+                    method: "POST",
+                    headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                }),
+                fetch(`${HOST}/Client/GetCatalogItems`, {
+                    method: "POST",
+                    headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({ "CatalogVersion": "Ingame" })
+                })
+            ]);
+
+            const inventoryData = await inventoryRes.json();
+            const catalogData = await catalogRes.json();
+
+            const currencies = inventoryData.data.VirtualCurrency;
+            document.getElementById("profileName").textContent = accountData.data.AccountInfo.TitleInfo.DisplayName || "Player";
+            document.getElementById("profileFE").textContent = currencies.FE || 0;
+            document.getElementById("profileAC").textContent = currencies.AC || 0;
+            document.getElementById("profileBar").style.display = "block";
+            document.getElementById("loginOverlay").className = "login-overlay";
+
+            userInventory = inventoryData.data.Inventory.map(i => i.ItemId.trim());
+            catalog = catalogData.data.Catalog.filter(i =>
+                (i.ItemClass === "Customization" || i.ItemClass === "Emotion" || i.ItemClass === "Bundle") &&
+                !isHidden(i.ItemId)
+            );
+            catalog.forEach(i => { priceMap[i.ItemId.trim()] = i.VirtualCurrencyPrices || {}; });
+
+            // Refresh leaderboard with user highlight
+            await refreshLeaderboard();
+
+            updateStats();
+            buildTabs();
+            renderItems();
+            loadAllStoreDeals();
+
+        } catch(e) {
+            loginLoading.textContent = "❌ Failed to load. Check your token.";
+        }
+    }
+
+    function logout() {
+        userToken = "";
+        localStorage.removeItem("sn_token");
+        document.getElementById("profileBar").style.display = "none";
+        document.getElementById("loginOverlay").className = "login-overlay show";
+        userInventory = [];
+        catalog = [];
+        priceMap = {};
+        storeDeals = {};
+        document.getElementById("itemGrid").innerHTML = "";
+        document.getElementById("totalCount").textContent = "0";
+        document.getElementById("ownedCount").textContent = "0";
+        document.getElementById("notOwnedCount").textContent = "0";
+        document.getElementById("tabsBar").innerHTML = "";
+        window._myPlayFabId = null;
+        // Reload leaderboard without highlight
+        loadLeaderboard();
+    }
+
+    // ─── TABS ──────────────────────────────────────────────────────────────
+    function buildTabs() {
+        const present = new Set(catalog.map(i => getCharacter(i.ItemId)));
+        const tabsBar = document.getElementById("tabsBar");
+        tabsBar.innerHTML = "";
+
+        TAB_ORDER.forEach(tab => {
+            const isSpecial = ["ALL", "OWNED", "NOT OWNED"].includes(tab);
+            if (!isSpecial && !present.has(tab)) return;
+            const btn = document.createElement("button");
+            btn.className = `tab-btn ${tab === activeTab ? "active" : ""}`;
+            btn.textContent = tab;
+            btn.onclick = () => switchTab(tab);
+            tabsBar.appendChild(btn);
+        });
+
+        present.forEach(char => {
+            if (!TAB_ORDER.includes(char) && !HIDDEN_PREFIXES.includes(char.toLowerCase())) {
+                const btn = document.createElement("button");
+                btn.className = `tab-btn ${char === activeTab ? "active" : ""}`;
+                btn.textContent = char;
+                btn.onclick = () => switchTab(char);
+                tabsBar.appendChild(btn);
+            }
+        });
+    }
+
+    function switchTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+            btn.className = `tab-btn ${btn.textContent === tab ? "active" : ""}`;
+        });
+        renderItems();
+    }
+
+    function getSearchQuery() { return (document.getElementById("searchBox")?.value || "").toLowerCase().trim(); }
+
+    function getTabItems() {
+        if (activeTab === "OWNED") return catalog.filter(i => userInventory.includes(i.ItemId.trim()));
+        if (activeTab === "NOT OWNED") return catalog.filter(i => !userInventory.includes(i.ItemId.trim()));
+        if (activeTab !== "ALL") return catalog.filter(i => getCharacter(i.ItemId) === activeTab);
+        return catalog;
+    }
+
+    function applyFiltersAndSort(items) {
+        const q = getSearchQuery();
+        if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
+        if (filters.DEAL) {
+            items = items.filter(i => storeDeals[i.ItemId.trim()]);
+        } else {
+            items = items.filter(i => filters[getCurrencyType(i)]);
+        }
+        if (sortMode === "asc") items = [...items].sort((a, b) => {
+            const pa = storeDeals[a.ItemId.trim()]?.price ?? getPrice(a);
+            const pb = storeDeals[b.ItemId.trim()]?.price ?? getPrice(b);
+            return pa - pb;
+        });
+        else if (sortMode === "desc") items = [...items].sort((a, b) => {
+            const pa = storeDeals[a.ItemId.trim()]?.price ?? getPrice(a);
+            const pb = storeDeals[b.ItemId.trim()]?.price ?? getPrice(b);
+            return pb - pa;
+        });
+        return items;
+    }
+
+    function renderItems() { bundleView ? renderBundleView() : renderGridView(); }
+
+    function safeBuy(itemId) { checkBundle(itemId, priceMap[itemId] || {}); }
+    function safeBuyDirect(itemId) { buyItem(itemId, priceMap[itemId] || {}); }
+
+    // ─── CATALOG GRID RENDERER ─────────────────────────────────────────────
+    function renderGridView() {
+        let items = applyFiltersAndSort(getTabItems());
+        const grid = document.getElementById("itemGrid");
+        grid.className = "grid";
+        grid.innerHTML = "";
+
+        if (!userToken) {
+            grid.innerHTML = '<div class="loading-text" style="padding:40px;">🔐 Please log in to view items</div>';
+            return;
+        }
+
+        items.forEach(item => {
+            const trimmed = item.ItemId.trim();
+            const owned = userInventory.includes(trimmed);
+            const prices = item.VirtualCurrencyPrices || {};
+            const isNA = getCurrencyType(item) === "NA";
+            const deal = storeDeals[trimmed];
+
+            const card = document.createElement("div");
+            card.className = `card ${owned ? "owned" : ""} ${isNA && !deal ? "na" : ""} ${deal && !owned ? "deal" : ""}`;
+            card.id = `card-${trimmed}`;
+
+            let priceSection = "";
+            if (deal && !owned) {
+                const catPriceStr = (prices.FE !== undefined || prices.AC !== undefined) ? priceTag(prices) : null;
+                priceSection = `
+                    <div class="deal-badge">🏷️ STORE DEAL</div>
+                    ${catPriceStr ? `<div class="original-price">${catPriceStr}</div>` : ""}
+                    <div class="price deal-price">${deal.currency === "FE" ? `🪙 ${deal.price} FE` : `🎟️ ${deal.price} AC`}</div>
+                    <div class="deal-source">${deal.sourceLabel}</div>
+                `;
+            } else {
+                priceSection = `<div class="price">${priceTag(prices)}</div>`;
+            }
+
+            card.innerHTML = `
+                <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                <div class="no-img" style="display:none">no image</div>
+                <div class="name">${trimmed}</div>
+                ${priceSection}
+            `;
+
+            if (owned) {
+                const b = document.createElement("div"); b.className = "owned-badge"; b.textContent = "✅ owned"; card.appendChild(b);
+            } else if (deal) {
+                const btn = document.createElement("button");
+                btn.className = "buy-btn deal-btn"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy (Deal)";
+                btn.onclick = () => buyItem(trimmed, deal.prices, deal.storeId);
+                card.appendChild(btn);
+            } else if (isNA) {
+                const b = document.createElement("div"); b.className = "na-badge"; b.textContent = "🚫 N/A"; card.appendChild(b);
+            } else {
+                const btn = document.createElement("button");
+                btn.className = "buy-btn"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy";
+                btn.onclick = () => safeBuy(trimmed);
+                card.appendChild(btn);
+            }
+            grid.appendChild(card);
+        });
+    }
+
+    // ─── BUNDLE VIEW ────────────────────────────────────────────────────────
+    function renderBundleView() {
+        const grid = document.getElementById("itemGrid");
+        grid.className = "";
+        grid.innerHTML = "";
+
+        if (!userToken) {
+            grid.innerHTML = '<div class="loading-text" style="padding:40px;">🔐 Please log in to view items</div>';
+            return;
+        }
+
+        const q = getSearchQuery();
+        let items = getTabItems();
+        if (q) items = items.filter(i => i.ItemId.toLowerCase().includes(q));
+
+        const groups = {};
+        items.forEach(item => {
+            const trimmed = item.ItemId.trim();
+            if (isBundle(trimmed)) return;
+            const rawChar = getRawCharacter(trimmed);
+            const skinKey = getSkinKey(trimmed);
+            const groupKey = `${rawChar.toLowerCase()}__${skinKey}`;
+            if (!groups[groupKey]) groups[groupKey] = { rawChar, skinKey, singles: [], bundle: null };
+            groups[groupKey].singles.push(item);
+        });
+
+        items.forEach(item => {
+            const trimmed = item.ItemId.trim();
+            if (!isBundle(trimmed)) return;
+            const rawChar = getRawCharacter(trimmed);
+            const skinKey = getSkinKey(trimmed);
+            const groupKey = `${rawChar.toLowerCase()}__${skinKey}`;
+            if (!groups[groupKey]) groups[groupKey] = { rawChar, skinKey, singles: [], bundle: null };
+            groups[groupKey].bundle = item;
+        });
+
+        Object.entries(groups).forEach(([groupKey, group]) => {
+            const char = getCharacter(group.rawChar);
+            const skinDisp = displaySkin(group.skinKey);
+            const displayTitle = `${char} — ${skinDisp}`;
+            const safeKey = groupKey.replace(/[^a-z0-9]/gi,"_");
+
+            const bp = group.bundle?.VirtualCurrencyPrices || {};
+            const bundleOwned = group.bundle && userInventory.includes(group.bundle.ItemId.trim());
+            const bCur = getCurrencyType({ VirtualCurrencyPrices: bp });
+            const cmp = group.bundle ? compareBundle(group.bundle, group.singles) : null;
+
+            let groupClass = "bundle-group";
+            let savingsHtml = "";
+            if (cmp) {
+                if (cmp.type === "cheaper") { groupClass += " cheaper"; savingsHtml = `<div class="savings-line green">✅ Bundle saves ${cmp.savings} ${currencyFull(cmp.bundleCur)}</div>`; }
+                else if (cmp.type === "expensive") { groupClass += " expensive"; savingsHtml = `<div class="savings-line red">Singles save ${cmp.savings} ${currencyFull(cmp.singlesCur)}</div>`; }
+                else if (cmp.type === "mixed") { groupClass += " mixed"; savingsHtml = `<div class="savings-line orange">⚠️ Mixed currencies</div>`; }
+                else if (cmp.type === "same") { groupClass += " same"; savingsHtml = `<div class="savings-line blue">Same price either way</div>`; }
+            }
+
+            let btnClass = "bundle-main-btn orange";
+            if (cmp && cmp.type === "cheaper") btnClass = "bundle-main-btn orange";
+            else if (cmp && cmp.type === "same") btnClass = "bundle-main-btn blue";
+            const isGrayed = !group.bundle || bCur === "NA" || bundleOwned;
+            const allSinglesOwned = group.singles.every(i => userInventory.includes(i.ItemId.trim()));
+            const showBuyAnyway = group.bundle && !bundleOwned && bCur !== "NA" &&
+                ((cmp && cmp.type === "expensive") || allSinglesOwned);
+
+            let bundleImageHtml = "";
+            if (group.bundle) {
+                const bundleId = group.bundle.ItemId.trim();
+                bundleImageHtml = `
+                    <div class="bundle-image-card">
+                        <img src="images/${bundleId}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                        <div class="bundle-img-placeholder" style="display:none">📦</div>
+                        <div class="bundle-price-tag">${priceTag(bp)}</div>
+                        ${bundleOwned
+                            ? `<button class="bundle-main-btn owned-btn" disabled>✅ Owned</button>`
+                            : bCur === "NA"
+                                ? `<button class="bundle-main-btn grayed" disabled>🚫 N/A</button>`
+                                : `<button class="${btnClass}" ${isGrayed ? "disabled" : ""} id="bundlebtn-${safeKey}">Buy Bundle</button>`
+                        }
+                        ${showBuyAnyway ? `<button class="buy-anyway-btn" id="bundleanyway-${safeKey}">Buy anyway?</button>` : ""}
+                    </div>
+                `;
+            }
+
+            const groupEl = document.createElement("div");
+            groupEl.className = groupClass;
+            groupEl.innerHTML = `
+                <div class="bundle-group-header">
+                    <div>
+                        <div class="bundle-group-title">${displayTitle}</div>
+                        ${group.bundle
+                            ? `<div class="bundle-price-line">Bundle: <b>${priceTag(group.bundle.VirtualCurrencyPrices)}</b></div>`
+                            : `<div class="bundle-price-line" style="color:#555">No bundle available</div>`}
+                        ${savingsHtml}
+                    </div>
+                </div>
+                <div class="bundle-body">
+                    <div class="bundle-singles" id="singles-${safeKey}"></div>
+                    ${bundleImageHtml}
+                </div>
+            `;
+            grid.appendChild(groupEl);
+
+            if (group.bundle && !bundleOwned && getCurrencyType(group.bundle) !== "NA") {
+                const bundleId = group.bundle.ItemId.trim();
+                const singlesTotal = cmp ? cmp.singlesTotal : null;
+                const sCur = cmp ? cmp.singlesCur : null;
+                const mainBtn = document.getElementById(`bundlebtn-${safeKey}`);
+                if (mainBtn) mainBtn.onclick = () => showBundlePopup(bundleId, singlesTotal, sCur);
+                const anywayBtn = document.getElementById(`bundleanyway-${safeKey}`);
+                if (anywayBtn) anywayBtn.onclick = () => showBundlePopup(bundleId, singlesTotal, sCur);
+            }
+
+            const singlesContainer = document.getElementById(`singles-${safeKey}`);
+            const bundleCheaper = cmp && cmp.type === "cheaper";
+            const cbId = `cb-${safeKey}`;
+
+            if (bundleCheaper) {
+                const cbRow = document.createElement("div");
+                cbRow.className = "checkbox-row";
+                cbRow.innerHTML = `<input type="checkbox" id="${cbId}"/><label for="${cbId}">I want to buy singles anyway</label>`;
+                singlesContainer.appendChild(cbRow);
+                document.getElementById(cbId).onchange = function() { toggleSinglesBuy(safeKey, this.checked); };
+            }
+
+            group.singles.forEach(item => {
+                const trimmed = item.ItemId.trim();
+                const owned = userInventory.includes(trimmed);
+                const prices = item.VirtualCurrencyPrices || {};
+                const isNA = getCurrencyType(item) === "NA";
+                const isSame = cmp && cmp.type === "same";
+                const slot = getSlot(trimmed).toUpperCase();
+
+                const mini = document.createElement("div");
+                mini.className = `mini-card ${owned ? "owned" : ""} ${isNA ? "na" : ""} ${isSame ? "same-price" : ""}`;
+                mini.id = `card-${trimmed}`;
+                mini.innerHTML = `
+                    <img src="images/${trimmed}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                    <div class="mini-no-img" style="display:none">no image</div>
+                    <div class="mini-name">${slot}</div>
+                    <div class="mini-price ${isSame ? "blue" : ""}">${priceTag(prices)}</div>
+                `;
+
+                if (owned) {
+                    const b = document.createElement("div"); b.className = "mini-owned"; b.textContent = "✅"; mini.appendChild(b);
+                } else if (isNA) {
+                    const b = document.createElement("div"); b.className = "mini-na"; b.textContent = "🚫"; mini.appendChild(b);
+                } else {
+                    const btn = document.createElement("button");
+                    btn.className = "mini-buy"; btn.id = `btn-${trimmed}`; btn.textContent = "Buy";
+                    if (bundleCheaper) { btn.disabled = true; btn.dataset.group = safeKey; }
+                    btn.onclick = () => safeBuyDirect(trimmed);
+                    mini.appendChild(btn);
+                }
+                singlesContainer.appendChild(mini);
+            });
+        });
+    }
+
+    function toggleSinglesBuy(safeKey, checked) {
+        const container = document.getElementById(`singles-${safeKey}`);
+        if (!container) return;
+        container.querySelectorAll(`.mini-buy[data-group="${safeKey}"]`).forEach(btn => { btn.disabled = !checked; });
+    }
+
+    // ─── BUNDLE POPUP ──────────────────────────────────────────────────────
+    function findBundle(rawChar, normalizedSkin) {
+        const isNeighbor = NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase());
+        const charsToSearch = isNeighbor ? NEIGHBOR_ALIASES : [rawChar];
+        const skinVariants = new Set([normalizedSkin, displaySkin(normalizedSkin).toLowerCase()]);
+        Object.entries(SKIN_ALIASES).forEach(([k, v]) => { if (v === normalizedSkin) skinVariants.add(k); });
+        for (const char of charsToSearch) {
+            for (const skin of skinVariants) {
+                const found = catalog.find(i =>
+                    i.ItemId.trim().toLowerCase() === `${char.toLowerCase()}_bundle_${skin}`
+                );
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
+    function compareBundle(bundle, singles) {
+        if (!bundle) return null;
+        const bp = bundle.VirtualCurrencyPrices || {};
+        const bundleCur = bp.FE !== undefined ? "FE" : bp.AC !== undefined ? "AC" : null;
+        if (!bundleCur) return null;
+        const bundlePrice = bp[bundleCur];
+        const notOwned = singles.filter(i => !userInventory.includes(i.ItemId.trim()));
+        if (notOwned.length === 0) return { type: "all_owned" };
+        const purchasable = notOwned.filter(i => getCurrencyType(i) !== "NA");
+        if (purchasable.length === 0) return null;
+        const singleCurs = [...new Set(purchasable.map(i => getCurrencyType(i)))];
+        const singleCur = singleCurs.length === 1 ? singleCurs[0] : "MIXED";
+        if (singleCur === "MIXED" || singleCur !== bundleCur) {
+            const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
+            return { type: "mixed", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur };
+        }
+        const singlesTotal = purchasable.reduce((s, i) => s + getPrice(i), 0);
+        const diff = singlesTotal - bundlePrice;
+        if (diff > 0) return { type: "cheaper", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: diff };
+        if (diff < 0) return { type: "expensive", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: Math.abs(diff) };
+        return { type: "same", bundleCur, bundlePrice, singlesTotal, singlesCur: singleCur, savings: 0 };
+    }
+
+    function showBundlePopup(bundleId, singlesTotal, singlesCur) {
+        const prices = priceMap[bundleId] || {};
+        const bundleCur = getCurrencyType({ VirtualCurrencyPrices: prices });
+        const bundlePrice = prices[bundleCur] || 0;
+
+        let compHtml = "";
+        if (singlesTotal != null && singlesCur && singlesCur !== "null") {
+            if (singlesCur === bundleCur) {
+                const diff = singlesTotal - bundlePrice;
+                if (diff > 0) compHtml = `<span style="color:#2ecc71">✅ Bundle saves ${diff} ${currencyFull(bundleCur)}</span>`;
+                else if (diff < 0) compHtml = `<span style="color:#e94560">Bundle is more expensive — Singles save ${Math.abs(diff)} ${currencyFull(singlesCur)}</span>`;
+                else compHtml = `<span style="color:#3498db">Same price either way</span>`;
+            } else {
+                compHtml = `<span style="color:#f39c12">⚠️ Different currencies</span>`;
+            }
+        }
+
+        document.getElementById("popupText").innerHTML = `
+            <b>${bundleId}</b><br><br>
+            Bundle: <b>${priceTag(prices)}</b><br>
+            ${singlesTotal != null && singlesCur && singlesCur !== "null"
+                ? `Singles total: <b>${singlesTotal} ${currencyFull(singlesCur)}</b><br>` : ""}
+            <br>${compHtml}
+        `;
+
+        document.getElementById("popupBundleBtn").onclick = () => { closePopup(); buyItem(bundleId, prices); };
+        document.getElementById("popupSingleBtn").style.display = "none";
+        document.getElementById("bundlePopup").className = "popup-overlay show";
+    }
+
+    function checkBundle(itemId, prices) {
+        const trimmed = itemId.trim();
+        const rawChar = getRawCharacter(trimmed);
+        const skinKey = getSkinKey(trimmed);
+        const bundle = findBundle(rawChar, skinKey);
+        if (!bundle || userInventory.includes(bundle.ItemId.trim())) { buyItem(trimmed, prices); return; }
+
+        const singles = catalog.filter(i => {
+            const t = i.ItemId.trim();
+            if (isBundle(t)) return false;
+            const rc = getRawCharacter(t);
+            const sk = getSkinKey(t);
+            const sameChar = rc.toLowerCase() === rawChar.toLowerCase() ||
+                (NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rc.toLowerCase()) &&
+                 NEIGHBOR_ALIASES.map(a => a.toLowerCase()).includes(rawChar.toLowerCase()));
+            return sameChar && sk === skinKey;
+        });
+
+        const cmp = compareBundle(bundle, singles);
+        if (!cmp || cmp.type === "all_owned") { buyItem(trimmed, prices); return; }
+
+        showBundlePopup(bundle.ItemId.trim(), cmp.singlesTotal, cmp.singlesCur);
+        document.getElementById("popupSingleBtn").style.display = "inline-block";
+        document.getElementById("popupSingleBtn").textContent = "Buy Single";
+        document.getElementById("popupSingleBtn").onclick = () => { closePopup(); buyItem(trimmed, prices); };
+    }
+
+    function closePopup() { document.getElementById("bundlePopup").className = "popup-overlay"; }
+
+    // ─── BUY ────────────────────────────────────────────────────────────────
+    async function buyItem(itemId, prices, storeId) {
+        if (!userToken) {
+            alert("Please log in first!");
+            return;
+        }
+
+        const trimmed = itemId.trim();
+        const currency = prices.FE !== undefined ? "FE" : "AC";
+        const price = prices[currency] || 0;
+
+        const btn = document.getElementById(`btn-${trimmed}`);
+        if (btn) { btn.disabled = true; btn.textContent = "Buying..."; }
+
+        const body = { CatalogVersion: "Ingame", ItemId: trimmed, Price: price, VirtualCurrency: currency };
+        if (storeId) body.StoreId = storeId;
+
+        try {
+            const res = await fetch(`${HOST}/Client/PurchaseItem`, {
+                method: "POST",
+                headers: { "X-Authorization": userToken, "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+
+            if (data.code === 200) {
+                if (currency === "FE") {
+                    document.getElementById("profileFE").textContent =
+                        parseInt(document.getElementById("profileFE").textContent) - price;
+                } else {
+                    document.getElementById("profileAC").textContent =
+                        parseInt(document.getElementById("profileAC").textContent) - price;
+                }
+                userInventory.push(trimmed);
+                delete storeDeals[trimmed];
+                updateStats();
+                renderItems();
+                alert(`✅ ${trimmed} unlocked!`);
+                // Refresh leaderboard in case level changed
+                refreshLeaderboard();
+            } else {
+                if (btn) { btn.disabled = false; btn.textContent = btn.classList.contains("deal-btn") ? "Buy (Deal)" : "Buy"; }
+                alert(`❌ Failed: ${data.errorMessage || "Unknown error"}`);
+            }
+        } catch (e) {
+            if (btn) { btn.disabled = false; btn.textContent = btn.classList.contains("deal-btn") ? "Buy (Deal)" : "Buy"; }
+            alert(`❌ Network error: ${e.message}`);
+        }
+    }
+
+    // ─── STATS ──────────────────────────────────────────────────────────────
+    function updateStats() {
+        const notOwned = catalog.filter(i => !userInventory.includes(i.ItemId.trim())).length;
+        document.getElementById("totalCount").textContent = catalog.length;
+        document.getElementById("ownedCount").textContent = userInventory.length;
+        document.getElementById("notOwnedCount").textContent = notOwned;
+    }
+
+    // ─── CHECK FOR SAVED TOKEN ─────────────────────────────────────────────
+    function checkSavedToken() {
+        if (userToken) {
+            // Auto-login
+            document.getElementById("tokenInput").value = userToken;
+            loadShop();
+        }
+    }
+
+    // ─── INIT ───────────────────────────────────────────────────────────────
+    // Load leaderboard immediately (no auth needed)
+    loadLeaderboard();
+
+    // Check for saved token after a moment
+    setTimeout(checkSavedToken, 500);
+
+    // Add auto-refresh on visibility change (when user comes back)
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            loadLeaderboard();
+            if (userToken) {
+                // Refresh shop data silently
+                loadAllStoreDeals();
+            }
+        }
+    });
+</script>
+</body>
+</html>
