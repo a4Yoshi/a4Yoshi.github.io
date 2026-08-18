@@ -456,7 +456,7 @@
         }
     }
 
-    // ─── CACHE HANDLING (PERMANENT) ──────────────────────────────────────────
+    // ─── CACHE HANDLING ──────────────────────────────────────────────────────
     function saveToCache(data, platform, character) {
         const cache = {
             data: data,
@@ -514,7 +514,7 @@
         }
     }
 
-    // ─── FETCH LEADERBOARD USING CLOUD SCRIPT ──────────────────────────────
+    // ─── FETCH LEADERBOARD — ALL 3 ENDPOINTS ──────────────────────────────
     async function fetchLeaderboard(platform = null) {
         if (!userToken) {
             alert("⚠️ Please set your X-Authorization token first!");
@@ -531,7 +531,7 @@
             const platformName = platform || "STEAM";
             const server = PLATFORM_SERVERS[platformName] || "https://bdff1.playfabapi.com";
 
-            // Build the currentLevelProgression object (matching game's format)
+            // ─── STEP 1: Execute Cloud Script (refresh leaderboard) ───
             const currentLevelProgression = {
                 playerLevel: "56",
                 classLevel: [
@@ -542,7 +542,7 @@
                 ]
             };
 
-            const body = {
+            const cloudScriptBody = {
                 FunctionName: "refreshLeaderboardPlatform",
                 FunctionParameter: {
                     currentLevelProgression: currentLevelProgression,
@@ -553,9 +553,8 @@
                 SpecificRevision: null
             };
 
-            const url = `${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`;
-
-            const res = await fetch(url, {
+            console.log("📡 STEP 1: Executing Cloud Script...");
+            const csResponse = await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
                 method: "POST",
                 headers: {
                     "X-Authorization": userToken,
@@ -565,166 +564,114 @@
                     "Accept": "*/*",
                     "X-Unity-Version": "2022.3.14f1"
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify(cloudScriptBody)
             });
 
-            const data = await res.json();
+            const csData = await csResponse.json();
+            console.log("✅ Cloud Script Response:", csData);
 
-            console.log("Cloud Script Response:", data);
+            // ─── STEP 2: Get Leaderboard ──────────────────────────────────
+            console.log("📡 STEP 2: Fetching Leaderboard...");
+            const statName = `LeaderBoard_AccountLevel${platformName}`;
+            
+            const lbBody = {
+                MaxResultsCount: 50,
+                StartPosition: 0,
+                StatisticName: statName
+            };
 
-            if (data.code === 200 && data.data) {
-                // Parse the leaderboard from the cloud script response
-                let leaderboardData = [];
+            const lbResponse = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
+                method: "POST",
+                headers: {
+                    "X-Authorization": userToken,
+                    "Content-Type": "application/json",
+                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                    "X-ReportErrorAsSuccess": "true",
+                    "Accept": "*/*",
+                    "X-Unity-Version": "2022.3.14f1"
+                },
+                body: JSON.stringify(lbBody)
+            });
 
-                // Check different possible locations for leaderboard data
-                if (data.data.FunctionResult) {
-                    const result = data.data.FunctionResult;
-                    
-                    // Try to find leaderboard in the response
-                    if (result.leaderboard) {
-                        leaderboardData = result.leaderboard;
-                    } else if (result.data && result.data.leaderboard) {
-                        leaderboardData = result.data.leaderboard;
-                    } else if (result.Leaderboard) {
-                        leaderboardData = result.Leaderboard;
-                    } else if (Array.isArray(result)) {
-                        leaderboardData = result;
-                    } else if (result.logs && result.logs.length > 0) {
-                        // Some responses have the leaderboard in logs
-                        for (const log of result.logs) {
-                            if (log.Level === "Info" && log.Message) {
-                                try {
-                                    const parsed = JSON.parse(log.Message);
-                                    if (parsed.leaderboard) {
-                                        leaderboardData = parsed.leaderboard;
-                                        break;
-                                    }
-                                } catch (e) {}
-                            }
-                        }
-                    }
+            const lbData = await lbResponse.json();
+            console.log("✅ Leaderboard Response:", lbData);
+
+            // ─── STEP 3: Get Leaderboard Around Player ────────────────────
+            console.log("📡 STEP 3: Fetching player position...");
+            const aroundBody = {
+                MaxResultsCount: 1,
+                StatisticName: statName
+            };
+
+            let playerPosition = null;
+            try {
+                const aroundResponse = await fetch(`${server}/Client/GetLeaderboardAroundPlayer?sdk=UnitySDK-2.155.221207`, {
+                    method: "POST",
+                    headers: {
+                        "X-Authorization": userToken,
+                        "Content-Type": "application/json",
+                        "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                        "X-ReportErrorAsSuccess": "true",
+                        "Accept": "*/*",
+                        "X-Unity-Version": "2022.3.14f1"
+                    },
+                    body: JSON.stringify(aroundBody)
+                });
+                const aroundData = await aroundResponse.json();
+                console.log("✅ Player Position Response:", aroundData);
+                if (aroundData.code === 200 && aroundData.data && aroundData.data.Leaderboard) {
+                    playerPosition = aroundData.data.Leaderboard[0];
                 }
+            } catch (e) {
+                console.log("⚠️ Player position not available:", e.message);
+            }
 
-                // If no leaderboard found, try to extract from Logs
-                if (leaderboardData.length === 0 && data.data.Logs) {
-                    for (const log of data.data.Logs) {
-                        if (log.Level === "Info" && log.Message) {
-                            try {
-                                const parsed = JSON.parse(log.Message);
-                                if (parsed.leaderboard) {
-                                    leaderboardData = parsed.leaderboard;
-                                    break;
-                                }
-                            } catch (e) {}
-                        }
-                    }
-                }
+            // ─── PROCESS LEADERBOARD DATA ──────────────────────────────────
+            if (lbData.code === 200 && lbData.data && lbData.data.Leaderboard) {
+                const entries = lbData.data.Leaderboard.map((entry, idx) => {
+                    const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
+                    let character = "Unknown";
+                    let characterKey = "Unknown";
 
-                // If still no data, check if there's a "data" field with the leaderboard
-                if (leaderboardData.length === 0 && data.data.data) {
-                    if (data.data.data.leaderboard) {
-                        leaderboardData = data.data.data.leaderboard;
-                    } else if (Array.isArray(data.data.data)) {
-                        leaderboardData = data.data.data;
-                    }
-                }
-
-                // Process the leaderboard data
-                if (leaderboardData.length > 0) {
-                    const entries = leaderboardData.map((entry, idx) => {
-                        const displayName = entry.DisplayName || entry.displayName || entry.PlayerName || entry.playerName || entry.PlayFabId || "";
-                        let character = "Unknown";
-                        let characterKey = "Unknown";
-
-                        for (const [key, info] of Object.entries(CHARACTER_MAP)) {
-                            if (displayName.includes(key) || displayName.includes(info.label)) {
-                                character = info.label;
-                                characterKey = key;
-                                break;
-                            }
-                        }
-
-                        return {
-                            ...entry,
-                            character: character,
-                            characterKey: characterKey,
-                            displayName: displayName,
-                            rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
-                            platform: platformName,
-                            StatValue: entry.StatValue || entry.statValue || entry.level || 0
-                        };
-                    });
-
-                    saveToCache(entries, platform || "all", currentCharacter);
-                    allEntries = entries;
-                    filteredEntries = [...entries];
-                    updateStats();
-                    renderTable();
-                    updateCacheStatus();
-                    return entries;
-                } else {
-                    // Try one more time - maybe the data is in the response body directly
-                    if (data.data && typeof data.data === 'object') {
-                        // Look for any array that might be the leaderboard
-                        for (const key in data.data) {
-                            if (Array.isArray(data.data[key]) && data.data[key].length > 0) {
-                                const possibleData = data.data[key];
-                                if (possibleData[0].DisplayName || possibleData[0].PlayFabId) {
-                                    const entries = possibleData.map((entry, idx) => {
-                                        const displayName = entry.DisplayName || entry.displayName || entry.PlayFabId || "";
-                                        let character = "Unknown";
-                                        let characterKey = "Unknown";
-                                        for (const [key, info] of Object.entries(CHARACTER_MAP)) {
-                                            if (displayName.includes(key) || displayName.includes(info.label)) {
-                                                character = info.label;
-                                                characterKey = key;
-                                                break;
-                                            }
-                                        }
-                                        return {
-                                            ...entry,
-                                            character: character,
-                                            characterKey: characterKey,
-                                            displayName: displayName,
-                                            rank: idx + 1,
-                                            platform: platformName,
-                                            StatValue: entry.StatValue || entry.statValue || entry.level || 0
-                                        };
-                                    });
-                                    saveToCache(entries, platform || "all", currentCharacter);
-                                    allEntries = entries;
-                                    filteredEntries = [...entries];
-                                    updateStats();
-                                    renderTable();
-                                    updateCacheStatus();
-                                    return entries;
-                                }
-                            }
+                    for (const [key, info] of Object.entries(CHARACTER_MAP)) {
+                        if (displayName.includes(key) || displayName.includes(info.label)) {
+                            character = info.label;
+                            characterKey = key;
+                            break;
                         }
                     }
 
-                    container.innerHTML = `
-                        <div class="empty-state" style="color:#f39c12;">
-                            ⚠️ No leaderboard data found in response<br>
-                            <span style="font-size:12px;color:#555;">The cloud script didn't return leaderboard data. Try a different platform.</span>
-                            <br><br>
-                            <details style="text-align:left;font-size:12px;color:#555;">
-                                <summary>📋 View Raw Response</summary>
-                                <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(data, null, 2)}</pre>
-                            </details>
-                        </div>
-                    `;
-                    return null;
-                }
+                    // Check if this is the current player
+                    const isYou = playerPosition && entry.PlayFabId === playerPosition.PlayFabId;
+
+                    return {
+                        ...entry,
+                        character: character,
+                        characterKey: characterKey,
+                        displayName: displayName,
+                        rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
+                        platform: platformName,
+                        StatValue: entry.StatValue || 0,
+                        isYou: isYou
+                    };
+                });
+
+                saveToCache(entries, platform || "all", currentCharacter);
+                allEntries = entries;
+                filteredEntries = [...entries];
+                updateStats();
+                renderTable();
+                updateCacheStatus();
+                return entries;
             } else {
                 container.innerHTML = `
                     <div class="empty-state" style="color:#e94560;">
-                        ⚠️ Error: ${data.errorMessage || "Unknown error"}<br>
-                        <span style="font-size:12px;color:#555;">Status: ${data.code}</span>
+                        ⚠️ Error: ${lbData.errorMessage || "No leaderboard data returned"}<br>
+                        <span style="font-size:12px;color:#555;">Status: ${lbData.code}</span>
                         <br><br>
                         <details style="text-align:left;font-size:12px;color:#555;">
                             <summary>📋 View Raw Response</summary>
-                            <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(data, null, 2)}</pre>
+                            <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(lbData, null, 2)}</pre>
                         </details>
                     </div>
                 `;
@@ -847,8 +794,8 @@
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
             const level = entry.StatValue || 0;
             const charInfo = CHARACTER_MAP[entry.characterKey] || { icon: 'default.png', label: entry.character || 'Unknown' };
-            
             const platformClass = (entry.platform || 'STEAM').toLowerCase();
+            const isYou = entry.isYou === true;
 
             html += `
                 <tr class="${rankClass}">
@@ -856,7 +803,8 @@
                     <td>
                         <div class="player-cell">
                             <img src="images/characters/${charInfo.icon}" onerror="this.style.display='none'"/>
-                            <span class="player-name">${entry.displayName || 'Anonymous'}</span>
+                            <span class="player-name">${entry.displayName || 'Anonymous'}${isYou ? ' 👈' : ''}</span>
+                            ${isYou ? '<span class="you-badge">YOU</span>' : ''}
                         </div>
                     </td>
                     <td>${charInfo.label}</td>
@@ -902,7 +850,6 @@
             refreshLeaderboard();
         }
 
-        // Auto-refresh every 5 minutes if token exists
         setInterval(() => {
             if (userToken && !isRefreshing) {
                 refreshLeaderboard();
