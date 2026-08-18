@@ -57,53 +57,6 @@
         .cache-info .updated { color: #2ecc71; }
         .cache-info .token-status { color: #e94560; }
 
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: #16213e;
-            padding: 15px 20px;
-            border-radius: 12px;
-            border: 1px solid #2a2a4a;
-        }
-        .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .filter-group-label {
-            color: #aaa;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .filter-btn {
-            padding: 5px 12px;
-            border-radius: 16px;
-            border: 2px solid transparent;
-            background: #0f3460;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 12px;
-            transition: 0.2s;
-        }
-        .filter-btn:hover { border-color: #e94560; color: white; }
-        .filter-btn.active {
-            background: #e94560;
-            color: white;
-            border-color: #e94560;
-        }
-        .filter-divider {
-            width: 1px;
-            height: 30px;
-            background: #2a2a4a;
-            margin: 0 8px;
-        }
-
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -199,6 +152,15 @@
             margin-left: 8px;
             font-weight: bold;
         }
+        .steam-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            background: #1a1a2e;
+            color: #66c0f4;
+        }
 
         .loading {
             padding: 40px;
@@ -269,26 +231,8 @@
         .token-status-dot.valid { background: #2ecc71; }
         .token-status-dot.invalid { background: #e94560; }
 
-        .platform-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            background: #0f3460;
-            color: #aaa;
-        }
-        .platform-badge.steam { background: #1a1a2e; color: #66c0f4; }
-        .platform-badge.xbox { background: #107c10; color: #fff; }
-        .platform-badge.playstation { background: #003791; color: #fff; }
-        .platform-badge.switch { background: #e60012; color: #fff; }
-        .platform-badge.ios { background: #555; color: #fff; }
-        .platform-badge.microsoft { background: #0078d4; color: #fff; }
-
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
-            .filters { flex-direction: column; }
-            .filter-group { flex-wrap: wrap; }
             .controls { flex-direction: column; }
             .search-box { max-width: 100%; width: 100%; }
             .token-input-row input { width: 100%; }
@@ -300,7 +244,7 @@
 <div class="container">
 
     <div class="header">
-        <h1>🏆 Leaderboard</h1>
+        <h1>🏆 Steam Leaderboard</h1>
         <div class="stats">
             👥 <span id="totalPlayers">0</span> players &nbsp;|&nbsp;
             📈 Top Level: <span id="topLevel">0</span>
@@ -322,39 +266,6 @@
             <input type="password" id="tokenInput" placeholder="Enter X-Authorization token..." />
             <button class="btn" id="tokenBtn" onclick="setToken()">🔑 Set Token</button>
             <button class="btn btn-secondary" onclick="clearToken()">✕ Clear</button>
-        </div>
-    </div>
-
-    <div class="filters">
-        <div class="filter-group">
-            <span class="filter-group-label">🎮 Platform</span>
-            <button class="filter-btn active" data-platform="all" onclick="setPlatform('all')">🌐 All</button>
-            <button class="filter-btn" data-platform="STEAM" onclick="setPlatform('STEAM')">💨 Steam</button>
-            <button class="filter-btn" data-platform="XBOX" onclick="setPlatform('XBOX')">🎮 Xbox</button>
-            <button class="filter-btn" data-platform="MICROSOFT" onclick="setPlatform('MICROSOFT')">🖥️ MS Store</button>
-            <button class="filter-btn" data-platform="PLAYSTATION" onclick="setPlatform('PLAYSTATION')">🎮 PS</button>
-            <button class="filter-btn" data-platform="SWITCH" onclick="setPlatform('SWITCH')">🕹️ Switch</button>
-            <button class="filter-btn" data-platform="IOS" onclick="setPlatform('IOS')">📱 iOS</button>
-        </div>
-
-        <div class="filter-divider"></div>
-
-        <div class="filter-group" id="characterFilters">
-            <span class="filter-group-label">👤 Character</span>
-            <button class="filter-btn active" data-character="all" onclick="setCharacter('all')">👥 All</button>
-            <button class="filter-btn" data-character="Bagger" onclick="setCharacter('Bagger')">🎒 Bagger</button>
-            <button class="filter-btn" data-character="Brave" onclick="setCharacter('Brave')">🛡️ Brave</button>
-            <button class="filter-btn" data-character="Detective" onclick="setCharacter('Detective')">🔍 Detective</button>
-            <button class="filter-btn" data-character="Engineer" onclick="setCharacter('Engineer')">🔧 Engineer</button>
-            <button class="filter-btn" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
-            <button class="filter-btn" data-character="Journalist" onclick="setCharacter('Journalist')">📰 Journalist</button>
-            <button class="filter-btn" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
-            <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
-            <button class="filter-btn" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
-            <button class="filter-btn" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
-            <button class="filter-btn" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
-            <button class="filter-btn" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
-            <button class="filter-btn" data-character="Taxidermist" onclick="setCharacter('Taxidermist')">🧸 Taxidermist</button>
         </div>
     </div>
 
@@ -380,16 +291,8 @@
     // ─── CONFIG ──────────────────────────────────────────────────────────────
     const CACHE_KEY = "leaderboard_cache";
     const TOKEN_KEY = "leaderboard_token";
-
-    // Platform-specific servers
-    const PLATFORM_SERVERS = {
-        "STEAM": "https://bdff1.playfabapi.com",
-        "XBOX": "https://bdff1.playfabapi.com",
-        "MICROSOFT": "https://bdff1.playfabapi.com",
-        "PLAYSTATION": "https://c6252.playfabapi.com",
-        "SWITCH": "https://c6252.playfabapi.com",
-        "IOS": "https://c6252.playfabapi.com"
-    };
+    const PLATFORM = "STEAM";
+    const SERVER = "https://bdff1.playfabapi.com";
 
     // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
     const CHARACTER_MAP = {
@@ -415,7 +318,6 @@
     let filteredEntries = [];
     let currentPage = 1;
     const pageSize = 50;
-    let currentPlatform = "all";
     let currentCharacter = "all";
     let userToken = localStorage.getItem(TOKEN_KEY) || "";
     let isRefreshing = false;
@@ -457,11 +359,11 @@
     }
 
     // ─── CACHE HANDLING ──────────────────────────────────────────────────────
-    function saveToCache(data, platform, character) {
+    function saveToCache(data) {
         const cache = {
             data: data,
-            platform: platform,
-            character: character,
+            platform: PLATFORM,
+            character: currentCharacter,
             timestamp: Date.now()
         };
         try {
@@ -482,12 +384,10 @@
             const cache = JSON.parse(raw);
             allEntries = cache.data;
             filteredEntries = [...allEntries];
-            currentPlatform = cache.platform || "all";
             currentCharacter = cache.character || "all";
             updateStats();
             renderTable();
             updateCacheStatus();
-            updateFiltersUI();
             return true;
         } catch (e) {
             return false;
@@ -514,8 +414,8 @@
         }
     }
 
-    // ─── FETCH LEADERBOARD — ALL 3 ENDPOINTS ──────────────────────────────
-    async function fetchLeaderboard(platform = null) {
+    // ─── FETCH LEADERBOARD ──────────────────────────────────────────────────
+    async function fetchLeaderboard() {
         if (!userToken) {
             alert("⚠️ Please set your X-Authorization token first!");
             return null;
@@ -525,13 +425,9 @@
         isRefreshing = true;
 
         const container = document.getElementById("tableContainer");
-        container.innerHTML = '<div class="loading">⏳ Fetching leaderboard...</div>';
+        container.innerHTML = '<div class="loading">⏳ Fetching Steam leaderboard...</div>';
 
         try {
-            const platformName = platform || "STEAM";
-            const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
-            const server = `${PROXY}/${platformName}`;  
-
             // ─── STEP 1: Execute Cloud Script (refresh leaderboard) ───
             const currentLevelProgression = {
                 playerLevel: "56",
@@ -547,7 +443,7 @@
                 FunctionName: "refreshLeaderboardPlatform",
                 FunctionParameter: {
                     currentLevelProgression: currentLevelProgression,
-                    platformName: platformName
+                    platformName: PLATFORM
                 },
                 GeneratePlayStreamEvent: true,
                 RevisionSelection: null,
@@ -555,7 +451,7 @@
             };
 
             console.log("📡 STEP 1: Executing Cloud Script...");
-            const csResponse = await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
+            const csResponse = await fetch(`${SERVER}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
                 method: "POST",
                 headers: {
                     "X-Authorization": userToken,
@@ -573,7 +469,7 @@
 
             // ─── STEP 2: Get Leaderboard ──────────────────────────────────
             console.log("📡 STEP 2: Fetching Leaderboard...");
-            const statName = `LeaderBoard_AccountLevel${platformName}`;
+            const statName = `LeaderBoard_AccountLevel${PLATFORM}`;
             
             const lbBody = {
                 MaxResultsCount: 50,
@@ -581,7 +477,7 @@
                 StatisticName: statName
             };
 
-            const lbResponse = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
+            const lbResponse = await fetch(`${SERVER}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
                 method: "POST",
                 headers: {
                     "X-Authorization": userToken,
@@ -606,7 +502,7 @@
 
             let playerPosition = null;
             try {
-                const aroundResponse = await fetch(`${server}/Client/GetLeaderboardAroundPlayer?sdk=UnitySDK-2.155.221207`, {
+                const aroundResponse = await fetch(`${SERVER}/Client/GetLeaderboardAroundPlayer?sdk=UnitySDK-2.155.221207`, {
                     method: "POST",
                     headers: {
                         "X-Authorization": userToken,
@@ -642,7 +538,6 @@
                         }
                     }
 
-                    // Check if this is the current player
                     const isYou = playerPosition && entry.PlayFabId === playerPosition.PlayFabId;
 
                     return {
@@ -651,13 +546,13 @@
                         characterKey: characterKey,
                         displayName: displayName,
                         rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
-                        platform: platformName,
+                        platform: PLATFORM,
                         StatValue: entry.StatValue || 0,
                         isYou: isYou
                     };
                 });
 
-                saveToCache(entries, platform || "all", currentCharacter);
+                saveToCache(entries);
                 allEntries = entries;
                 filteredEntries = [...entries];
                 updateStats();
@@ -669,11 +564,6 @@
                     <div class="empty-state" style="color:#e94560;">
                         ⚠️ Error: ${lbData.errorMessage || "No leaderboard data returned"}<br>
                         <span style="font-size:12px;color:#555;">Status: ${lbData.code}</span>
-                        <br><br>
-                        <details style="text-align:left;font-size:12px;color:#555;">
-                            <summary>📋 View Raw Response</summary>
-                            <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(lbData, null, 2)}</pre>
-                        </details>
                     </div>
                 `;
                 return null;
@@ -696,41 +586,19 @@
         btn.disabled = true;
         btn.textContent = "⏳ Loading...";
 
-        const platform = currentPlatform === "all" ? "STEAM" : currentPlatform;
-        await fetchLeaderboard(platform);
+        await fetchLeaderboard();
 
         btn.disabled = false;
         btn.textContent = "🔄 Refresh";
     }
 
     // ─── FILTERS ─────────────────────────────────────────────────────────────
-    function setPlatform(platform) {
-        currentPlatform = platform;
-        document.querySelectorAll('[data-platform]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.platform === platform);
-        });
-        if (userToken) {
-            refreshLeaderboard();
-        } else {
-            loadFromCache();
-        }
-    }
-
     function setCharacter(character) {
         currentCharacter = character;
         document.querySelectorAll('[data-character]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.character === character);
         });
         filterTable();
-    }
-
-    function updateFiltersUI() {
-        document.querySelectorAll('[data-platform]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.platform === currentPlatform);
-        });
-        document.querySelectorAll('[data-character]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.character === currentCharacter);
-        });
     }
 
     // ─── TABLE RENDER ──────────────────────────────────────────────────────
@@ -787,7 +655,6 @@
                 <th>Player</th>
                 <th>Character</th>
                 <th>Level</th>
-                <th>Platform</th>
             </tr></thead><tbody>`;
 
         pageEntries.forEach((entry, idx) => {
@@ -795,7 +662,6 @@
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
             const level = entry.StatValue || 0;
             const charInfo = CHARACTER_MAP[entry.characterKey] || { icon: 'default.png', label: entry.character || 'Unknown' };
-            const platformClass = (entry.platform || 'STEAM').toLowerCase();
             const isYou = entry.isYou === true;
 
             html += `
@@ -810,7 +676,6 @@
                     </td>
                     <td>${charInfo.label}</td>
                     <td>${level}</td>
-                    <td><span class="platform-badge ${platformClass}">${entry.platform || 'STEAM'}</span></td>
                 </tr>
             `;
         });
@@ -841,8 +706,43 @@
         document.getElementById('topLevel').textContent = maxLevel;
     }
 
+    // ─── CHARACTER FILTER UI ──────────────────────────────────────────────
+    function buildCharacterFilters() {
+        const container = document.getElementById('characterFilters');
+        if (!container) return;
+
+        const chars = [
+            { key: 'all', label: '👥 All' },
+            { key: 'Bagger', label: '🎒 Bagger' },
+            { key: 'Brave', label: '🛡️ Brave' },
+            { key: 'Detective', label: '🔍 Detective' },
+            { key: 'Engineer', label: '🔧 Engineer' },
+            { key: 'Leader', label: '⭐ Leader' },
+            { key: 'Journalist', label: '📰 Journalist' },
+            { key: 'Scout', label: '🔭 Scout' },
+            { key: 'Guest', label: '🚪 Guest' },
+            { key: 'Neighbor', label: '🏠 Neighbor' },
+            { key: 'Butcher', label: '🔪 Butcher' },
+            { key: 'Clown', label: '🤡 Clown' },
+            { key: 'Ghost', label: '👻 Ghost' },
+            { key: 'Taxidermist', label: '🧸 Taxidermist' }
+        ];
+
+        container.innerHTML = `
+            <span class="filter-group-label">👤 Character</span>
+            ${chars.map(c => `
+                <button class="filter-btn ${c.key === 'all' ? 'active' : ''}" 
+                        data-character="${c.key}" 
+                        onclick="setCharacter('${c.key}')">
+                    ${c.label}
+                </button>
+            `).join('')}
+        `;
+    }
+
     // ─── INIT ──────────────────────────────────────────────────────────────
     function init() {
+        buildCharacterFilters();
         updateTokenStatus();
 
         const hasCache = loadFromCache();
