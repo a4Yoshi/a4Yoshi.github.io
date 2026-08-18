@@ -81,18 +81,6 @@
             background: #0f3460;
         }
         .btn-secondary:hover { background: #1a4a8a; }
-        .search-box {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: 2px solid #2a2a4a;
-            background: #16213e;
-            color: white;
-            font-size: 14px;
-            flex: 1;
-            min-width: 200px;
-            max-width: 300px;
-        }
-        .search-box:focus { border-color: #e94560; outline: none; }
 
         .table-wrap {
             background: #16213e;
@@ -295,7 +283,6 @@
             .filters { flex-direction: column; }
             .filter-group { flex-wrap: wrap; }
             .controls { flex-direction: column; }
-            .search-box { max-width: 100%; width: 100%; }
             .token-input-row input { width: 100%; }
             th, td { padding: 8px 10px; font-size: 12px; }
         }
@@ -330,6 +317,10 @@
         </div>
     </div>
 
+    <div class="controls">
+        <button class="btn" onclick="refreshLeaderboard()" id="refreshBtn">🔄 Refresh</button>
+    </div>
+
     <div class="filters">
         <div class="filter-group">
             <span class="filter-group-label">👤 Character</span>
@@ -341,6 +332,8 @@
             <button class="filter-btn" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
             <button class="filter-btn" data-character="Quentin" onclick="setCharacter('Quentin')">📰 Quentin</button>
             <button class="filter-btn" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
+            <button class="filter-btn" data-character="RandomExplorer" onclick="setCharacter('RandomExplorer')">🎲 Random Explorer</button>
+            <button class="filter-btn" data-character="RandomNeighbor" onclick="setCharacter('RandomNeighbor')">🎲 Random Neighbor</button>
             <button class="filter-btn" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
             <button class="filter-btn" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
             <button class="filter-btn" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
@@ -349,12 +342,6 @@
             <button class="filter-btn" data-character="Hunter" onclick="setCharacter('Hunter')">🧸 Hunter</button>
             <button class="filter-btn" data-character="BANNED" onclick="setCharacter('BANNED')">🔨 Banned</button>
         </div>
-    </div>
-
-    <div class="controls">
-        <button class="btn" onclick="refreshLeaderboard()" id="refreshBtn">🔄 Refresh</button>
-        <button class="btn btn-secondary" onclick="resetSearch()">✕ Clear Search</button>
-        <input class="search-box" id="searchBox" placeholder="🔍 Search player..." oninput="filterTable()"/>
     </div>
 
     <div class="table-wrap">
@@ -375,22 +362,43 @@
     const TOKEN_KEY = "leaderboard_token";
     const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
     const PLATFORM = "STEAM";
+    const STAT_NAME = "LeaderBoard_AccountLevelSTEAM";
 
-    // ─── CHARACTER STAT MAPPING ──────────────────────────────────────────────
-    const CHARACTER_STATS = {
-        "Bagger": "LeaderBoard_BagmanSTEAM",
-        "Brave": "LeaderBoard_BraveSTEAM",
-        "Detective": "LeaderBoard_DetectiveSTEAM",
-        "Inventor": "LeaderBoard_InventorSTEAM",
-        "Leader": "LeaderBoard_LeaderSTEAM",
-        "Quentin": "LeaderBoard_QuentinSTEAM",
-        "Scout": "LeaderBoard_ScoutSTEAM",
-        "Neighbor": "LeaderBoard_BasicNeighborSTEAM",
-        "Butcher": "LeaderBoard_ButcherNeighborSTEAM",
-        "Clown": "LeaderBoard_ClownNeighborSTEAM",
-        "Ghost": "LeaderBoard_GhostNeighborSTEAM",
-        "Guest": "LeaderBoard_GuestNeighborSTEAM",
-        "Hunter": "LeaderBoard_HunterNeighborSTEAM"
+    // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
+    const CHARACTER_LIST = [
+        "Bagger",
+        "Brave",
+        "Detective",
+        "Inventor",
+        "Leader",
+        "Quentin",
+        "Scout",
+        "RandomExplorer",
+        "RandomNeighbor",
+        "Neighbor",
+        "Butcher",
+        "Clown",
+        "Ghost",
+        "Guest",
+        "Hunter"
+    ];
+
+    const CHARACTER_DISPLAY = {
+        "Bagger": "Bagger",
+        "Brave": "Brave",
+        "Detective": "Detective",
+        "Inventor": "Inventor",
+        "Leader": "Leader",
+        "Quentin": "Quentin",
+        "Scout": "Scout",
+        "RandomExplorer": "Random Explorer",
+        "RandomNeighbor": "Random Neighbor",
+        "Neighbor": "Neighbor",
+        "Butcher": "Butcher",
+        "Clown": "Clown",
+        "Ghost": "Ghost",
+        "Guest": "Guest",
+        "Hunter": "Hunter"
     };
 
     const CHARACTER_ICONS = {
@@ -401,6 +409,8 @@
         "Leader": "leader.png",
         "Quentin": "quentin.png",
         "Scout": "scout.png",
+        "RandomExplorer": "random_explorer.png",
+        "RandomNeighbor": "random_neighbor.png",
         "Neighbor": "neighbor.png",
         "Butcher": "butcher.png",
         "Clown": "clown.png",
@@ -409,21 +419,12 @@
         "Hunter": "hunter.png"
     };
 
-    const CHARACTER_DISPLAY = {
-        "Bagger": "Bagger",
-        "Brave": "Brave",
-        "Detective": "Detective",
-        "Inventor": "Inventor",
-        "Leader": "Leader",
-        "Quentin": "Quentin",
-        "Scout": "Scout",
-        "Neighbor": "Neighbor",
-        "Butcher": "Butcher",
-        "Clown": "Clown",
-        "Ghost": "Ghost",
-        "Guest": "Guest",
-        "Hunter": "Hunter"
-    };
+    // Banned variations to check
+    const BANNED_VARIANTS = [
+        "LeaderBoard_BannedSTEAM",
+        "LeaderBoard_BANNEDSTEAM",
+        "LeaderBoard_Banned"
+    ];
 
     // ─── STATE ──────────────────────────────────────────────────────────────
     let allEntries = [];
@@ -537,12 +538,12 @@
         isRefreshing = true;
 
         const container = document.getElementById("tableContainer");
-        container.innerHTML = '<div class="loading">⏳ Fetching all character leaderboards...</div>';
+        container.innerHTML = '<div class="loading">⏳ Fetching leaderboard...</div>';
 
         try {
             const server = `${PROXY}/${PLATFORM}`;
             const allResults = [];
-            const characterKeys = Object.keys(CHARACTER_STATS);
+            let totalFetched = 0;
 
             // ─── STEP 1: Refresh Cloud Script ──────────────────────────────
             const currentLevelProgression = {
@@ -580,20 +581,76 @@
                 body: JSON.stringify(cloudScriptBody)
             });
 
-            // ─── STEP 2: Fetch Each Character Leaderboard ──────────────────
-            let totalFetched = 0;
-            for (const charKey of characterKeys) {
-                const statName = CHARACTER_STATS[charKey];
-                console.log(`📡 Fetching ${charKey}...`);
+            // ─── STEP 2: Fetch Main Leaderboard ────────────────────────────
+            console.log(`📡 Fetching main leaderboard: ${STAT_NAME}`);
+            const lbBody = {
+                MaxResultsCount: 100,
+                StartPosition: 0,
+                StatisticName: STAT_NAME
+            };
 
-                const lbBody = {
-                    MaxResultsCount: 50,
-                    StartPosition: 0,
-                    StatisticName: statName
-                };
+            const response = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
+                method: "POST",
+                headers: {
+                    "X-Authorization": userToken,
+                    "Content-Type": "application/json",
+                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                    "X-ReportErrorAsSuccess": "true",
+                    "Accept": "*/*",
+                    "X-Unity-Version": "2022.3.14f1"
+                },
+                body: JSON.stringify(lbBody)
+            });
 
+            const data = await response.json();
+            console.log("✅ Leaderboard Response:", data);
+
+            if (data.code === 200 && data.data && data.data.Leaderboard) {
+                data.data.Leaderboard.forEach(entry => {
+                    const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
+                    const isBanned = !entry.DisplayName || entry.DisplayName.trim() === "";
+
+                    // Detect character from display name
+                    let character = "Unknown";
+                    for (const charKey of CHARACTER_LIST) {
+                        const display = CHARACTER_DISPLAY[charKey];
+                        if (displayName.includes(charKey) || displayName.includes(display)) {
+                            character = charKey;
+                            break;
+                        }
+                    }
+
+                    // Check if banned
+                    if (isBanned) {
+                        character = "BANNED";
+                    }
+
+                    allResults.push({
+                        ...entry,
+                        character: character,
+                        characterDisplay: character === "BANNED" ? "BANNED" : (CHARACTER_DISPLAY[character] || character),
+                        displayName: isBanned ? (entry.PlayFabId || "Banned Player") : displayName,
+                        platform: PLATFORM,
+                        StatValue: entry.StatValue || 0,
+                        isBanned: isBanned
+                    });
+                });
+                totalFetched = allResults.length;
+            }
+
+            console.log(`✅ Total players fetched: ${allResults.length}`);
+
+            // ─── STEP 3: Fetch Banned Variants ─────────────────────────────
+            for (const bannedStat of BANNED_VARIANTS) {
+                console.log(`📡 Fetching banned variant: ${bannedStat}`);
                 try {
-                    const response = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
+                    const bannedBody = {
+                        MaxResultsCount: 100,
+                        StartPosition: 0,
+                        StatisticName: bannedStat
+                    };
+
+                    const bannedResponse = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
                         method: "POST",
                         headers: {
                             "X-Authorization": userToken,
@@ -603,36 +660,31 @@
                             "Accept": "*/*",
                             "X-Unity-Version": "2022.3.14f1"
                         },
-                        body: JSON.stringify(lbBody)
+                        body: JSON.stringify(bannedBody)
                     });
 
-                    const data = await response.json();
-                    if (data.code === 200 && data.data && data.data.Leaderboard) {
-                        data.data.Leaderboard.forEach(entry => {
-                            const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
-                            const isBanned = !entry.DisplayName || entry.DisplayName.trim() === "";
-
-                            allResults.push({
-                                ...entry,
-                                character: charKey,
-                                characterDisplay: CHARACTER_DISPLAY[charKey] || charKey,
-                                displayName: isBanned ? (entry.PlayFabId || "Unknown") : displayName,
-                                platform: PLATFORM,
-                                StatValue: entry.StatValue || 0,
-                                isBanned: isBanned
-                            });
+                    const bannedData = await bannedResponse.json();
+                    if (bannedData.code === 200 && bannedData.data && bannedData.data.Leaderboard) {
+                        bannedData.data.Leaderboard.forEach(entry => {
+                            // Check if player already exists in results
+                            const exists = allResults.some(e => e.PlayFabId === entry.PlayFabId);
+                            if (!exists) {
+                                allResults.push({
+                                    ...entry,
+                                    character: "BANNED",
+                                    characterDisplay: "BANNED",
+                                    displayName: entry.PlayFabId || "Banned Player",
+                                    platform: PLATFORM,
+                                    StatValue: entry.StatValue || 0,
+                                    isBanned: true
+                                });
+                            }
                         });
-                        totalFetched += data.data.Leaderboard.length;
                     }
                 } catch (e) {
-                    console.log(`⚠️ Failed to fetch ${charKey}:`, e.message);
+                    console.log(`⚠️ Failed to fetch ${bannedStat}:`, e.message);
                 }
-
-                // Update progress
-                container.innerHTML = `<div class="loading">⏳ Fetching leaderboards... (${totalFetched} players found)</div>`;
             }
-
-            console.log(`✅ Total players fetched: ${allResults.length}`);
 
             // ─── SORT BY LEVEL (highest first) ─────────────────────────────
             allResults.sort((a, b) => (b.StatValue || 0) - (a.StatValue || 0));
@@ -691,31 +743,17 @@
 
     // ─── TABLE RENDER ──────────────────────────────────────────────────────
     function filterTable() {
-        const query = document.getElementById('searchBox').value.toLowerCase().trim();
         const charFilter = currentCharacter;
 
-        if (!query && charFilter === "all") {
+        if (charFilter === "all") {
             filteredEntries = [...allEntries];
         } else {
             filteredEntries = allEntries.filter(e => {
-                let match = true;
-                if (query) {
-                    const name = (e.displayName || '').toLowerCase();
-                    match = match && name.includes(query);
-                }
-                if (charFilter !== "all") {
-                    match = match && e.character === charFilter;
-                }
-                return match;
+                return e.character === charFilter;
             });
         }
         currentPage = 1;
         renderTable();
-    }
-
-    function resetSearch() {
-        document.getElementById('searchBox').value = '';
-        filterTable();
     }
 
     function renderTable() {
@@ -751,7 +789,7 @@
             const level = entry.StatValue || 0;
             const icon = CHARACTER_ICONS[entry.character] || 'default.png';
             const displayChar = entry.characterDisplay || entry.character || 'Unknown';
-            const isBanned = entry.isBanned === true;
+            const isBanned = entry.isBanned === true || entry.character === "BANNED";
 
             html += `
                 <tr class="${rankClass}${isBanned ? ' banned-row' : ''}">
