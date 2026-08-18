@@ -150,7 +150,7 @@
             margin-left: 8px;
             font-weight: bold;
         }
-        .banned-row td { opacity: 0.6; }
+        .banned-row td { opacity: 0.7; }
 
         .loading {
             padding: 40px;
@@ -221,16 +221,6 @@
         .token-status-dot.valid { background: #2ecc71; }
         .token-status-dot.invalid { background: #e94560; }
 
-        .platform-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            background: #1a1a2e;
-            color: #66c0f4;
-        }
-
         .filters {
             display: flex;
             flex-wrap: wrap;
@@ -270,6 +260,14 @@
             background: #e94560;
             color: white;
             border-color: #e94560;
+        }
+        .filter-btn.banned-btn {
+            border-color: #e94560;
+            color: #e94560;
+        }
+        .filter-btn.banned-btn.active {
+            background: #e94560;
+            color: white;
         }
         .filter-divider {
             width: 1px;
@@ -340,7 +338,7 @@
             <button class="filter-btn" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
             <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
             <button class="filter-btn" data-character="Hunter" onclick="setCharacter('Hunter')">🧸 Hunter</button>
-            <button class="filter-btn" data-character="BANNED" onclick="setCharacter('BANNED')">🔨 Banned</button>
+            <button class="filter-btn banned-btn" data-character="BANNED" onclick="setCharacter('BANNED')">🔨 Banned</button>
         </div>
     </div>
 
@@ -543,7 +541,7 @@
         try {
             const server = `${PROXY}/${PLATFORM}`;
             const allResults = [];
-            let totalFetched = 0;
+            const seenPlayers = new Set();
 
             // ─── STEP 1: Refresh Cloud Script ──────────────────────────────
             const currentLevelProgression = {
@@ -607,8 +605,13 @@
 
             if (data.code === 200 && data.data && data.data.Leaderboard) {
                 data.data.Leaderboard.forEach(entry => {
-                    const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
-                    const isBanned = !entry.DisplayName || entry.DisplayName.trim() === "";
+                    const displayName = entry.DisplayName || "";
+                    const isBanned = !displayName || displayName.trim() === "";
+                    const playerId = entry.PlayFabId || entry.PlayerId || "";
+
+                    // Skip if already seen (prevent duplicates)
+                    if (seenPlayers.has(playerId)) return;
+                    seenPlayers.add(playerId);
 
                     // Detect character from display name
                     let character = "Unknown";
@@ -620,25 +623,26 @@
                         }
                     }
 
-                    // Check if banned
+                    // If display name is empty or player is banned
                     if (isBanned) {
                         character = "BANNED";
                     }
 
                     allResults.push({
-                        ...entry,
+                        PlayFabId: playerId,
+                        PlayerId: playerId,
+                        displayName: isBanned ? (playerId || "Banned Player") : displayName,
                         character: character,
                         characterDisplay: character === "BANNED" ? "BANNED" : (CHARACTER_DISPLAY[character] || character),
-                        displayName: isBanned ? (entry.PlayFabId || "Banned Player") : displayName,
                         platform: PLATFORM,
                         StatValue: entry.StatValue || 0,
-                        isBanned: isBanned
+                        isBanned: isBanned,
+                        Position: entry.Position || 0
                     });
                 });
-                totalFetched = allResults.length;
             }
 
-            console.log(`✅ Total players fetched: ${allResults.length}`);
+            console.log(`✅ Main leaderboard: ${allResults.length} players`);
 
             // ─── STEP 3: Fetch Banned Variants ─────────────────────────────
             for (const bannedStat of BANNED_VARIANTS) {
@@ -666,17 +670,20 @@
                     const bannedData = await bannedResponse.json();
                     if (bannedData.code === 200 && bannedData.data && bannedData.data.Leaderboard) {
                         bannedData.data.Leaderboard.forEach(entry => {
+                            const playerId = entry.PlayFabId || entry.PlayerId || "";
                             // Check if player already exists in results
-                            const exists = allResults.some(e => e.PlayFabId === entry.PlayFabId);
-                            if (!exists) {
+                            if (!seenPlayers.has(playerId)) {
+                                seenPlayers.add(playerId);
                                 allResults.push({
-                                    ...entry,
+                                    PlayFabId: playerId,
+                                    PlayerId: playerId,
+                                    displayName: playerId || "Banned Player",
                                     character: "BANNED",
                                     characterDisplay: "BANNED",
-                                    displayName: entry.PlayFabId || "Banned Player",
                                     platform: PLATFORM,
                                     StatValue: entry.StatValue || 0,
-                                    isBanned: true
+                                    isBanned: true,
+                                    Position: entry.Position || 0
                                 });
                             }
                         });
@@ -685,6 +692,12 @@
                     console.log(`⚠️ Failed to fetch ${bannedStat}:`, e.message);
                 }
             }
+
+            // ─── Check if any players are marked as banned in the main leaderboard ───
+            // Some players might have DisplayName = "" but are in the main leaderboard
+            // We already marked them as banned above
+
+            console.log(`✅ Total players fetched: ${allResults.length}`);
 
             // ─── SORT BY LEVEL (highest first) ─────────────────────────────
             allResults.sort((a, b) => (b.StatValue || 0) - (a.StatValue || 0));
@@ -787,9 +800,9 @@
             const rank = start + idx + 1;
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
             const level = entry.StatValue || 0;
-            const icon = CHARACTER_ICONS[entry.character] || 'default.png';
-            const displayChar = entry.characterDisplay || entry.character || 'Unknown';
             const isBanned = entry.isBanned === true || entry.character === "BANNED";
+            const icon = isBanned ? 'default.png' : (CHARACTER_ICONS[entry.character] || 'default.png');
+            const displayChar = isBanned ? "BANNED" : (entry.characterDisplay || entry.character || 'Unknown');
 
             html += `
                 <tr class="${rankClass}${isBanned ? ' banned-row' : ''}">
