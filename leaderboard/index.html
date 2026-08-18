@@ -517,8 +517,8 @@
     // ─── FETCH LEADERBOARD USING CLOUD SCRIPT ──────────────────────────────
     async function fetchLeaderboard(platform = null) {
         if (!userToken) {
-            alert("⚠️ Please set your X-Authorization token first!");
-            return null;
+         alert("⚠️ Please set your X-Authorization token first!");
+         return null;
         }
 
         if (isRefreshing) return null;
@@ -531,15 +531,15 @@
             const platformName = platform || "STEAM";
             const server = PLATFORM_SERVERS[platformName] || "https://bdff1.playfabapi.com";
 
-            // Build the currentLevelProgression object (matching game's format)
+            // Build the currentLevelProgression object
             const currentLevelProgression = {
                 playerLevel: "56",
                 classLevel: [
                     { classId: "Bagman", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
                     { classId: "Brave", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
-                    { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
-                    { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
-                ]
+                   { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                   { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
+             ]
             };
 
             const body = {
@@ -555,7 +555,8 @@
 
             const url = `${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`;
 
-            const res = await fetch(url, {
+            // --- FIX: Fetch as text first, then clean ---
+            const response = await fetch(url, {
                 method: "POST",
                 headers: {
                     "X-Authorization": userToken,
@@ -568,19 +569,59 @@
                 body: JSON.stringify(body)
             });
 
-            const data = await res.json();
+            // Get the response as text first
+            const rawText = await response.text();
+
+            // --- FIX: Clean the text to remove problematic characters ---
+            // Remove any non-ASCII characters that might cause issues
+            // But keep valid JSON structure
+            let cleanedText = rawText;
+        
+            // Try to find and fix common issues
+            // Replace any high surrogate pairs or invalid characters
+            cleanedText = cleanedText.replace(/[\uD800-\uDFFF]/g, ''); // Remove surrogate pairs
+            cleanedText = cleanedText.replace(/[^\x00-\x7F]/g, function(match) {
+                // Keep only valid JSON characters
+                // If it's a common emoji or special char, remove it
+                return '';
+            });
+
+            // Parse the cleaned text as JSON
+            let data;
+            try {
+                data = JSON.parse(cleanedText);
+            } catch (parseError) {
+                // If cleaning broke the JSON, try a more careful approach
+                // Try to extract just the JSON part if there's extra text
+                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    try {
+                        data = JSON.parse(jsonMatch[0]);
+                    } catch (e2) {
+                        // Last resort: try to fix common JSON issues
+                        let fixed = rawText
+                            .replace(/[\uD800-\uDFFF]/g, '')
+                            .replace(/(\w+)\s*:/g, '"$1":')
+                            .replace(/'/g, '"');
+                        try {
+                            data = JSON.parse(fixed);
+                        } catch (e3) {
+                            throw new Error("Could not parse response");
+                        }
+                    }
+                } else {
+                    throw new Error("No valid JSON found in response");
+                }
+            }
 
             console.log("Cloud Script Response:", data);
 
             if (data.code === 200 && data.data) {
-                // Parse the leaderboard from the cloud script response
                 let leaderboardData = [];
 
-                // Check different possible locations for leaderboard data
+                // Try different locations for leaderboard data
                 if (data.data.FunctionResult) {
                     const result = data.data.FunctionResult;
-                    
-                    // Try to find leaderboard in the response
                     if (result.leaderboard) {
                         leaderboardData = result.leaderboard;
                     } else if (result.data && result.data.leaderboard) {
@@ -589,28 +630,16 @@
                         leaderboardData = result.Leaderboard;
                     } else if (Array.isArray(result)) {
                         leaderboardData = result;
-                    } else if (result.logs && result.logs.length > 0) {
-                        // Some responses have the leaderboard in logs
-                        for (const log of result.logs) {
-                            if (log.Level === "Info" && log.Message) {
-                                try {
-                                    const parsed = JSON.parse(log.Message);
-                                    if (parsed.leaderboard) {
-                                        leaderboardData = parsed.leaderboard;
-                                        break;
-                                    }
-                                } catch (e) {}
-                            }
-                        }
                     }
                 }
 
-                // If no leaderboard found, try to extract from Logs
+                // Try logs if not found
                 if (leaderboardData.length === 0 && data.data.Logs) {
                     for (const log of data.data.Logs) {
                         if (log.Level === "Info" && log.Message) {
                             try {
-                                const parsed = JSON.parse(log.Message);
+                                const message = log.Message.replace(/[\uD800-\uDFFF]/g, '');
+                                const parsed = JSON.parse(message);
                                 if (parsed.leaderboard) {
                                     leaderboardData = parsed.leaderboard;
                                     break;
@@ -620,7 +649,7 @@
                     }
                 }
 
-                // If still no data, check if there's a "data" field with the leaderboard
+                // Try data.data if not found
                 if (leaderboardData.length === 0 && data.data.data) {
                     if (data.data.data.leaderboard) {
                         leaderboardData = data.data.data.leaderboard;
@@ -632,7 +661,7 @@
                 // Process the leaderboard data
                 if (leaderboardData.length > 0) {
                     const entries = leaderboardData.map((entry, idx) => {
-                        const displayName = entry.DisplayName || entry.displayName || entry.PlayerName || entry.playerName || entry.PlayFabId || "";
+                        const displayName = entry.DisplayName || entry.displayName || entry.PlayerName || entry.playerName || entry.PlayFabId || "Anonymous";
                         let character = "Unknown";
                         let characterKey = "Unknown";
 
@@ -653,7 +682,7 @@
                             platform: platformName,
                             StatValue: entry.StatValue || entry.statValue || entry.level || 0
                         };
-                    });
+                 });
 
                     saveToCache(entries, platform || "all", currentCharacter);
                     allEntries = entries;
@@ -663,55 +692,10 @@
                     updateCacheStatus();
                     return entries;
                 } else {
-                    // Try one more time - maybe the data is in the response body directly
-                    if (data.data && typeof data.data === 'object') {
-                        // Look for any array that might be the leaderboard
-                        for (const key in data.data) {
-                            if (Array.isArray(data.data[key]) && data.data[key].length > 0) {
-                                const possibleData = data.data[key];
-                                if (possibleData[0].DisplayName || possibleData[0].PlayFabId) {
-                                    const entries = possibleData.map((entry, idx) => {
-                                        const displayName = entry.DisplayName || entry.displayName || entry.PlayFabId || "";
-                                        let character = "Unknown";
-                                        let characterKey = "Unknown";
-                                        for (const [key, info] of Object.entries(CHARACTER_MAP)) {
-                                            if (displayName.includes(key) || displayName.includes(info.label)) {
-                                                character = info.label;
-                                                characterKey = key;
-                                                break;
-                                            }
-                                        }
-                                        return {
-                                            ...entry,
-                                            character: character,
-                                            characterKey: characterKey,
-                                            displayName: displayName,
-                                            rank: idx + 1,
-                                            platform: platformName,
-                                            StatValue: entry.StatValue || entry.statValue || entry.level || 0
-                                        };
-                                    });
-                                    saveToCache(entries, platform || "all", currentCharacter);
-                                    allEntries = entries;
-                                    filteredEntries = [...entries];
-                                    updateStats();
-                                    renderTable();
-                                    updateCacheStatus();
-                                    return entries;
-                                }
-                            }
-                        }
-                    }
-
                     container.innerHTML = `
                         <div class="empty-state" style="color:#f39c12;">
                             ⚠️ No leaderboard data found in response<br>
-                            <span style="font-size:12px;color:#555;">The cloud script didn't return leaderboard data. Try a different platform.</span>
-                            <br><br>
-                            <details style="text-align:left;font-size:12px;color:#555;">
-                                <summary>📋 View Raw Response</summary>
-                                <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(data, null, 2)}</pre>
-                            </details>
+                            <span style="font-size:12px;color:#555;">Try a different platform or check your token.</span>
                         </div>
                     `;
                     return null;
@@ -721,11 +705,6 @@
                     <div class="empty-state" style="color:#e94560;">
                         ⚠️ Error: ${data.errorMessage || "Unknown error"}<br>
                         <span style="font-size:12px;color:#555;">Status: ${data.code}</span>
-                        <br><br>
-                        <details style="text-align:left;font-size:12px;color:#555;">
-                            <summary>📋 View Raw Response</summary>
-                            <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(data, null, 2)}</pre>
-                        </details>
                     </div>
                 `;
                 return null;
