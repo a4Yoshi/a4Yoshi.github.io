@@ -32,11 +32,73 @@
             font-size: 18px;
             margin-bottom: 40px;
         }
+
+        .token-section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            border: 2px solid #2a2a4a;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .token-section label {
+            color: #aaa;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .token-section input {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 2px solid #2a2a4a;
+            background: #0f3460;
+            color: white;
+            font-size: 14px;
+            flex: 1;
+            min-width: 280px;
+            font-family: monospace;
+        }
+        .token-section input:focus { border-color: #e94560; outline: none; }
+        .token-section input::placeholder { color: #555; }
+        .token-section .btn {
+            padding: 10px 24px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .token-section .btn:hover { background: #c73652; }
+        .token-section .btn-secondary {
+            background: #0f3460;
+        }
+        .token-section .btn-secondary:hover { background: #1a4a8a; }
+        .token-status {
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        .token-status.valid { color: #2ecc71; }
+        .token-status.invalid { color: #e94560; }
+        .token-status .masked {
+            font-family: monospace;
+            font-size: 12px;
+            background: #0a0a1a;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-top: 30px;
+            margin-top: 10px;
         }
         .card {
             background: #16213e;
@@ -46,6 +108,8 @@
             transition: 0.3s;
             text-decoration: none;
             color: white;
+            cursor: pointer;
+            display: block;
         }
         .card:hover {
             border-color: #e94560;
@@ -64,11 +128,18 @@
             font-weight: bold;
             margin-top: 10px;
         }
+        .card .badge.steam { background: #1a1a2e; color: #66c0f4; border: 1px solid #66c0f4; }
+        .card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .leaderboard-preview {
             background: #16213e;
             border-radius: 12px;
             padding: 20px;
-            margin-top: 40px;
+            margin-top: 30px;
             border: 2px solid #2a2a4a;
         }
         .leaderboard-preview h3 {
@@ -90,6 +161,7 @@
         .lb-rank-1 .lb-rank { color: #ffd700; }
         .lb-rank-2 .lb-rank { color: #c0c0c0; }
         .lb-rank-3 .lb-rank { color: #cd7f32; }
+
         .footer {
             margin-top: 40px;
             color: #555;
@@ -104,6 +176,13 @@
         }
         .status-dot.online { background: #2ecc71; }
         .status-dot.offline { background: #e94560; }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 32px; }
+            .token-section { flex-direction: column; }
+            .token-section input { min-width: 100%; width: 100%; }
+            .card-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -111,24 +190,35 @@
         <h1>🚀 a4Yoshi</h1>
         <p class="subtitle">Tools &amp; Utilities for Secret Neighbor</p>
 
+        <!-- Token Section -->
+        <div class="token-section">
+            <label>🔑 X-Auth:</label>
+            <input type="password" id="tokenInput" placeholder="Paste your X-Authorization token here..." />
+            <button class="btn" onclick="saveToken()">💾 Save</button>
+            <button class="btn btn-secondary" onclick="clearToken()">✕ Clear</button>
+            <span class="token-status invalid" id="tokenStatus">No token set</span>
+        </div>
+
         <div class="card-grid">
             <a href="https://a4yoshi.github.io/leaderboard" class="card" target="_blank">
                 <div class="icon">🏆</div>
                 <h2>Leaderboard</h2>
-                <p>View top players and rankings. Updated in real-time.</p>
-                <span class="badge">Live</span>
+                <p>View top Steam players and rankings. Updated in real-time.</p>
+                <span class="badge steam">Steam</span>
             </a>
-            <a href="https://a4yoshi.github.io/shop" class="card" target="_blank">
-                <div class="icon">🛒</div>
-                <h2>Item Shop</h2>
-                <p>Browse and purchase items. Login with your X-Authorization token.</p>
-                <span class="badge">Secure</span>
-            </a>
+            <div class="shop-link-wrapper" onclick="openShop()">
+                <div class="card" id="shopCard">
+                    <div class="icon">🛒</div>
+                    <h2>Item Shop</h2>
+                    <p id="shopDesc">Browse and purchase items. Login with your X-Authorization token.</p>
+                    <span class="badge" id="shopBadge">Secure</span>
+                </div>
+            </div>
         </div>
 
         <!-- Leaderboard Preview -->
         <div class="leaderboard-preview" id="lbPreview">
-            <h3>🏆 Top Players</h3>
+            <h3>🏆 Top Steam Players</h3>
             <div id="lbPreviewContent">
                 <div style="color:#555;padding:12px;">Loading leaderboard...</div>
             </div>
@@ -140,7 +230,85 @@
     </div>
 
     <script>
-        // Fetch leaderboard for preview
+        const TOKEN_KEY = "sn_token";
+
+        // ─── TOKEN HANDLING ──────────────────────────────────────────────────
+        function saveToken() {
+            const input = document.getElementById('tokenInput');
+            const token = input.value.trim();
+            if (!token) {
+                alert('⚠️ Please paste your X-Authorization token first!');
+                return;
+            }
+            localStorage.setItem(TOKEN_KEY, token);
+            updateTokenStatus();
+            input.value = '';
+            alert('✅ Token saved! You can now use the Shop.');
+        }
+
+        function clearToken() {
+            localStorage.removeItem(TOKEN_KEY);
+            updateTokenStatus();
+            document.getElementById('tokenInput').value = '';
+            updateShopStatus();
+        }
+
+        function getToken() {
+            return localStorage.getItem(TOKEN_KEY) || '';
+        }
+
+        function maskToken(token) {
+            if (!token) return '';
+            if (token.length <= 12) return token;
+            return token.substring(0, 8) + '...' + token.substring(token.length - 6);
+        }
+
+        function updateTokenStatus() {
+            const status = document.getElementById('tokenStatus');
+            const token = getToken();
+            if (token) {
+                status.textContent = `✅ Token: ${maskToken(token)}`;
+                status.className = 'token-status valid';
+            } else {
+                status.textContent = '❌ No token set';
+                status.className = 'token-status invalid';
+            }
+            updateShopStatus();
+        }
+
+        function updateShopStatus() {
+            const token = getToken();
+            const shopCard = document.getElementById('shopCard');
+            const shopDesc = document.getElementById('shopDesc');
+            const shopBadge = document.getElementById('shopBadge');
+
+            if (token) {
+                shopCard.classList.remove('disabled');
+                shopDesc.textContent = '🔓 Click to open shop — you are logged in!';
+                shopBadge.textContent = '✅ Logged In';
+                shopBadge.style.background = '#2ecc71';
+                shopBadge.style.color = '#000';
+            } else {
+                shopCard.classList.add('disabled');
+                shopDesc.textContent = '🔒 Please save your X-Authorization token above first!';
+                shopBadge.textContent = '🔒 Locked';
+                shopBadge.style.background = '#e94560';
+                shopBadge.style.color = '#fff';
+            }
+        }
+
+        function openShop() {
+            const token = getToken();
+            if (!token) {
+                alert('⚠️ Please save your X-Authorization token first!\n\nPaste it in the field above and click "Save".');
+                document.getElementById('tokenInput').focus();
+                return;
+            }
+            // Open shop with token as URL parameter
+            window.open(`https://a4yoshi.github.io/shop?token=${encodeURIComponent(token)}`, '_blank');
+        }
+
+        // ─── LEADERBOARD PREVIEW ────────────────────────────────────────────
         async function loadPreviewLeaderboard() {
             const container = document.getElementById('lbPreviewContent');
             try {
@@ -175,7 +343,21 @@
                 container.innerHTML = '<div style="color:#555;padding:12px;">Failed to load leaderboard</div>';
             }
         }
+
+        // ─── INIT ────────────────────────────────────────────────────────────
+        updateTokenStatus();
         loadPreviewLeaderboard();
+
+        // Auto-fill token if exists
+        const token = getToken();
+        if (token) {
+            document.getElementById('tokenInput').placeholder = 'Token already saved ✓';
+        }
+
+        // Enter key to save
+        document.getElementById('tokenInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') saveToken();
+        });
     </script>
 </body>
 </html>
