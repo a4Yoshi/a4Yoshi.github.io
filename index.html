@@ -33,41 +33,89 @@
             margin-bottom: 40px;
         }
 
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 16px;
+            padding: 30px 20px;
+            border: 2px solid #2a2a4a;
+            transition: 0.3s;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+            display: block;
+        }
+        .card:hover {
+            border-color: #e94560;
+            transform: translateY(-5px);
+        }
+        .card .icon { font-size: 48px; margin-bottom: 12px; }
+        .card h2 { color: #e94560; font-size: 22px; margin-bottom: 8px; }
+        .card p { color: #aaa; font-size: 14px; line-height: 1.6; }
+        .card .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .card .badge.steam {
+            background: #1a1a2e;
+            color: #66c0f4;
+            border: 1px solid #66c0f4;
+        }
+        .card .badge.shop-locked {
+            background: #e94560;
+            color: white;
+        }
+        .card .badge.shop-unlocked {
+            background: #2ecc71;
+            color: #000;
+        }
+        .shop-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Token Section (Bottom) */
         .token-section {
             background: #16213e;
             border-radius: 12px;
-            padding: 30px 25px;
+            padding: 20px 25px;
             border: 2px solid #2a2a4a;
-            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .token-section label {
             color: #aaa;
             font-size: 14px;
             font-weight: bold;
-            display: block;
-            text-align: left;
-            margin-bottom: 8px;
-        }
-        .token-section .input-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
         }
         .token-section input {
-            padding: 12px 16px;
+            padding: 10px 16px;
             border-radius: 8px;
             border: 2px solid #2a2a4a;
             background: #0f3460;
             color: white;
             font-size: 14px;
             flex: 1;
-            min-width: 250px;
+            min-width: 280px;
             font-family: monospace;
         }
         .token-section input:focus { border-color: #e94560; outline: none; }
         .token-section input::placeholder { color: #555; }
         .token-section .btn {
-            padding: 12px 28px;
+            padding: 10px 24px;
             background: #e94560;
             color: white;
             border: none;
@@ -84,74 +132,21 @@
         .token-section .btn-secondary:hover { background: #1a4a8a; }
         .token-status {
             font-size: 13px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            display: block;
-            text-align: center;
+            padding: 4px 12px;
+            border-radius: 12px;
         }
-        .token-status.valid {
-            color: #2ecc71;
-            background: #0a2a1a;
-            border: 1px solid #2ecc71;
-        }
-        .token-status.invalid {
-            color: #e94560;
-            background: #2a0a0a;
-            border: 1px solid #e94560;
-        }
+        .token-status.valid { color: #2ecc71; }
+        .token-status.invalid { color: #e94560; }
         .token-status .masked {
             font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             background: #0a0a1a;
             padding: 2px 8px;
             border-radius: 4px;
-            display: inline-block;
-        }
-
-        .shop-card {
-            background: #16213e;
-            border-radius: 16px;
-            padding: 30px 20px;
-            border: 2px solid #2a2a4a;
-            transition: 0.3s;
-            cursor: pointer;
-            display: block;
-            text-decoration: none;
-            color: white;
-            margin-top: 10px;
-        }
-        .shop-card:hover {
-            border-color: #e94560;
-            transform: translateY(-5px);
-        }
-        .shop-card .icon { font-size: 48px; margin-bottom: 12px; }
-        .shop-card h2 { color: #e94560; font-size: 22px; margin-bottom: 8px; }
-        .shop-card p { color: #aaa; font-size: 14px; line-height: 1.6; }
-        .shop-card .badge {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .shop-card .badge.locked {
-            background: #e94560;
-            color: white;
-        }
-        .shop-card .badge.unlocked {
-            background: #2ecc71;
-            color: #000;
-        }
-        .shop-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
         }
 
         .footer {
-            margin-top: 40px;
+            margin-top: 25px;
             color: #555;
             font-size: 13px;
         }
@@ -166,9 +161,9 @@
 
         @media (max-width: 600px) {
             h1 { font-size: 32px; }
-            .token-section .input-row { flex-direction: column; }
+            .token-section { flex-direction: column; }
             .token-section input { min-width: 100%; width: 100%; }
-            .token-section .btn { width: 100%; }
+            .card-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -177,25 +172,31 @@
         <h1>🚀 a4Yoshi</h1>
         <p class="subtitle">Tools &amp; Utilities for Secret Neighbor</p>
 
-        <!-- Token Section -->
-        <div class="token-section">
-            <label>🔑 X-Authorization Token</label>
-            <div class="input-row">
-                <input type="password" id="tokenInput" placeholder="Paste your token here..." />
-                <button class="btn" onclick="saveToken()">💾 Save</button>
-                <button class="btn btn-secondary" onclick="clearToken()">✕ Clear</button>
+        <!-- Cards -->
+        <div class="card-grid">
+            <a href="https://a4yoshi.github.io/leaderboard" class="card" target="_blank">
+                <div class="icon">🏆</div>
+                <h2>Leaderboard</h2>
+                <p>View top Steam players and rankings. Updated in real-time.</p>
+                <span class="badge steam">Steam</span>
+            </a>
+            <div onclick="openShop()">
+                <div class="card shop-card disabled" id="shopCard">
+                    <div class="icon">🛒</div>
+                    <h2>Item Shop</h2>
+                    <p id="shopDesc">🔒 Please save your X-Authorization token below to unlock</p>
+                    <span class="badge shop-locked" id="shopBadge">🔒 Locked</span>
+                </div>
             </div>
-            <span class="token-status invalid" id="tokenStatus">❌ No token set</span>
         </div>
 
-        <!-- Shop Button -->
-        <div onclick="openShop()">
-            <div class="shop-card disabled" id="shopCard">
-                <div class="icon">🛒</div>
-                <h2>Item Shop</h2>
-                <p id="shopDesc">🔒 Please save your X-Authorization token above to unlock</p>
-                <span class="badge locked" id="shopBadge">🔒 Locked</span>
-            </div>
+        <!-- Token Section (Bottom) -->
+        <div class="token-section">
+            <label>🔑 X-Auth:</label>
+            <input type="password" id="tokenInput" placeholder="Paste your X-Authorization token here..." />
+            <button class="btn" onclick="saveToken()">💾 Save</button>
+            <button class="btn btn-secondary" onclick="clearToken()">✕ Clear</button>
+            <span class="token-status invalid" id="tokenStatus">No token set</span>
         </div>
 
         <div class="footer">
@@ -244,49 +245,44 @@
             const shopBadge = document.getElementById('shopBadge');
 
             if (token) {
-                // Token status
-                status.textContent = `✅ Token saved: ${maskToken(token)}`;
+                status.textContent = `✅ ${maskToken(token)}`;
                 status.className = 'token-status valid';
-
-                // Shop card
                 shopCard.classList.remove('disabled');
                 shopDesc.textContent = '🔓 Click to open the shop — you are logged in!';
                 shopBadge.textContent = '✅ Unlocked';
-                shopBadge.className = 'badge unlocked';
+                shopBadge.className = 'badge shop-unlocked';
             } else {
-                // Token status
                 status.textContent = '❌ No token set';
                 status.className = 'token-status invalid';
-
-                // Shop card
                 shopCard.classList.add('disabled');
-                shopDesc.textContent = '🔒 Please save your X-Authorization token above to unlock';
+                shopDesc.textContent = '🔒 Please save your X-Authorization token below to unlock';
                 shopBadge.textContent = '🔒 Locked';
-                shopBadge.className = 'badge locked';
+                shopBadge.className = 'badge shop-locked';
             }
         }
 
         function openShop() {
             const token = getToken();
             if (!token) {
-                alert('⚠️ Please save your X-Authorization token first!\n\nPaste it in the field above and click "Save".');
+                alert('⚠️ Please save your X-Authorization token first!\n\nPaste it in the field below and click "Save".');
                 document.getElementById('tokenInput').focus();
                 return;
             }
             window.open(`https://a4yoshi.github.io/shop?token=${encodeURIComponent(token)}`, '_blank');
         }
 
-        // ─── ENTER KEY ──────────────────────────────────────────────────────
+        // ─── INIT ────────────────────────────────────────────────────────────
+        // Enter key to save
         document.getElementById('tokenInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') saveToken();
         });
 
-        // ─── INIT ────────────────────────────────────────────────────────────
         // Auto-fill token if exists
         const token = getToken();
         if (token) {
             document.getElementById('tokenInput').placeholder = 'Token already saved ✓';
         }
+
         updateUI();
     </script>
 </body>
