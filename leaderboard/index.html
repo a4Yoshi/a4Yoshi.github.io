@@ -533,7 +533,8 @@
 
         try {
             const platformName = platform || "STEAM";
-            const server = PLATFORM_SERVERS[platformName] || "https://bdff1.playfabapi.com";
+            const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
+            const server = `${PROXY}/${platformName}`;
 
             // ─── STEP 1: Execute Cloud Script (refresh leaderboard) ───
             const currentLevelProgression = {
