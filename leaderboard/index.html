@@ -57,53 +57,6 @@
         .cache-info .updated { color: #2ecc71; }
         .cache-info .token-status { color: #e94560; }
 
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: #16213e;
-            padding: 15px 20px;
-            border-radius: 12px;
-            border: 1px solid #2a2a4a;
-        }
-        .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .filter-group-label {
-            color: #aaa;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .filter-btn {
-            padding: 5px 12px;
-            border-radius: 16px;
-            border: 2px solid transparent;
-            background: #0f3460;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 12px;
-            transition: 0.2s;
-        }
-        .filter-btn:hover { border-color: #e94560; color: white; }
-        .filter-btn.active {
-            background: #e94560;
-            color: white;
-            border-color: #e94560;
-        }
-        .filter-divider {
-            width: 1px;
-            height: 30px;
-            background: #2a2a4a;
-            margin: 0 8px;
-        }
-
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -286,15 +239,56 @@
             border-radius: 10px;
             font-size: 10px;
             font-weight: bold;
+            background: #1a1a2e;
+            color: #66c0f4;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #16213e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #2a2a4a;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .filter-group-label {
+            color: #aaa;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .filter-btn {
+            padding: 5px 12px;
+            border-radius: 16px;
+            border: 2px solid transparent;
             background: #0f3460;
             color: #aaa;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
         }
-        .platform-badge.steam { background: #1a1a2e; color: #66c0f4; }
-        .platform-badge.xbox { background: #107c10; color: #fff; }
-        .platform-badge.playstation { background: #003791; color: #fff; }
-        .platform-badge.switch { background: #e60012; color: #fff; }
-        .platform-badge.ios { background: #555; color: #fff; }
-        .platform-badge.microsoft { background: #0078d4; color: #fff; }
+        .filter-btn:hover { border-color: #e94560; color: white; }
+        .filter-btn.active {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
+        .filter-divider {
+            width: 1px;
+            height: 30px;
+            background: #2a2a4a;
+            margin: 0 8px;
+        }
 
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
@@ -311,7 +305,7 @@
 <div class="container">
 
     <div class="header">
-        <h1>🏆 Leaderboard</h1>
+        <h1>🏆 Steam Leaderboard</h1>
         <div class="stats">
             👥 <span id="totalPlayers">0</span> players &nbsp;|&nbsp;
             📈 Top Level: <span id="topLevel">0</span>
@@ -338,30 +332,21 @@
 
     <div class="filters">
         <div class="filter-group">
-            <span class="filter-group-label">🎮 Platform</span>
-            <button class="filter-btn active" data-platform="STEAM" onclick="setPlatform('STEAM')">💨 Steam</button>
-        </div>
-
-        <div class="filter-divider"></div>
-
-        <div class="filter-group" id="characterFilters">
             <span class="filter-group-label">👤 Character</span>
             <button class="filter-btn active" data-character="all" onclick="setCharacter('all')">👥 All</button>
             <button class="filter-btn" data-character="Bagger" onclick="setCharacter('Bagger')">🎒 Bagger</button>
             <button class="filter-btn" data-character="Brave" onclick="setCharacter('Brave')">🛡️ Brave</button>
             <button class="filter-btn" data-character="Detective" onclick="setCharacter('Detective')">🔍 Detective</button>
-            <button class="filter-btn" data-character="Engineer" onclick="setCharacter('Engineer')">🔧 Engineer</button>
+            <button class="filter-btn" data-character="Inventor" onclick="setCharacter('Inventor')">🔧 Inventor</button>
             <button class="filter-btn" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
-            <button class="filter-btn" data-character="Journalist" onclick="setCharacter('Journalist')">📰 Journalist</button>
+            <button class="filter-btn" data-character="Quentin" onclick="setCharacter('Quentin')">📰 Quentin</button>
             <button class="filter-btn" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
-            <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
             <button class="filter-btn" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
             <button class="filter-btn" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
             <button class="filter-btn" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
             <button class="filter-btn" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
-            <button class="filter-btn" data-character="Taxidermist" onclick="setCharacter('Taxidermist')">🧸 Taxidermist</button>
-            <button class="filter-btn" data-character="Random Survivor" onclick="setCharacter('Random Survivor')">🎲 Random Survivor</button>
-            <button class="filter-btn" data-character="Random Neighbor" onclick="setCharacter('Random Neighbor')">🎲 Random Neighbor</button>
+            <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
+            <button class="filter-btn" data-character="Hunter" onclick="setCharacter('Hunter')">🧸 Hunter</button>
             <button class="filter-btn" data-character="BANNED" onclick="setCharacter('BANNED')">🔨 Banned</button>
         </div>
     </div>
@@ -388,30 +373,56 @@
     // ─── CONFIG ──────────────────────────────────────────────────────────────
     const CACHE_KEY = "leaderboard_cache";
     const TOKEN_KEY = "leaderboard_token";
+    const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
+    const PLATFORM = "STEAM";
 
-    // Platform-specific servers (Steam only — other platforms risk account ban)
-    const PLATFORM_SERVERS = {
-        "STEAM": "https://bdff1.playfabapi.com"
+    // ─── CHARACTER STAT MAPPING ──────────────────────────────────────────────
+    const CHARACTER_STATS = {
+        "Bagger": "LeaderBoard_BagmanSTEAM",
+        "Brave": "LeaderBoard_BraveSTEAM",
+        "Detective": "LeaderBoard_DetectiveSTEAM",
+        "Inventor": "LeaderBoard_InventorSTEAM",
+        "Leader": "LeaderBoard_LeaderSTEAM",
+        "Quentin": "LeaderBoard_QuentinSTEAM",
+        "Scout": "LeaderBoard_ScoutSTEAM",
+        "Neighbor": "LeaderBoard_BasicNeighborSTEAM",
+        "Butcher": "LeaderBoard_ButcherNeighborSTEAM",
+        "Clown": "LeaderBoard_ClownNeighborSTEAM",
+        "Ghost": "LeaderBoard_GhostNeighborSTEAM",
+        "Guest": "LeaderBoard_GuestNeighborSTEAM",
+        "Hunter": "LeaderBoard_HunterNeighborSTEAM"
     };
 
-    // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
-    const CHARACTER_MAP = {
-        "Bagger": { icon: "bagger.png", label: "Bagger" },
-        "Brave": { icon: "brave.png", label: "Brave" },
-        "Detective": { icon: "detective.png", label: "Detective" },
-        "Engineer": { icon: "engineer.png", label: "Engineer" },
-        "Leader": { icon: "leader.png", label: "Leader" },
-        "Journalist": { icon: "journalist.png", label: "Journalist" },
-        "Scout": { icon: "scout.png", label: "Scout" },
-        "Guest": { icon: "guest.png", label: "Guest" },
-        "Neighbor": { icon: "neighbor.png", label: "Neighbor" },
-        "Butcher": { icon: "butcher.png", label: "Butcher" },
-        "Clown": { icon: "clown.png", label: "Clown" },
-        "Ghost": { icon: "ghost.png", label: "Ghost" },
-        "Taxidermist": { icon: "taxidermist.png", label: "Taxidermist" },
-        "Random Survivor": { icon: "random_survivor.png", label: "Random Survivor" },
-        "Random Neighbor": { icon: "random_neighbor.png", label: "Random Neighbor" },
-        "BANNED": { icon: "default.png", label: "BANNED" },
+    const CHARACTER_ICONS = {
+        "Bagger": "bagger.png",
+        "Brave": "brave.png",
+        "Detective": "detective.png",
+        "Inventor": "inventor.png",
+        "Leader": "leader.png",
+        "Quentin": "quentin.png",
+        "Scout": "scout.png",
+        "Neighbor": "neighbor.png",
+        "Butcher": "butcher.png",
+        "Clown": "clown.png",
+        "Ghost": "ghost.png",
+        "Guest": "guest.png",
+        "Hunter": "hunter.png"
+    };
+
+    const CHARACTER_DISPLAY = {
+        "Bagger": "Bagger",
+        "Brave": "Brave",
+        "Detective": "Detective",
+        "Inventor": "Inventor",
+        "Leader": "Leader",
+        "Quentin": "Quentin",
+        "Scout": "Scout",
+        "Neighbor": "Neighbor",
+        "Butcher": "Butcher",
+        "Clown": "Clown",
+        "Ghost": "Ghost",
+        "Guest": "Guest",
+        "Hunter": "Hunter"
     };
 
     // ─── STATE ──────────────────────────────────────────────────────────────
@@ -419,7 +430,6 @@
     let filteredEntries = [];
     let currentPage = 1;
     const pageSize = 50;
-    let currentPlatform = "STEAM";
     let currentCharacter = "all";
     let userToken = localStorage.getItem(TOKEN_KEY) || "";
     let isRefreshing = false;
@@ -461,10 +471,9 @@
     }
 
     // ─── CACHE HANDLING ──────────────────────────────────────────────────────
-    function saveToCache(data, platform, character) {
+    function saveToCache(data, character) {
         const cache = {
             data: data,
-            platform: platform,
             character: character,
             timestamp: Date.now()
         };
@@ -486,7 +495,6 @@
             const cache = JSON.parse(raw);
             allEntries = cache.data;
             filteredEntries = [...allEntries];
-            currentPlatform = cache.platform || "all";
             currentCharacter = cache.character || "all";
             updateStats();
             renderTable();
@@ -518,8 +526,8 @@
         }
     }
 
-    // ─── FETCH LEADERBOARD — ALL 3 ENDPOINTS ──────────────────────────────
-    async function fetchLeaderboard(platform = null) {
+    // ─── FETCH LEADERBOARD ──────────────────────────────────────────────────
+    async function fetchLeaderboard() {
         if (!userToken) {
             alert("⚠️ Please set your X-Authorization token first!");
             return null;
@@ -529,14 +537,14 @@
         isRefreshing = true;
 
         const container = document.getElementById("tableContainer");
-        container.innerHTML = '<div class="loading">⏳ Fetching leaderboard...</div>';
+        container.innerHTML = '<div class="loading">⏳ Fetching all character leaderboards...</div>';
 
         try {
-            const platformName = platform || "STEAM";
-            const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
-            const server = `${PROXY}/${platformName}`;
+            const server = `${PROXY}/${PLATFORM}`;
+            const allResults = [];
+            const characterKeys = Object.keys(CHARACTER_STATS);
 
-            // ─── STEP 1: Execute Cloud Script (refresh leaderboard) ───
+            // ─── STEP 1: Refresh Cloud Script ──────────────────────────────
             const currentLevelProgression = {
                 playerLevel: "56",
                 classLevel: [
@@ -551,15 +559,15 @@
                 FunctionName: "refreshLeaderboardPlatform",
                 FunctionParameter: {
                     currentLevelProgression: currentLevelProgression,
-                    platformName: platformName
+                    platformName: PLATFORM
                 },
                 GeneratePlayStreamEvent: true,
                 RevisionSelection: null,
                 SpecificRevision: null
             };
 
-            console.log("📡 STEP 1: Executing Cloud Script...");
-            const csResponse = await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
+            console.log("📡 Executing Cloud Script...");
+            await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
                 method: "POST",
                 headers: {
                     "X-Authorization": userToken,
@@ -572,134 +580,76 @@
                 body: JSON.stringify(cloudScriptBody)
             });
 
-            const csData = await csResponse.json();
-            console.log("✅ Cloud Script Response:", csData);
+            // ─── STEP 2: Fetch Each Character Leaderboard ──────────────────
+            let totalFetched = 0;
+            for (const charKey of characterKeys) {
+                const statName = CHARACTER_STATS[charKey];
+                console.log(`📡 Fetching ${charKey}...`);
 
-            // ─── STEP 2: Get Leaderboard ──────────────────────────────────
-            console.log("📡 STEP 2: Fetching Leaderboard...");
-            const statName = `LeaderBoard_AccountLevel${platformName}`;
-            
-            const lbBody = {
-                MaxResultsCount: 50,
-                StartPosition: 0,
-                StatisticName: statName
-            };
+                const lbBody = {
+                    MaxResultsCount: 50,
+                    StartPosition: 0,
+                    StatisticName: statName
+                };
 
-            const lbResponse = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
-                method: "POST",
-                headers: {
-                    "X-Authorization": userToken,
-                    "Content-Type": "application/json",
-                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
-                    "X-ReportErrorAsSuccess": "true",
-                    "Accept": "*/*",
-                    "X-Unity-Version": "2022.3.14f1"
-                },
-                body: JSON.stringify(lbBody)
+                try {
+                    const response = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
+                        method: "POST",
+                        headers: {
+                            "X-Authorization": userToken,
+                            "Content-Type": "application/json",
+                            "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                            "X-ReportErrorAsSuccess": "true",
+                            "Accept": "*/*",
+                            "X-Unity-Version": "2022.3.14f1"
+                        },
+                        body: JSON.stringify(lbBody)
+                    });
+
+                    const data = await response.json();
+                    if (data.code === 200 && data.data && data.data.Leaderboard) {
+                        data.data.Leaderboard.forEach(entry => {
+                            const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
+                            const isBanned = !entry.DisplayName || entry.DisplayName.trim() === "";
+
+                            allResults.push({
+                                ...entry,
+                                character: charKey,
+                                characterDisplay: CHARACTER_DISPLAY[charKey] || charKey,
+                                displayName: isBanned ? (entry.PlayFabId || "Unknown") : displayName,
+                                platform: PLATFORM,
+                                StatValue: entry.StatValue || 0,
+                                isBanned: isBanned
+                            });
+                        });
+                        totalFetched += data.data.Leaderboard.length;
+                    }
+                } catch (e) {
+                    console.log(`⚠️ Failed to fetch ${charKey}:`, e.message);
+                }
+
+                // Update progress
+                container.innerHTML = `<div class="loading">⏳ Fetching leaderboards... (${totalFetched} players found)</div>`;
+            }
+
+            console.log(`✅ Total players fetched: ${allResults.length}`);
+
+            // ─── SORT BY LEVEL (highest first) ─────────────────────────────
+            allResults.sort((a, b) => (b.StatValue || 0) - (a.StatValue || 0));
+
+            // Add rank
+            allResults.forEach((entry, idx) => {
+                entry.rank = idx + 1;
             });
 
-            const lbData = await lbResponse.json();
-            console.log("✅ Leaderboard Response:", lbData);
+            saveToCache(allResults, currentCharacter);
+            allEntries = allResults;
+            filteredEntries = [...allResults];
+            updateStats();
+            renderTable();
+            updateCacheStatus();
+            return allResults;
 
-            // ─── STEP 3: Get Leaderboard Around Player ────────────────────
-            console.log("📡 STEP 3: Fetching player position...");
-            const aroundBody = {
-                MaxResultsCount: 1,
-                StatisticName: statName
-            };
-
-            let playerPosition = null;
-            try {
-                const aroundResponse = await fetch(`${server}/Client/GetLeaderboardAroundPlayer?sdk=UnitySDK-2.155.221207`, {
-                    method: "POST",
-                    headers: {
-                        "X-Authorization": userToken,
-                        "Content-Type": "application/json",
-                        "X-PlayFabSDK": "UnitySDK-2.155.221207",
-                        "X-ReportErrorAsSuccess": "true",
-                        "Accept": "*/*",
-                        "X-Unity-Version": "2022.3.14f1"
-                    },
-                    body: JSON.stringify(aroundBody)
-                });
-                const aroundData = await aroundResponse.json();
-                console.log("✅ Player Position Response:", aroundData);
-                if (aroundData.code === 200 && aroundData.data && aroundData.data.Leaderboard) {
-                    playerPosition = aroundData.data.Leaderboard[0];
-                }
-            } catch (e) {
-                console.log("⚠️ Player position not available:", e.message);
-            }
-
-            // ─── PROCESS LEADERBOARD DATA ──────────────────────────────────
-            if (lbData.code === 200 && lbData.data && lbData.data.Leaderboard) {
-                const entries = lbData.data.Leaderboard.map((entry, idx) => {
-                    const displayName = entry.DisplayName || entry.PlayFabId || "Anonymous";
-                    let character = "Unknown";
-                    let characterKey = "Unknown";
-
-                    // Check banned first (PlayFab sets DisplayName to empty or flags it)
-                    const isBanned = !entry.DisplayName || entry.DisplayName.trim() === "";
-
-                    if (isBanned) {
-                        character = "BANNED";
-                        characterKey = "BANNED";
-                    } else {
-                        // Character is stored as the DisplayName itself in Secret Neighbor
-                        // Try exact key match first, then substring
-                        for (const [key, info] of Object.entries(CHARACTER_MAP)) {
-                            if (
-                                displayName === key ||
-                                displayName === info.label ||
-                                displayName.startsWith(key) ||
-                                displayName.startsWith(info.label) ||
-                                displayName.includes(key) ||
-                                displayName.includes(info.label)
-                            ) {
-                                character = info.label;
-                                characterKey = key;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check if this is the current player
-                    const isYou = playerPosition && entry.PlayFabId === playerPosition.PlayFabId;
-
-                    return {
-                        ...entry,
-                        character: character,
-                        characterKey: characterKey,
-                        displayName: isBanned ? (entry.PlayFabId || "Unknown") : displayName,
-                        rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
-                        platform: platformName,
-                        StatValue: entry.StatValue || 0,
-                        isYou: isYou,
-                        isBanned: isBanned
-                    };
-                });
-
-                saveToCache(entries, platform || "all", currentCharacter);
-                allEntries = entries;
-                filteredEntries = [...entries];
-                updateStats();
-                renderTable();
-                updateCacheStatus();
-                return entries;
-            } else {
-                container.innerHTML = `
-                    <div class="empty-state" style="color:#e94560;">
-                        ⚠️ Error: ${lbData.errorMessage || "No leaderboard data returned"}<br>
-                        <span style="font-size:12px;color:#555;">Status: ${lbData.code}</span>
-                        <br><br>
-                        <details style="text-align:left;font-size:12px;color:#555;">
-                            <summary>📋 View Raw Response</summary>
-                            <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(lbData, null, 2)}</pre>
-                        </details>
-                    </div>
-                `;
-                return null;
-            }
         } catch (e) {
             container.innerHTML = `
                 <div class="empty-state" style="color:#e94560;">
@@ -718,26 +668,13 @@
         btn.disabled = true;
         btn.textContent = "⏳ Loading...";
 
-        const platform = "STEAM";
-        await fetchLeaderboard(platform);
+        await fetchLeaderboard();
 
         btn.disabled = false;
         btn.textContent = "🔄 Refresh";
     }
 
     // ─── FILTERS ─────────────────────────────────────────────────────────────
-    function setPlatform(platform) {
-        currentPlatform = platform;
-        document.querySelectorAll('[data-platform]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.platform === platform);
-        });
-        if (userToken) {
-            refreshLeaderboard();
-        } else {
-            loadFromCache();
-        }
-    }
-
     function setCharacter(character) {
         currentCharacter = character;
         document.querySelectorAll('[data-character]').forEach(btn => {
@@ -747,9 +684,6 @@
     }
 
     function updateFiltersUI() {
-        document.querySelectorAll('[data-platform]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.platform === currentPlatform);
-        });
         document.querySelectorAll('[data-character]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.character === currentCharacter);
         });
@@ -770,7 +704,7 @@
                     match = match && name.includes(query);
                 }
                 if (charFilter !== "all") {
-                    match = match && e.characterKey === charFilter;
+                    match = match && e.character === charFilter;
                 }
                 return match;
             });
@@ -809,16 +743,14 @@
                 <th>Player</th>
                 <th>Character</th>
                 <th>Level</th>
-                <th>Platform</th>
             </tr></thead><tbody>`;
 
         pageEntries.forEach((entry, idx) => {
             const rank = start + idx + 1;
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
             const level = entry.StatValue || 0;
-            const charInfo = CHARACTER_MAP[entry.characterKey] || { icon: 'default.png', label: entry.character || 'Unknown' };
-            const platformClass = (entry.platform || 'STEAM').toLowerCase();
-            const isYou = entry.isYou === true;
+            const icon = CHARACTER_ICONS[entry.character] || 'default.png';
+            const displayChar = entry.characterDisplay || entry.character || 'Unknown';
             const isBanned = entry.isBanned === true;
 
             html += `
@@ -826,15 +758,13 @@
                     <td class="rank-number">#${rank}</td>
                     <td>
                         <div class="player-cell">
-                            <img src="images/characters/${charInfo.icon}" onerror="this.style.display='none'"/>
-                            <span class="player-name">${entry.displayName || 'Anonymous'}${isYou ? ' 👈' : ''}</span>
-                            ${isYou ? '<span class="you-badge">YOU</span>' : ''}
+                            <img src="images/characters/${icon}" onerror="this.style.display='none'"/>
+                            <span class="player-name">${entry.displayName || 'Anonymous'}</span>
                             ${isBanned ? '<span class="banned-badge">🔨 BANNED</span>' : ''}
                         </div>
                     </td>
-                    <td>${isBanned ? '<span style="color:#e94560;">BANNED</span>' : charInfo.label}</td>
+                    <td>${isBanned ? '<span style="color:#e94560;">BANNED</span>' : displayChar}</td>
                     <td>${level}</td>
-                    <td><span class="platform-badge ${platformClass}">${entry.platform || 'STEAM'}</span></td>
                 </tr>
             `;
         });
