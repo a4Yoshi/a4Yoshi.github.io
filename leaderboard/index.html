@@ -283,6 +283,7 @@
         .platform-badge.playstation { background: #003791; color: #fff; }
         .platform-badge.switch { background: #e60012; color: #fff; }
         .platform-badge.ios { background: #555; color: #fff; }
+        .platform-badge.microsoft { background: #0078d4; color: #fff; }
 
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
@@ -390,35 +391,34 @@
         "IOS": "https://c6252.playfabapi.com"
     };
 
-    const STAT_NAME = "LeaderBoard_AccountLevel";
-
     // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
     const CHARACTER_MAP = {
-        "Bagger": { icon: "bagger.png", label: "Bagger", class: "Survivor" },
-        "Brave": { icon: "brave.png", label: "Brave", class: "Survivor" },
-        "Detective": { icon: "detective.png", label: "Detective", class: "Survivor" },
-        "Engineer": { icon: "engineer.png", label: "Engineer", class: "Survivor" },
-        "Leader": { icon: "leader.png", label: "Leader", class: "Survivor" },
-        "Journalist": { icon: "journalist.png", label: "Journalist", class: "Survivor" },
-        "Scout": { icon: "scout.png", label: "Scout", class: "Survivor" },
-        "Guest": { icon: "guest.png", label: "Guest", class: "Survivor" },
-        "Neighbor": { icon: "neighbor.png", label: "Neighbor", class: "Neighbor" },
-        "Butcher": { icon: "butcher.png", label: "Butcher", class: "Neighbor" },
-        "Clown": { icon: "clown.png", label: "Clown", class: "Neighbor" },
-        "Ghost": { icon: "ghost.png", label: "Ghost", class: "Neighbor" },
-        "Taxidermist": { icon: "taxidermist.png", label: "Taxidermist", class: "Neighbor" },
-        "Random Survivor": { icon: "random_survivor.png", label: "Random Survivor", class: "Survivor" },
-        "Random Neighbor": { icon: "random_neighbor.png", label: "Random Neighbor", class: "Neighbor" },
+        "Bagger": { icon: "bagger.png", label: "Bagger" },
+        "Brave": { icon: "brave.png", label: "Brave" },
+        "Detective": { icon: "detective.png", label: "Detective" },
+        "Engineer": { icon: "engineer.png", label: "Engineer" },
+        "Leader": { icon: "leader.png", label: "Leader" },
+        "Journalist": { icon: "journalist.png", label: "Journalist" },
+        "Scout": { icon: "scout.png", label: "Scout" },
+        "Guest": { icon: "guest.png", label: "Guest" },
+        "Neighbor": { icon: "neighbor.png", label: "Neighbor" },
+        "Butcher": { icon: "butcher.png", label: "Butcher" },
+        "Clown": { icon: "clown.png", label: "Clown" },
+        "Ghost": { icon: "ghost.png", label: "Ghost" },
+        "Taxidermist": { icon: "taxidermist.png", label: "Taxidermist" },
+        "Random Survivor": { icon: "random_survivor.png", label: "Random Survivor" },
+        "Random Neighbor": { icon: "random_neighbor.png", label: "Random Neighbor" },
     };
 
     // ─── STATE ──────────────────────────────────────────────────────────────
     let allEntries = [];
     let filteredEntries = [];
     let currentPage = 1;
-    const pageSize = 50; // Game shows top 50
+    const pageSize = 50;
     let currentPlatform = "all";
     let currentCharacter = "all";
     let userToken = localStorage.getItem(TOKEN_KEY) || "";
+    let isRefreshing = false;
 
     // ─── TOKEN HANDLING ─────────────────────────────────────────────────────
     function setToken() {
@@ -514,33 +514,46 @@
         }
     }
 
-    // ─── FETCH LEADERBOARD ──────────────────────────────────────────────────
+    // ─── FETCH LEADERBOARD USING CLOUD SCRIPT ──────────────────────────────
     async function fetchLeaderboard(platform = null) {
         if (!userToken) {
             alert("⚠️ Please set your X-Authorization token first!");
             return null;
         }
 
+        if (isRefreshing) return null;
+        isRefreshing = true;
+
         const container = document.getElementById("tableContainer");
         container.innerHTML = '<div class="loading">⏳ Fetching leaderboard...</div>';
 
         try {
-            // Determine which server to use
-            const server = platform && platform !== "all" && PLATFORM_SERVERS[platform]
-                ? PLATFORM_SERVERS[platform]
-                : "https://bdff1.playfabapi.com";
+            const platformName = platform || "STEAM";
+            const server = PLATFORM_SERVERS[platformName] || "https://bdff1.playfabapi.com";
 
-            const statName = platform && platform !== "all"
-                ? `${STAT_NAME}_${platform}`
-                : STAT_NAME;
-
-            const url = `${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`;
+            // Build the currentLevelProgression object (matching game's format)
+            const currentLevelProgression = {
+                playerLevel: "56",
+                classLevel: [
+                    { classId: "Bagman", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
+                    { classId: "Brave", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                    { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                    { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
+                ]
+            };
 
             const body = {
-                MaxResultsCount: 50, // Game shows top 50
-                StartPosition: 0,
-                StatisticName: statName
+                FunctionName: "refreshLeaderboardPlatform",
+                FunctionParameter: {
+                    currentLevelProgression: currentLevelProgression,
+                    platformName: platformName
+                },
+                GeneratePlayStreamEvent: true,
+                RevisionSelection: null,
+                SpecificRevision: null
             };
+
+            const url = `${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`;
 
             const res = await fetch(url, {
                 method: "POST",
@@ -549,51 +562,170 @@
                     "Content-Type": "application/json",
                     "X-PlayFabSDK": "UnitySDK-2.155.221207",
                     "X-ReportErrorAsSuccess": "true",
-                    "Accept": "*/*"
+                    "Accept": "*/*",
+                    "X-Unity-Version": "2022.3.14f1"
                 },
                 body: JSON.stringify(body)
             });
 
             const data = await res.json();
 
-            if (data.code === 200 && data.data && data.data.Leaderboard) {
-                // Parse character from display name
-                const entries = data.data.Leaderboard.map((entry, idx) => {
-                    const displayName = entry.DisplayName || entry.PlayFabId || "";
-                    let character = "Unknown";
-                    let characterKey = "Unknown";
+            console.log("Cloud Script Response:", data);
+
+            if (data.code === 200 && data.data) {
+                // Parse the leaderboard from the cloud script response
+                let leaderboardData = [];
+
+                // Check different possible locations for leaderboard data
+                if (data.data.FunctionResult) {
+                    const result = data.data.FunctionResult;
                     
-                    // Try to extract character from display name
-                    for (const [key, info] of Object.entries(CHARACTER_MAP)) {
-                        if (displayName.includes(key) || displayName.includes(info.label)) {
-                            character = info.label;
-                            characterKey = key;
-                            break;
+                    // Try to find leaderboard in the response
+                    if (result.leaderboard) {
+                        leaderboardData = result.leaderboard;
+                    } else if (result.data && result.data.leaderboard) {
+                        leaderboardData = result.data.leaderboard;
+                    } else if (result.Leaderboard) {
+                        leaderboardData = result.Leaderboard;
+                    } else if (Array.isArray(result)) {
+                        leaderboardData = result;
+                    } else if (result.logs && result.logs.length > 0) {
+                        // Some responses have the leaderboard in logs
+                        for (const log of result.logs) {
+                            if (log.Level === "Info" && log.Message) {
+                                try {
+                                    const parsed = JSON.parse(log.Message);
+                                    if (parsed.leaderboard) {
+                                        leaderboardData = parsed.leaderboard;
+                                        break;
+                                    }
+                                } catch (e) {}
+                            }
+                        }
+                    }
+                }
+
+                // If no leaderboard found, try to extract from Logs
+                if (leaderboardData.length === 0 && data.data.Logs) {
+                    for (const log of data.data.Logs) {
+                        if (log.Level === "Info" && log.Message) {
+                            try {
+                                const parsed = JSON.parse(log.Message);
+                                if (parsed.leaderboard) {
+                                    leaderboardData = parsed.leaderboard;
+                                    break;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                // If still no data, check if there's a "data" field with the leaderboard
+                if (leaderboardData.length === 0 && data.data.data) {
+                    if (data.data.data.leaderboard) {
+                        leaderboardData = data.data.data.leaderboard;
+                    } else if (Array.isArray(data.data.data)) {
+                        leaderboardData = data.data.data;
+                    }
+                }
+
+                // Process the leaderboard data
+                if (leaderboardData.length > 0) {
+                    const entries = leaderboardData.map((entry, idx) => {
+                        const displayName = entry.DisplayName || entry.displayName || entry.PlayerName || entry.playerName || entry.PlayFabId || "";
+                        let character = "Unknown";
+                        let characterKey = "Unknown";
+
+                        for (const [key, info] of Object.entries(CHARACTER_MAP)) {
+                            if (displayName.includes(key) || displayName.includes(info.label)) {
+                                character = info.label;
+                                characterKey = key;
+                                break;
+                            }
+                        }
+
+                        return {
+                            ...entry,
+                            character: character,
+                            characterKey: characterKey,
+                            displayName: displayName,
+                            rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
+                            platform: platformName,
+                            StatValue: entry.StatValue || entry.statValue || entry.level || 0
+                        };
+                    });
+
+                    saveToCache(entries, platform || "all", currentCharacter);
+                    allEntries = entries;
+                    filteredEntries = [...entries];
+                    updateStats();
+                    renderTable();
+                    updateCacheStatus();
+                    return entries;
+                } else {
+                    // Try one more time - maybe the data is in the response body directly
+                    if (data.data && typeof data.data === 'object') {
+                        // Look for any array that might be the leaderboard
+                        for (const key in data.data) {
+                            if (Array.isArray(data.data[key]) && data.data[key].length > 0) {
+                                const possibleData = data.data[key];
+                                if (possibleData[0].DisplayName || possibleData[0].PlayFabId) {
+                                    const entries = possibleData.map((entry, idx) => {
+                                        const displayName = entry.DisplayName || entry.displayName || entry.PlayFabId || "";
+                                        let character = "Unknown";
+                                        let characterKey = "Unknown";
+                                        for (const [key, info] of Object.entries(CHARACTER_MAP)) {
+                                            if (displayName.includes(key) || displayName.includes(info.label)) {
+                                                character = info.label;
+                                                characterKey = key;
+                                                break;
+                                            }
+                                        }
+                                        return {
+                                            ...entry,
+                                            character: character,
+                                            characterKey: characterKey,
+                                            displayName: displayName,
+                                            rank: idx + 1,
+                                            platform: platformName,
+                                            StatValue: entry.StatValue || entry.statValue || entry.level || 0
+                                        };
+                                    });
+                                    saveToCache(entries, platform || "all", currentCharacter);
+                                    allEntries = entries;
+                                    filteredEntries = [...entries];
+                                    updateStats();
+                                    renderTable();
+                                    updateCacheStatus();
+                                    return entries;
+                                }
+                            }
                         }
                     }
 
-                    return {
-                        ...entry,
-                        character: character,
-                        characterKey: characterKey,
-                        displayName: displayName,
-                        rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
-                        platform: platform || "STEAM"
-                    };
-                });
-
-                saveToCache(entries, platform || "all", currentCharacter);
-                allEntries = entries;
-                filteredEntries = [...entries];
-                updateStats();
-                renderTable();
-                updateCacheStatus();
-                return entries;
+                    container.innerHTML = `
+                        <div class="empty-state" style="color:#f39c12;">
+                            ⚠️ No leaderboard data found in response<br>
+                            <span style="font-size:12px;color:#555;">The cloud script didn't return leaderboard data. Try a different platform.</span>
+                            <br><br>
+                            <details style="text-align:left;font-size:12px;color:#555;">
+                                <summary>📋 View Raw Response</summary>
+                                <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(data, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                    return null;
+                }
             } else {
                 container.innerHTML = `
                     <div class="empty-state" style="color:#e94560;">
                         ⚠️ Error: ${data.errorMessage || "Unknown error"}<br>
-                        <span style="font-size:12px;color:#555;">Try refreshing with a valid token</span>
+                        <span style="font-size:12px;color:#555;">Status: ${data.code}</span>
+                        <br><br>
+                        <details style="text-align:left;font-size:12px;color:#555;">
+                            <summary>📋 View Raw Response</summary>
+                            <pre style="background:#0a0a1a;padding:10px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;color:#aaa;">${JSON.stringify(data, null, 2)}</pre>
+                        </details>
                     </div>
                 `;
                 return null;
@@ -606,6 +738,8 @@
                 </div>
             `;
             return null;
+        } finally {
+            isRefreshing = false;
         }
     }
 
@@ -614,7 +748,7 @@
         btn.disabled = true;
         btn.textContent = "⏳ Loading...";
 
-        const platform = currentPlatform === "all" ? null : currentPlatform;
+        const platform = currentPlatform === "all" ? "STEAM" : currentPlatform;
         await fetchLeaderboard(platform);
 
         btn.disabled = false;
@@ -627,7 +761,11 @@
         document.querySelectorAll('[data-platform]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.platform === platform);
         });
-        refreshLeaderboard();
+        if (userToken) {
+            refreshLeaderboard();
+        } else {
+            loadFromCache();
+        }
     }
 
     function setCharacter(character) {
@@ -710,7 +848,6 @@
             const level = entry.StatValue || 0;
             const charInfo = CHARACTER_MAP[entry.characterKey] || { icon: 'default.png', label: entry.character || 'Unknown' };
             
-            // Platform badge class
             const platformClass = (entry.platform || 'STEAM').toLowerCase();
 
             html += `
@@ -767,7 +904,7 @@
 
         // Auto-refresh every 5 minutes if token exists
         setInterval(() => {
-            if (userToken) {
+            if (userToken && !isRefreshing) {
                 refreshLeaderboard();
             }
         }, 300000);
