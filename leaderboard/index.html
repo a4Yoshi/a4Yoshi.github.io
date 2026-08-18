@@ -18,7 +18,6 @@
             margin: 0 auto;
         }
 
-        /* HEADER */
         .header {
             background: #16213e;
             padding: 25px 30px;
@@ -41,7 +40,6 @@
         }
         .header .stats span { color: #e94560; font-weight: bold; }
 
-        /* CACHE INFO */
         .cache-info {
             background: #16213e;
             padding: 10px 20px;
@@ -59,7 +57,6 @@
         .cache-info .updated { color: #2ecc71; }
         .cache-info .token-status { color: #e94560; }
 
-        /* FILTERS */
         .filters {
             display: flex;
             flex-wrap: wrap;
@@ -100,19 +97,6 @@
             color: white;
             border-color: #e94560;
         }
-        .filter-btn.character {
-            background: #16213e;
-        }
-        .filter-btn.character img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-            vertical-align: middle;
-            margin-right: 4px;
-            border-radius: 4px;
-        }
-        .filter-btn.character.active img { filter: brightness(2); }
-
         .filter-divider {
             width: 1px;
             height: 30px;
@@ -120,7 +104,6 @@
             margin: 0 8px;
         }
 
-        /* CONTROLS */
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -158,7 +141,6 @@
         }
         .search-box:focus { border-color: #e94560; outline: none; }
 
-        /* TABLE */
         .table-wrap {
             background: #16213e;
             border-radius: 16px;
@@ -208,14 +190,6 @@
             padding: 2px;
         }
         .player-name { font-weight: 500; }
-        .player-tag {
-            font-size: 10px;
-            color: #555;
-            background: #0f3460;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 6px;
-        }
         .you-badge {
             background: #e94560;
             color: white;
@@ -295,6 +269,21 @@
         .token-status-dot.valid { background: #2ecc71; }
         .token-status-dot.invalid { background: #e94560; }
 
+        .platform-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            background: #0f3460;
+            color: #aaa;
+        }
+        .platform-badge.steam { background: #1a1a2e; color: #66c0f4; }
+        .platform-badge.xbox { background: #107c10; color: #fff; }
+        .platform-badge.playstation { background: #003791; color: #fff; }
+        .platform-badge.switch { background: #e60012; color: #fff; }
+        .platform-badge.ios { background: #555; color: #fff; }
+
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
             .filters { flex-direction: column; }
@@ -309,7 +298,6 @@
 <body>
 <div class="container">
 
-    <!-- HEADER -->
     <div class="header">
         <h1>🏆 Leaderboard</h1>
         <div class="stats">
@@ -318,7 +306,6 @@
         </div>
     </div>
 
-    <!-- CACHE INFO -->
     <div class="cache-info">
         <div>
             📦 Cache: <span class="updated" id="cacheStatus">Not loaded yet</span>
@@ -329,7 +316,6 @@
         </div>
     </div>
 
-    <!-- TOKEN INPUT -->
     <div class="controls">
         <div class="token-input-row">
             <input type="password" id="tokenInput" placeholder="Enter X-Authorization token..." />
@@ -338,9 +324,7 @@
         </div>
     </div>
 
-    <!-- FILTERS -->
-    <div class="filters" id="filtersContainer">
-        <!-- Platform Filters -->
+    <div class="filters">
         <div class="filter-group">
             <span class="filter-group-label">🎮 Platform</span>
             <button class="filter-btn active" data-platform="all" onclick="setPlatform('all')">🌐 All</button>
@@ -354,34 +338,31 @@
 
         <div class="filter-divider"></div>
 
-        <!-- Character Filters -->
         <div class="filter-group" id="characterFilters">
             <span class="filter-group-label">👤 Character</span>
-            <button class="filter-btn character active" data-character="all" onclick="setCharacter('all')">👥 All</button>
-            <button class="filter-btn character" data-character="Bagger" onclick="setCharacter('Bagger')">🎒 Bagger</button>
-            <button class="filter-btn character" data-character="Brave" onclick="setCharacter('Brave')">🛡️ Brave</button>
-            <button class="filter-btn character" data-character="Detective" onclick="setCharacter('Detective')">🔍 Detective</button>
-            <button class="filter-btn character" data-character="Engineer" onclick="setCharacter('Engineer')">🔧 Engineer</button>
-            <button class="filter-btn character" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
-            <button class="filter-btn character" data-character="Journalist" onclick="setCharacter('Journalist')">📰 Journalist</button>
-            <button class="filter-btn character" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
-            <button class="filter-btn character" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
-            <button class="filter-btn character" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
-            <button class="filter-btn character" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
-            <button class="filter-btn character" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
-            <button class="filter-btn character" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
-            <button class="filter-btn character" data-character="Taxidermist" onclick="setCharacter('Taxidermist')">🧸 Taxidermist</button>
+            <button class="filter-btn active" data-character="all" onclick="setCharacter('all')">👥 All</button>
+            <button class="filter-btn" data-character="Bagger" onclick="setCharacter('Bagger')">🎒 Bagger</button>
+            <button class="filter-btn" data-character="Brave" onclick="setCharacter('Brave')">🛡️ Brave</button>
+            <button class="filter-btn" data-character="Detective" onclick="setCharacter('Detective')">🔍 Detective</button>
+            <button class="filter-btn" data-character="Engineer" onclick="setCharacter('Engineer')">🔧 Engineer</button>
+            <button class="filter-btn" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
+            <button class="filter-btn" data-character="Journalist" onclick="setCharacter('Journalist')">📰 Journalist</button>
+            <button class="filter-btn" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
+            <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
+            <button class="filter-btn" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
+            <button class="filter-btn" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
+            <button class="filter-btn" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
+            <button class="filter-btn" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
+            <button class="filter-btn" data-character="Taxidermist" onclick="setCharacter('Taxidermist')">🧸 Taxidermist</button>
         </div>
     </div>
 
-    <!-- CONTROLS -->
     <div class="controls">
         <button class="btn" onclick="refreshLeaderboard()" id="refreshBtn">🔄 Refresh</button>
         <button class="btn btn-secondary" onclick="resetSearch()">✕ Clear Search</button>
         <input class="search-box" id="searchBox" placeholder="🔍 Search player..." oninput="filterTable()"/>
     </div>
 
-    <!-- TABLE -->
     <div class="table-wrap">
         <div id="tableContainer">
             <div class="loading">📦 Loading leaderboard from cache...</div>
@@ -396,38 +377,45 @@
 
 <script>
     // ─── CONFIG ──────────────────────────────────────────────────────────────
-    const HOST = "https://bdff1.playfabapi.com";
-    const STAT_NAME = "LeaderBoard_AccountLevel";
     const CACHE_KEY = "leaderboard_cache";
     const TOKEN_KEY = "leaderboard_token";
 
+    // Platform-specific servers
+    const PLATFORM_SERVERS = {
+        "STEAM": "https://bdff1.playfabapi.com",
+        "XBOX": "https://bdff1.playfabapi.com",
+        "MICROSOFT": "https://bdff1.playfabapi.com",
+        "PLAYSTATION": "https://c6252.playfabapi.com",
+        "SWITCH": "https://c6252.playfabapi.com",
+        "IOS": "https://c6252.playfabapi.com"
+    };
+
+    const STAT_NAME = "LeaderBoard_AccountLevel";
+
     // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
     const CHARACTER_MAP = {
-        // Survivors
-        "Bagger": { icon: "bagger.png", label: "Bagger" },
-        "Brave": { icon: "brave.png", label: "Brave" },
-        "Detective": { icon: "detective.png", label: "Detective" },
-        "Engineer": { icon: "engineer.png", label: "Engineer" },
-        "Leader": { icon: "leader.png", label: "Leader" },
-        "Journalist": { icon: "journalist.png", label: "Journalist" },
-        "Scout": { icon: "scout.png", label: "Scout" },
-        "Guest": { icon: "guest.png", label: "Guest" },
-        // Neighbors
-        "Neighbor": { icon: "neighbor.png", label: "Neighbor" },
-        "Butcher": { icon: "butcher.png", label: "Butcher" },
-        "Clown": { icon: "clown.png", label: "Clown" },
-        "Ghost": { icon: "ghost.png", label: "Ghost" },
-        "Taxidermist": { icon: "taxidermist.png", label: "Taxidermist" },
-        // Hidden
-        "Random Survivor": { icon: "random_survivor.png", label: "Random Survivor" },
-        "Random Neighbor": { icon: "random_neighbor.png", label: "Random Neighbor" },
+        "Bagger": { icon: "bagger.png", label: "Bagger", class: "Survivor" },
+        "Brave": { icon: "brave.png", label: "Brave", class: "Survivor" },
+        "Detective": { icon: "detective.png", label: "Detective", class: "Survivor" },
+        "Engineer": { icon: "engineer.png", label: "Engineer", class: "Survivor" },
+        "Leader": { icon: "leader.png", label: "Leader", class: "Survivor" },
+        "Journalist": { icon: "journalist.png", label: "Journalist", class: "Survivor" },
+        "Scout": { icon: "scout.png", label: "Scout", class: "Survivor" },
+        "Guest": { icon: "guest.png", label: "Guest", class: "Survivor" },
+        "Neighbor": { icon: "neighbor.png", label: "Neighbor", class: "Neighbor" },
+        "Butcher": { icon: "butcher.png", label: "Butcher", class: "Neighbor" },
+        "Clown": { icon: "clown.png", label: "Clown", class: "Neighbor" },
+        "Ghost": { icon: "ghost.png", label: "Ghost", class: "Neighbor" },
+        "Taxidermist": { icon: "taxidermist.png", label: "Taxidermist", class: "Neighbor" },
+        "Random Survivor": { icon: "random_survivor.png", label: "Random Survivor", class: "Survivor" },
+        "Random Neighbor": { icon: "random_neighbor.png", label: "Random Neighbor", class: "Neighbor" },
     };
 
     // ─── STATE ──────────────────────────────────────────────────────────────
     let allEntries = [];
     let filteredEntries = [];
     let currentPage = 1;
-    const pageSize = 25;
+    const pageSize = 50; // Game shows top 50
     let currentPlatform = "all";
     let currentCharacter = "all";
     let userToken = localStorage.getItem(TOKEN_KEY) || "";
@@ -451,7 +439,6 @@
         userToken = "";
         localStorage.removeItem(TOKEN_KEY);
         updateTokenStatus();
-        // Reload from cache (if available) or show empty
         loadFromCache();
     }
 
@@ -469,66 +456,63 @@
         }
     }
 
-// ─── CACHE HANDLING (PERMANENT) ──────────────────────────────────────────
-function saveToCache(data, platform, character) {
-    const cache = {
-        data: data,
-        platform: platform,
-        character: character,
-        timestamp: Date.now()
-        // NO EXPIRATION — stays forever!
-    };
-    try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-    } catch (e) {}
-    updateCacheStatus();
-}
+    // ─── CACHE HANDLING (PERMANENT) ──────────────────────────────────────────
+    function saveToCache(data, platform, character) {
+        const cache = {
+            data: data,
+            platform: platform,
+            character: character,
+            timestamp: Date.now()
+        };
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        } catch (e) {}
+        updateCacheStatus();
+    }
 
-function loadFromCache() {
-    try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (!raw) {
-            document.getElementById("tableContainer").innerHTML = `
-                <div class="empty-state">📦 No cached data available. Please set a token and refresh.</div>
-            `;
+    function loadFromCache() {
+        try {
+            const raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) {
+                document.getElementById("tableContainer").innerHTML = `
+                    <div class="empty-state">📦 No cached data available. Please set a token and refresh.</div>
+                `;
+                return false;
+            }
+            const cache = JSON.parse(raw);
+            allEntries = cache.data;
+            filteredEntries = [...allEntries];
+            currentPlatform = cache.platform || "all";
+            currentCharacter = cache.character || "all";
+            updateStats();
+            renderTable();
+            updateCacheStatus();
+            updateFiltersUI();
+            return true;
+        } catch (e) {
             return false;
         }
-        const cache = JSON.parse(raw);
-        // REMOVED: expiration check — cache is always valid
-        allEntries = cache.data;
-        filteredEntries = [...allEntries];
-        currentPlatform = cache.platform || "all";
-        currentCharacter = cache.character || "all";
-        updateStats();
-        renderTable();
-        updateCacheStatus();
-        updateFiltersUI();
-        return true;
-    } catch (e) {
-        return false;
     }
-}
 
-function updateCacheStatus() {
-    const status = document.getElementById("cacheStatus");
-    try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (!raw) {
-            status.textContent = "No cache";
+    function updateCacheStatus() {
+        const status = document.getElementById("cacheStatus");
+        try {
+            const raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) {
+                status.textContent = "No cache";
+                status.style.color = "#e94560";
+                return;
+            }
+            const cache = JSON.parse(raw);
+            const date = new Date(cache.timestamp);
+            const age = Math.floor((Date.now() - cache.timestamp) / 60000);
+            status.textContent = `${date.toLocaleString()} (${age}m ago) — 💾 Permanent cache`;
+            status.style.color = age < 60 ? "#2ecc71" : age < 1440 ? "#f39c12" : "#e94560";
+        } catch (e) {
+            status.textContent = "Cache error";
             status.style.color = "#e94560";
-            return;
         }
-        const cache = JSON.parse(raw);
-        const date = new Date(cache.timestamp);
-        const age = Math.floor((Date.now() - cache.timestamp) / 60000); // minutes
-        // Show age but no expiration
-        status.textContent = `${date.toLocaleString()} (${age}m ago) — 💾 Permanent cache`;
-        status.style.color = age < 60 ? "#2ecc71" : age < 1440 ? "#f39c12" : "#e94560";
-    } catch (e) {
-        status.textContent = "Cache error";
-        status.style.color = "#e94560";
     }
-}
 
     // ─── FETCH LEADERBOARD ──────────────────────────────────────────────────
     async function fetchLeaderboard(platform = null) {
@@ -541,32 +525,45 @@ function updateCacheStatus() {
         container.innerHTML = '<div class="loading">⏳ Fetching leaderboard...</div>';
 
         try {
+            // Determine which server to use
+            const server = platform && platform !== "all" && PLATFORM_SERVERS[platform]
+                ? PLATFORM_SERVERS[platform]
+                : "https://bdff1.playfabapi.com";
+
             const statName = platform && platform !== "all"
                 ? `${STAT_NAME}_${platform}`
                 : STAT_NAME;
 
-            const res = await fetch(`${HOST}/Client/GetLeaderboard`, {
+            const url = `${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`;
+
+            const body = {
+                MaxResultsCount: 50, // Game shows top 50
+                StartPosition: 0,
+                StatisticName: statName
+            };
+
+            const res = await fetch(url, {
                 method: "POST",
                 headers: {
                     "X-Authorization": userToken,
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                    "X-ReportErrorAsSuccess": "true",
+                    "Accept": "*/*"
                 },
-                body: JSON.stringify({
-                    MaxResultsCount: 100,
-                    StartPosition: 0,
-                    StatisticName: statName
-                })
+                body: JSON.stringify(body)
             });
 
             const data = await res.json();
 
             if (data.code === 200 && data.data && data.data.Leaderboard) {
-                // Parse character from player name or display name
-                const entries = data.data.Leaderboard.map(entry => {
+                // Parse character from display name
+                const entries = data.data.Leaderboard.map((entry, idx) => {
                     const displayName = entry.DisplayName || entry.PlayFabId || "";
-                    // Try to extract character from display name
                     let character = "Unknown";
                     let characterKey = "Unknown";
+                    
+                    // Try to extract character from display name
                     for (const [key, info] of Object.entries(CHARACTER_MAP)) {
                         if (displayName.includes(key) || displayName.includes(info.label)) {
                             character = info.label;
@@ -574,15 +571,17 @@ function updateCacheStatus() {
                             break;
                         }
                     }
+
                     return {
                         ...entry,
                         character: character,
                         characterKey: characterKey,
-                        displayName: displayName
+                        displayName: displayName,
+                        rank: entry.Position !== undefined ? entry.Position + 1 : idx + 1,
+                        platform: platform || "STEAM"
                     };
                 });
 
-                // Cache the data
                 saveToCache(entries, platform || "all", currentCharacter);
                 allEntries = entries;
                 filteredEntries = [...entries];
@@ -628,7 +627,6 @@ function updateCacheStatus() {
         document.querySelectorAll('[data-platform]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.platform === platform);
         });
-        // Refresh with new platform
         refreshLeaderboard();
     }
 
@@ -703,14 +701,17 @@ function updateCacheStatus() {
                 <th>Player</th>
                 <th>Character</th>
                 <th>Level</th>
-                <th>Position</th>
+                <th>Platform</th>
             </tr></thead><tbody>`;
 
         pageEntries.forEach((entry, idx) => {
             const rank = start + idx + 1;
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
             const level = entry.StatValue || 0;
-            const charInfo = CHARACTER_MAP[entry.characterKey] || { icon: 'default.png', label: entry.character };
+            const charInfo = CHARACTER_MAP[entry.characterKey] || { icon: 'default.png', label: entry.character || 'Unknown' };
+            
+            // Platform badge class
+            const platformClass = (entry.platform || 'STEAM').toLowerCase();
 
             html += `
                 <tr class="${rankClass}">
@@ -718,13 +719,12 @@ function updateCacheStatus() {
                     <td>
                         <div class="player-cell">
                             <img src="images/characters/${charInfo.icon}" onerror="this.style.display='none'"/>
-                            <span class="player-name">${entry.displayName}</span>
-                            ${entry.PlayFabId ? `<span class="player-tag">${entry.PlayFabId.slice(0,8)}</span>` : ''}
+                            <span class="player-name">${entry.displayName || 'Anonymous'}</span>
                         </div>
                     </td>
                     <td>${charInfo.label}</td>
                     <td>${level}</td>
-                    <td>${entry.Position !== undefined ? `#${entry.Position + 1}` : '-'}</td>
+                    <td><span class="platform-badge ${platformClass}">${entry.platform || 'STEAM'}</span></td>
                 </tr>
             `;
         });
@@ -732,7 +732,6 @@ function updateCacheStatus() {
         html += `</tbody></table>`;
         container.innerHTML = html;
 
-        // Pagination
         if (totalPages > 1) {
             paginationContainer.style.display = 'flex';
             let pHtml = '';
@@ -760,17 +759,10 @@ function updateCacheStatus() {
     function init() {
         updateTokenStatus();
 
-        // Try to load from cache first
         const hasCache = loadFromCache();
 
-        // If no cache or token exists, try auto-refresh with token
         if (userToken && !hasCache) {
             refreshLeaderboard();
-        }
-
-        // Set token input from storage
-        if (userToken) {
-            // Token is already set
         }
 
         // Auto-refresh every 5 minutes if token exists
