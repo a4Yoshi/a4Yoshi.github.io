@@ -151,6 +151,19 @@
             font-weight: bold;
         }
         .banned-row td { opacity: 0.7; }
+        .stat-name {
+            font-size: 10px;
+            color: #555;
+            display: block;
+            margin-top: 2px;
+        }
+        .empty-badge {
+            color: #555;
+            font-size: 10px;
+            padding: 2px 8px;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
 
         .loading {
             padding: 40px;
@@ -193,6 +206,7 @@
             text-align: center;
             color: #555;
         }
+        .empty-state .big-icon { font-size: 48px; display: block; margin-bottom: 10px; }
 
         .token-input-row {
             display: flex;
@@ -269,12 +283,26 @@
             background: #e94560;
             color: white;
         }
+        .filter-btn.banned-btn.has-data { border-color: #2ecc71; color: #2ecc71; }
+        .filter-btn.banned-btn.has-data.active { background: #2ecc71; color: #000; }
+        .filter-btn.banned-btn.no-data { border-color: #555; color: #555; }
         .filter-divider {
             width: 1px;
             height: 30px;
             background: #2a2a4a;
             margin: 0 8px;
         }
+
+        .banned-stats-info {
+            font-size: 11px;
+            color: #555;
+            padding: 5px 12px;
+            background: #0a0a1a;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .banned-stats-info .count { color: #e94560; font-weight: bold; }
+        .banned-stats-info .count.green { color: #2ecc71; }
 
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
@@ -317,6 +345,7 @@
 
     <div class="controls">
         <button class="btn" onclick="refreshLeaderboard()" id="refreshBtn">🔄 Refresh</button>
+        <span class="banned-stats-info" id="bannedStatsInfo">📊 Click a banned tab to test</span>
     </div>
 
     <div class="filters">
@@ -330,15 +359,30 @@
             <button class="filter-btn" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
             <button class="filter-btn" data-character="Quentin" onclick="setCharacter('Quentin')">📰 Quentin</button>
             <button class="filter-btn" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
-            <button class="filter-btn" data-character="RandomExplorer" onclick="setCharacter('RandomExplorer')">🎲 Random Explorer</button>
-            <button class="filter-btn" data-character="RandomNeighbor" onclick="setCharacter('RandomNeighbor')">🎲 Random Neighbor</button>
             <button class="filter-btn" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
             <button class="filter-btn" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
             <button class="filter-btn" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
             <button class="filter-btn" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
             <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
             <button class="filter-btn" data-character="Hunter" onclick="setCharacter('Hunter')">🧸 Hunter</button>
-            <button class="filter-btn banned-btn" data-character="BANNED" onclick="setCharacter('BANNED')">🔨 Banned</button>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">🎲 Random</span>
+            <button class="filter-btn" data-character="RandomExplorer" onclick="setCharacter('RandomExplorer')">🎲 Random Explorer</button>
+            <button class="filter-btn" data-character="RandomNeighbor" onclick="setCharacter('RandomNeighbor')">🎲 Random Neighbor</button>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">🔨 Banned</span>
+            <button class="filter-btn banned-btn" data-character="BANNED_ALL" onclick="setCharacter('BANNED_ALL')">🔨 All Banned</button>
+            <button class="filter-btn banned-btn" data-character="BANNED_V1" onclick="setCharacter('BANNED_V1')">v1: BannedSTEAM</button>
+            <button class="filter-btn banned-btn" data-character="BANNED_V2" onclick="setCharacter('BANNED_V2')">v2: BANNEDSTEAM</button>
+            <button class="filter-btn banned-btn" data-character="BANNED_V3" onclick="setCharacter('BANNED_V3')">v3: Banned</button>
         </div>
     </div>
 
@@ -371,8 +415,6 @@
         "Leader",
         "Quentin",
         "Scout",
-        "RandomExplorer",
-        "RandomNeighbor",
         "Neighbor",
         "Butcher",
         "Clown",
@@ -389,8 +431,6 @@
         "Leader": "Leader",
         "Quentin": "Quentin",
         "Scout": "Scout",
-        "RandomExplorer": "Random Explorer",
-        "RandomNeighbor": "Random Neighbor",
         "Neighbor": "Neighbor",
         "Butcher": "Butcher",
         "Clown": "Clown",
@@ -407,8 +447,6 @@
         "Leader": "leader.png",
         "Quentin": "quentin.png",
         "Scout": "scout.png",
-        "RandomExplorer": "random_explorer.png",
-        "RandomNeighbor": "random_neighbor.png",
         "Neighbor": "neighbor.png",
         "Butcher": "butcher.png",
         "Clown": "clown.png",
@@ -417,11 +455,17 @@
         "Hunter": "hunter.png"
     };
 
-    // Banned variations to check
+    // Banned variations to test
     const BANNED_VARIANTS = [
-        "LeaderBoard_BannedSTEAM",
-        "LeaderBoard_BANNEDSTEAM",
-        "LeaderBoard_Banned"
+        { key: "BANNED_V1", stat: "LeaderBoard_BannedSTEAM", label: "BannedSTEAM" },
+        { key: "BANNED_V2", stat: "LeaderBoard_BANNEDSTEAM", label: "BANNEDSTEAM" },
+        { key: "BANNED_V3", stat: "LeaderBoard_Banned", label: "Banned" }
+    ];
+
+    // Random stats
+    const RANDOM_STATS = [
+        { key: "RandomExplorer", stat: "LeaderBoard_RandomExplorerSTEAM", label: "Random Explorer" },
+        { key: "RandomNeighbor", stat: "LeaderBoard_RandomNeighborSTEAM", label: "Random Neighbor" }
     ];
 
     // ─── STATE ──────────────────────────────────────────────────────────────
@@ -432,6 +476,8 @@
     let currentCharacter = "all";
     let userToken = localStorage.getItem(TOKEN_KEY) || "";
     let isRefreshing = false;
+    let bannedData = {};
+    let randomData = {};
 
     // ─── TOKEN HANDLING ─────────────────────────────────────────────────────
     function setToken() {
@@ -525,6 +571,39 @@
         }
     }
 
+    // ─── FETCH SPECIFIC STAT ────────────────────────────────────────────────
+    async function fetchStat(server, statName, token) {
+        try {
+            const body = {
+                MaxResultsCount: 50,
+                StartPosition: 0,
+                StatisticName: statName
+            };
+
+            const response = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
+                method: "POST",
+                headers: {
+                    "X-Authorization": token,
+                    "Content-Type": "application/json",
+                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                    "X-ReportErrorAsSuccess": "true",
+                    "Accept": "*/*",
+                    "X-Unity-Version": "2022.3.14f1"
+                },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+            if (data.code === 200 && data.data && data.data.Leaderboard) {
+                return data.data.Leaderboard;
+            }
+            return null;
+        } catch (e) {
+            console.log(`⚠️ Failed to fetch ${statName}:`, e.message);
+            return null;
+        }
+    }
+
     // ─── FETCH LEADERBOARD ──────────────────────────────────────────────────
     async function fetchLeaderboard() {
         if (!userToken) {
@@ -542,6 +621,8 @@
             const server = `${PROXY}/${PLATFORM}`;
             const allResults = [];
             const seenPlayers = new Set();
+            bannedData = {};
+            randomData = {};
 
             // ─── STEP 1: Refresh Cloud Script ──────────────────────────────
             const currentLevelProgression = {
@@ -580,40 +661,18 @@
             });
 
             // ─── STEP 2: Fetch Main Leaderboard ────────────────────────────
-            console.log(`📡 Fetching main leaderboard: ${STAT_NAME}`);
-            const lbBody = {
-                MaxResultsCount: 100,
-                StartPosition: 0,
-                StatisticName: STAT_NAME
-            };
-
-            const response = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
-                method: "POST",
-                headers: {
-                    "X-Authorization": userToken,
-                    "Content-Type": "application/json",
-                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
-                    "X-ReportErrorAsSuccess": "true",
-                    "Accept": "*/*",
-                    "X-Unity-Version": "2022.3.14f1"
-                },
-                body: JSON.stringify(lbBody)
-            });
-
-            const data = await response.json();
-            console.log("✅ Leaderboard Response:", data);
-
-            if (data.code === 200 && data.data && data.data.Leaderboard) {
-                data.data.Leaderboard.forEach(entry => {
+            console.log(`📡 Fetching main: ${STAT_NAME}`);
+            const mainData = await fetchStat(server, STAT_NAME, userToken);
+            
+            if (mainData) {
+                mainData.forEach(entry => {
                     const displayName = entry.DisplayName || "";
                     const isBanned = !displayName || displayName.trim() === "";
                     const playerId = entry.PlayFabId || entry.PlayerId || "";
 
-                    // Skip if already seen (prevent duplicates)
                     if (seenPlayers.has(playerId)) return;
                     seenPlayers.add(playerId);
 
-                    // Detect character from display name
                     let character = "Unknown";
                     for (const charKey of CHARACTER_LIST) {
                         const display = CHARACTER_DISPLAY[charKey];
@@ -623,7 +682,8 @@
                         }
                     }
 
-                    // If display name is empty or player is banned
+                    // Only mark as BANNED if it's actually banned
+                    // Don't mark unknown as banned
                     if (isBanned) {
                         character = "BANNED";
                     }
@@ -637,67 +697,89 @@
                         platform: PLATFORM,
                         StatValue: entry.StatValue || 0,
                         isBanned: isBanned,
-                        Position: entry.Position || 0
+                        Position: entry.Position || 0,
+                        source: "main"
                     });
                 });
             }
 
-            console.log(`✅ Main leaderboard: ${allResults.length} players`);
+            console.log(`✅ Main: ${allResults.length} players`);
 
-            // ─── STEP 3: Fetch Banned Variants ─────────────────────────────
-            for (const bannedStat of BANNED_VARIANTS) {
-                console.log(`📡 Fetching banned variant: ${bannedStat}`);
-                try {
-                    const bannedBody = {
-                        MaxResultsCount: 100,
-                        StartPosition: 0,
-                        StatisticName: bannedStat
-                    };
-
-                    const bannedResponse = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
-                        method: "POST",
-                        headers: {
-                            "X-Authorization": userToken,
-                            "Content-Type": "application/json",
-                            "X-PlayFabSDK": "UnitySDK-2.155.221207",
-                            "X-ReportErrorAsSuccess": "true",
-                            "Accept": "*/*",
-                            "X-Unity-Version": "2022.3.14f1"
-                        },
-                        body: JSON.stringify(bannedBody)
+            // ─── STEP 3: Fetch Random Stats ─────────────────────────────────
+            for (const random of RANDOM_STATS) {
+                console.log(`📡 Fetching random: ${random.stat}`);
+                const data = await fetchStat(server, random.stat, userToken);
+                const results = [];
+                
+                if (data && data.length > 0) {
+                    data.forEach(entry => {
+                        const playerId = entry.PlayFabId || entry.PlayerId || "";
+                        if (!seenPlayers.has(playerId)) {
+                            seenPlayers.add(playerId);
+                            results.push({
+                                PlayFabId: playerId,
+                                PlayerId: playerId,
+                                displayName: entry.DisplayName || playerId || "Anonymous",
+                                character: random.key,
+                                characterDisplay: random.label,
+                                platform: PLATFORM,
+                                StatValue: entry.StatValue || 0,
+                                isBanned: false,
+                                Position: entry.Position || 0,
+                                source: random.key
+                            });
+                        }
                     });
-
-                    const bannedData = await bannedResponse.json();
-                    if (bannedData.code === 200 && bannedData.data && bannedData.data.Leaderboard) {
-                        bannedData.data.Leaderboard.forEach(entry => {
-                            const playerId = entry.PlayFabId || entry.PlayerId || "";
-                            // Check if player already exists in results
-                            if (!seenPlayers.has(playerId)) {
-                                seenPlayers.add(playerId);
-                                allResults.push({
-                                    PlayFabId: playerId,
-                                    PlayerId: playerId,
-                                    displayName: playerId || "Banned Player",
-                                    character: "BANNED",
-                                    characterDisplay: "BANNED",
-                                    platform: PLATFORM,
-                                    StatValue: entry.StatValue || 0,
-                                    isBanned: true,
-                                    Position: entry.Position || 0
-                                });
-                            }
-                        });
-                    }
-                } catch (e) {
-                    console.log(`⚠️ Failed to fetch ${bannedStat}:`, e.message);
                 }
+                randomData[random.key] = results;
+                allResults.push(...results);
+                console.log(`✅ ${random.stat}: ${results.length} players`);
             }
 
-            // ─── Check if any players are marked as banned in the main leaderboard ───
-            // Some players might have DisplayName = "" but are in the main leaderboard
-            // We already marked them as banned above
+            // ─── STEP 4: Fetch Banned Variants ──────────────────────────────
+            for (const variant of BANNED_VARIANTS) {
+                console.log(`📡 Fetching banned: ${variant.stat}`);
+                const data = await fetchStat(server, variant.stat, userToken);
+                const results = [];
+                
+                if (data && data.length > 0) {
+                    data.forEach(entry => {
+                        const playerId = entry.PlayFabId || entry.PlayerId || "";
+                        // Only add if not already seen (avoid duplicates)
+                        if (!seenPlayers.has(playerId)) {
+                            seenPlayers.add(playerId);
+                            results.push({
+                                PlayFabId: playerId,
+                                PlayerId: playerId,
+                                displayName: playerId || "Banned Player",
+                                character: variant.key,
+                                characterDisplay: `BANNED (${variant.label})`,
+                                platform: PLATFORM,
+                                StatValue: entry.StatValue || 0,
+                                isBanned: true,
+                                Position: entry.Position || 0,
+                                source: variant.key,
+                                statName: variant.stat
+                            });
+                        }
+                    });
+                }
+                bannedData[variant.key] = results;
+                allResults.push(...results);
+                console.log(`✅ ${variant.stat}: ${results.length} players`);
+            }
 
-            console.log(`✅ Total players fetched: ${allResults.length}`);
+            // ─── Log summary ─────────────────────────────────────────────────
+            console.log("📊 Summary:");
+            for (const variant of BANNED_VARIANTS) {
+                const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
+                console.log(`   ${variant.label}: ${count} players`);
+            }
+            for (const random of RANDOM_STATS) {
+                const count = randomData[random.key] ? randomData[random.key].length : 0;
+                console.log(`   ${random.label}: ${count} players`);
+            }
+            console.log(`✅ Total: ${allResults.length} players`);
 
             // ─── SORT BY LEVEL (highest first) ─────────────────────────────
             allResults.sort((a, b) => (b.StatValue || 0) - (a.StatValue || 0));
@@ -713,6 +795,7 @@
             updateStats();
             renderTable();
             updateCacheStatus();
+            updateBannedInfo();
             return allResults;
 
         } catch (e) {
@@ -725,6 +808,55 @@
             return null;
         } finally {
             isRefreshing = false;
+        }
+    }
+
+    function updateBannedInfo() {
+        const info = document.getElementById("bannedStatsInfo");
+        let parts = [];
+        
+        // Banned stats
+        for (const variant of BANNED_VARIANTS) {
+            const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
+            const label = variant.label;
+            const status = count > 0 ? `✅ ${count}` : '❌ 0';
+            parts.push(`${label}: ${status}`);
+        }
+        
+        // Random stats
+        for (const random of RANDOM_STATS) {
+            const count = randomData[random.key] ? randomData[random.key].length : 0;
+            const label = random.label;
+            const status = count > 0 ? `✅ ${count}` : '❌ 0';
+            parts.push(`${label}: ${status}`);
+        }
+        
+        info.textContent = `📊 ${parts.join(' | ')}`;
+        
+        // Update button styles
+        for (const variant of BANNED_VARIANTS) {
+            const btn = document.querySelector(`[data-character="${variant.key}"]`);
+            const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
+            if (btn) {
+                btn.classList.remove('has-data', 'no-data');
+                if (count > 0) {
+                    btn.classList.add('has-data');
+                } else {
+                    btn.classList.add('no-data');
+                }
+            }
+        }
+        for (const random of RANDOM_STATS) {
+            const btn = document.querySelector(`[data-character="${random.key}"]`);
+            const count = randomData[random.key] ? randomData[random.key].length : 0;
+            if (btn) {
+                btn.classList.remove('has-data', 'no-data');
+                if (count > 0) {
+                    btn.classList.add('has-data');
+                } else {
+                    btn.classList.add('no-data');
+                }
+            }
         }
     }
 
@@ -760,10 +892,18 @@
 
         if (charFilter === "all") {
             filteredEntries = [...allEntries];
+        } else if (charFilter === "BANNED_ALL") {
+            // Show all banned players (any source)
+            filteredEntries = allEntries.filter(e => e.isBanned === true);
+        } else if (charFilter.startsWith("BANNED_V")) {
+            // Show specific banned variant
+            filteredEntries = allEntries.filter(e => e.source === charFilter);
+        } else if (charFilter === "RandomExplorer" || charFilter === "RandomNeighbor") {
+            // Show specific random stat
+            filteredEntries = allEntries.filter(e => e.source === charFilter);
         } else {
-            filteredEntries = allEntries.filter(e => {
-                return e.character === charFilter;
-            });
+            // Normal character filter
+            filteredEntries = allEntries.filter(e => e.character === charFilter);
         }
         currentPage = 1;
         renderTable();
@@ -774,9 +914,22 @@
         const paginationContainer = document.getElementById('paginationContainer');
 
         if (!filteredEntries || filteredEntries.length === 0) {
+            let message = '🔍 No players found matching your filters';
+            let icon = '🔍';
+            if (currentCharacter === "RandomExplorer" || currentCharacter === "RandomNeighbor") {
+                message = '🎲 This stat has no data. It might not exist in the game.';
+                icon = '🎲';
+            } else if (currentCharacter.startsWith("BANNED_V")) {
+                message = '🔨 This banned stat has no data. Try another variant.';
+                icon = '🔨';
+            } else if (currentCharacter === "BANNED_ALL") {
+                message = '🔨 No banned players found.';
+                icon = '✅';
+            }
             container.innerHTML = `
                 <div class="empty-state">
-                    ${allEntries.length === 0 ? '📦 No data loaded. Set a token and refresh.' : '🔍 No players found matching your filters'}
+                    <span class="big-icon">${icon}</span>
+                    ${message}
                 </div>
             `;
             paginationContainer.style.display = 'none';
@@ -785,85 +938,4 @@
 
         const totalPages = Math.ceil(filteredEntries.length / pageSize);
         const start = (currentPage - 1) * pageSize;
-        const end = Math.min(start + pageSize, filteredEntries.length);
-        const pageEntries = filteredEntries.slice(start, end);
-
-        let html = `<table>
-            <thead><tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>Character</th>
-                <th>Level</th>
-            </tr></thead><tbody>`;
-
-        pageEntries.forEach((entry, idx) => {
-            const rank = start + idx + 1;
-            const rankClass = rank <= 3 ? `rank-${rank}` : '';
-            const level = entry.StatValue || 0;
-            const isBanned = entry.isBanned === true || entry.character === "BANNED";
-            const icon = isBanned ? 'default.png' : (CHARACTER_ICONS[entry.character] || 'default.png');
-            const displayChar = isBanned ? "BANNED" : (entry.characterDisplay || entry.character || 'Unknown');
-
-            html += `
-                <tr class="${rankClass}${isBanned ? ' banned-row' : ''}">
-                    <td class="rank-number">#${rank}</td>
-                    <td>
-                        <div class="player-cell">
-                            <img src="images/characters/${icon}" onerror="this.style.display='none'"/>
-                            <span class="player-name">${entry.displayName || 'Anonymous'}</span>
-                            ${isBanned ? '<span class="banned-badge">🔨 BANNED</span>' : ''}
-                        </div>
-                    </td>
-                    <td>${isBanned ? '<span style="color:#e94560;">BANNED</span>' : displayChar}</td>
-                    <td>${level}</td>
-                </tr>
-            `;
-        });
-
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-
-        if (totalPages > 1) {
-            paginationContainer.style.display = 'flex';
-            let pHtml = '';
-            for (let i = 1; i <= totalPages; i++) {
-                pHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-            }
-            paginationContainer.innerHTML = pHtml;
-        } else {
-            paginationContainer.style.display = 'none';
-        }
-    }
-
-    function goToPage(page) {
-        currentPage = page;
-        renderTable();
-    }
-
-    function updateStats() {
-        document.getElementById('totalPlayers').textContent = allEntries.length;
-        const maxLevel = allEntries.reduce((max, e) => Math.max(max, e.StatValue || 0), 0);
-        document.getElementById('topLevel').textContent = maxLevel;
-    }
-
-    // ─── INIT ──────────────────────────────────────────────────────────────
-    function init() {
-        updateTokenStatus();
-
-        const hasCache = loadFromCache();
-
-        if (userToken && !hasCache) {
-            refreshLeaderboard();
-        }
-
-        setInterval(() => {
-            if (userToken && !isRefreshing) {
-                refreshLeaderboard();
-            }
-        }, 300000);
-    }
-
-    init();
-</script>
-</body>
-</html>
+        const end = Math.min(start + pageSize, filteredEntries.length
