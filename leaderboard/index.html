@@ -408,51 +408,22 @@
 
     // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
     const CHARACTER_LIST = [
-        "Bagger",
-        "Brave",
-        "Detective",
-        "Inventor",
-        "Leader",
-        "Quentin",
-        "Scout",
-        "Neighbor",
-        "Butcher",
-        "Clown",
-        "Ghost",
-        "Guest",
-        "Hunter"
+        "Bagger", "Brave", "Detective", "Inventor", "Leader", "Quentin", "Scout",
+        "Neighbor", "Butcher", "Clown", "Ghost", "Guest", "Hunter"
     ];
 
     const CHARACTER_DISPLAY = {
-        "Bagger": "Bagger",
-        "Brave": "Brave",
-        "Detective": "Detective",
-        "Inventor": "Inventor",
-        "Leader": "Leader",
-        "Quentin": "Quentin",
-        "Scout": "Scout",
-        "Neighbor": "Neighbor",
-        "Butcher": "Butcher",
-        "Clown": "Clown",
-        "Ghost": "Ghost",
-        "Guest": "Guest",
-        "Hunter": "Hunter"
+        "Bagger": "Bagger", "Brave": "Brave", "Detective": "Detective",
+        "Inventor": "Inventor", "Leader": "Leader", "Quentin": "Quentin",
+        "Scout": "Scout", "Neighbor": "Neighbor", "Butcher": "Butcher",
+        "Clown": "Clown", "Ghost": "Ghost", "Guest": "Guest", "Hunter": "Hunter"
     };
 
     const CHARACTER_ICONS = {
-        "Bagger": "bagger.png",
-        "Brave": "brave.png",
-        "Detective": "detective.png",
-        "Inventor": "inventor.png",
-        "Leader": "leader.png",
-        "Quentin": "quentin.png",
-        "Scout": "scout.png",
-        "Neighbor": "neighbor.png",
-        "Butcher": "butcher.png",
-        "Clown": "clown.png",
-        "Ghost": "ghost.png",
-        "Guest": "guest.png",
-        "Hunter": "hunter.png"
+        "Bagger": "bagger.png", "Brave": "brave.png", "Detective": "detective.png",
+        "Inventor": "inventor.png", "Leader": "leader.png", "Quentin": "quentin.png",
+        "Scout": "scout.png", "Neighbor": "neighbor.png", "Butcher": "butcher.png",
+        "Clown": "clown.png", "Ghost": "ghost.png", "Guest": "guest.png", "Hunter": "hunter.png"
     };
 
     // Banned variations to test
@@ -484,7 +455,7 @@
         const input = document.getElementById("tokenInput");
         const token = input.value.trim();
         if (!token) {
-            alert("Please enter a token!");
+            alert("⚠️ Please paste your X-Authorization token!");
             return;
         }
         userToken = token;
@@ -492,6 +463,7 @@
         updateTokenStatus();
         refreshLeaderboard();
         input.value = "";
+        console.log("✅ Token saved!");
     }
 
     function clearToken() {
@@ -499,6 +471,7 @@
         localStorage.removeItem(TOKEN_KEY);
         updateTokenStatus();
         loadFromCache();
+        console.log("🗑️ Token cleared");
     }
 
     function updateTokenStatus() {
@@ -524,7 +497,7 @@
         };
         try {
             localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-        } catch (e) {}
+        } catch (e) { console.log("⚠️ Cache save failed:", e); }
         updateCacheStatus();
     }
 
@@ -545,8 +518,10 @@
             renderTable();
             updateCacheStatus();
             updateFiltersUI();
+            console.log("📦 Loaded from cache:", allEntries.length, "players");
             return true;
         } catch (e) {
+            console.log("⚠️ Cache load failed:", e);
             return false;
         }
     }
@@ -682,8 +657,6 @@
                         }
                     }
 
-                    // Only mark as BANNED if it's actually banned
-                    // Don't mark unknown as banned
                     if (isBanned) {
                         character = "BANNED";
                     }
@@ -745,7 +718,6 @@
                 if (data && data.length > 0) {
                     data.forEach(entry => {
                         const playerId = entry.PlayFabId || entry.PlayerId || "";
-                        // Only add if not already seen (avoid duplicates)
                         if (!seenPlayers.has(playerId)) {
                             seenPlayers.add(playerId);
                             results.push({
@@ -815,22 +787,14 @@
         const info = document.getElementById("bannedStatsInfo");
         let parts = [];
         
-        // Banned stats
         for (const variant of BANNED_VARIANTS) {
             const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
-            const label = variant.label;
-            const status = count > 0 ? `✅ ${count}` : '❌ 0';
-            parts.push(`${label}: ${status}`);
+            parts.push(`${variant.label}: ${count > 0 ? '✅ ' + count : '❌ 0'}`);
         }
-        
-        // Random stats
         for (const random of RANDOM_STATS) {
             const count = randomData[random.key] ? randomData[random.key].length : 0;
-            const label = random.label;
-            const status = count > 0 ? `✅ ${count}` : '❌ 0';
-            parts.push(`${label}: ${status}`);
+            parts.push(`${random.label}: ${count > 0 ? '✅ ' + count : '❌ 0'}`);
         }
-        
         info.textContent = `📊 ${parts.join(' | ')}`;
         
         // Update button styles
@@ -839,11 +803,7 @@
             const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
             if (btn) {
                 btn.classList.remove('has-data', 'no-data');
-                if (count > 0) {
-                    btn.classList.add('has-data');
-                } else {
-                    btn.classList.add('no-data');
-                }
+                btn.classList.add(count > 0 ? 'has-data' : 'no-data');
             }
         }
         for (const random of RANDOM_STATS) {
@@ -851,11 +811,7 @@
             const count = randomData[random.key] ? randomData[random.key].length : 0;
             if (btn) {
                 btn.classList.remove('has-data', 'no-data');
-                if (count > 0) {
-                    btn.classList.add('has-data');
-                } else {
-                    btn.classList.add('no-data');
-                }
+                btn.classList.add(count > 0 ? 'has-data' : 'no-data');
             }
         }
     }
@@ -864,9 +820,7 @@
         const btn = document.getElementById("refreshBtn");
         btn.disabled = true;
         btn.textContent = "⏳ Loading...";
-
         await fetchLeaderboard();
-
         btn.disabled = false;
         btn.textContent = "🔄 Refresh";
     }
@@ -893,16 +847,12 @@
         if (charFilter === "all") {
             filteredEntries = [...allEntries];
         } else if (charFilter === "BANNED_ALL") {
-            // Show all banned players (any source)
             filteredEntries = allEntries.filter(e => e.isBanned === true);
         } else if (charFilter.startsWith("BANNED_V")) {
-            // Show specific banned variant
             filteredEntries = allEntries.filter(e => e.source === charFilter);
         } else if (charFilter === "RandomExplorer" || charFilter === "RandomNeighbor") {
-            // Show specific random stat
             filteredEntries = allEntries.filter(e => e.source === charFilter);
         } else {
-            // Normal character filter
             filteredEntries = allEntries.filter(e => e.character === charFilter);
         }
         currentPage = 1;
@@ -938,4 +888,21 @@
 
         const totalPages = Math.ceil(filteredEntries.length / pageSize);
         const start = (currentPage - 1) * pageSize;
-        const end = Math.min(start + pageSize, filteredEntries.length
+        const end = Math.min(start + pageSize, filteredEntries.length);
+        const pageEntries = filteredEntries.slice(start, end);
+
+        let html = `<table>
+            <thead><tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Character</th>
+                <th>Level</th>
+            </tr></thead><tbody>`;
+
+        pageEntries.forEach((entry, idx) => {
+            const rank = start + idx + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+            const level = entry.StatValue || 0;
+            const isBanned = entry.isBanned === true;
+            const icon = isBanned ? 'default.png' : (CHARACTER_ICONS[entry.character] || 'default.png');
+           
