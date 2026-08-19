@@ -111,6 +111,13 @@
             padding: 2px;
         }
         .player-name { font-weight: 500; }
+        .player-id {
+            font-size: 11px;
+            color: #888;
+            font-family: monospace;
+            margin-top: 2px;
+        }
+        .player-name-wrap { display: flex; flex-direction: column; }
         .banned-badge {
             background: #111;
             color: #e94560;
@@ -182,32 +189,33 @@
         .token-status-dot.valid { background: #2ecc71; }
         .token-status-dot.invalid { background: #e94560; }
 
-        .filters {
+        /* ── FILTER TABS ── */
+        .filter-tabs {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .tab-group-label {
+            width: 100%;
+            color: #666;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            margin-top: 8px;
+        }
+        .tab-group-label:first-child { margin-top: 0; }
+        .filters {
             background: #16213e;
             padding: 15px 20px;
             border-radius: 12px;
             border: 1px solid #2a2a4a;
-        }
-        .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .filter-group-label {
-            color: #aaa;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
         .filter-btn {
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 16px;
             border: 2px solid transparent;
             background: #0f3460;
@@ -217,25 +225,13 @@
             transition: 0.2s;
         }
         .filter-btn:hover { border-color: #e94560; color: white; }
-        .filter-btn.active {
-            background: #e94560;
-            color: white;
-            border-color: #e94560;
-        }
-        .filter-btn.banned-btn {
-            border-color: #e94560;
-            color: #e94560;
-        }
-        .filter-btn.banned-btn.active {
-            background: #e94560;
-            color: white;
-        }
-        .filter-divider {
-            width: 1px;
-            height: 30px;
-            background: #2a2a4a;
-            margin: 0 8px;
-        }
+        .filter-btn.active { background: #e94560; color: white; border-color: #e94560; }
+        .filter-btn.banned-btn { border-color: #e94560; color: #e94560; }
+        .filter-btn.banned-btn.active { background: #e94560; color: white; }
+        .filter-btn.survivor-btn { border-color: #2ecc71; color: #2ecc71; }
+        .filter-btn.survivor-btn.active { background: #2ecc71; color: #0a0a1a; border-color: #2ecc71; }
+        .filter-btn.neighbor-btn { border-color: #9b59b6; color: #9b59b6; }
+        .filter-btn.neighbor-btn.active { background: #9b59b6; color: white; border-color: #9b59b6; }
 
         .debug-log {
             background: #0a0a1a;
@@ -257,7 +253,6 @@
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
             .filters { flex-direction: column; }
-            .filter-group { flex-wrap: wrap; }
             .controls { flex-direction: column; }
             .token-input-row input { width: 100%; }
             th, td { padding: 8px 10px; font-size: 12px; }
@@ -268,7 +263,7 @@
 <div class="container">
 
     <div class="header">
-        <h1>🏆 Steam Leaderboard</h1>
+        <h1>🏆 Secret Neighbor Leaderboard</h1>
         <div class="stats">
             👥 <span id="totalPlayers">0</span> players &nbsp;|&nbsp;
             📈 Top Level: <span id="topLevel">0</span>
@@ -276,9 +271,7 @@
     </div>
 
     <div class="cache-info">
-        <div>
-            📦 Cache: <span class="updated" id="cacheStatus">Not loaded yet</span>
-        </div>
+        <div>📦 Cache: <span class="updated" id="cacheStatus">Not loaded yet</span></div>
         <div class="token-status" id="tokenStatus">
             <span class="token-status-dot invalid" id="tokenDot"></span>
             <span id="tokenText">No token set</span>
@@ -298,37 +291,44 @@
         <button class="btn btn-secondary" onclick="clearDebug()">🗑️ Clear Log</button>
     </div>
 
-    <!-- Debug Log -->
     <div class="debug-log" id="debugLog">
         <div class="log-info">📡 Ready. Enter token and click Refresh.</div>
     </div>
 
     <div class="filters">
-        <div class="filter-group">
-            <span class="filter-group-label">👤 Character</span>
-            <button class="filter-btn active" data-character="all" onclick="setFilter('all')">👥 All (Highest)</button>
-            <button class="filter-btn" data-character="Bagger" onclick="setFilter('Bagger')">🎒 Bagger</button>
-            <button class="filter-btn" data-character="Brave" onclick="setFilter('Brave')">🛡️ Brave</button>
-            <button class="filter-btn" data-character="Detective" onclick="setFilter('Detective')">🔍 Detective</button>
-            <button class="filter-btn" data-character="Inventor" onclick="setFilter('Inventor')">🔧 Inventor</button>
-            <button class="filter-btn" data-character="Leader" onclick="setFilter('Leader')">⭐ Leader</button>
-            <button class="filter-btn" data-character="Quentin" onclick="setFilter('Quentin')">📰 Quentin</button>
-            <button class="filter-btn" data-character="Scout" onclick="setFilter('Scout')">🔭 Scout</button>
-            <button class="filter-btn" data-character="Neighbor" onclick="setFilter('Neighbor')">🏠 Neighbor</button>
-            <button class="filter-btn" data-character="Butcher" onclick="setFilter('Butcher')">🔪 Butcher</button>
-            <button class="filter-btn" data-character="Clown" onclick="setFilter('Clown')">🤡 Clown</button>
-            <button class="filter-btn" data-character="Ghost" onclick="setFilter('Ghost')">👻 Ghost</button>
-            <button class="filter-btn" data-character="Guest" onclick="setFilter('Guest')">🚪 Guest</button>
-            <button class="filter-btn" data-character="Hunter" onclick="setFilter('Hunter')">🧸 Hunter</button>
+        <div class="tab-group-label">🌍 Global</div>
+        <div class="filter-tabs">
+            <button class="filter-btn" data-filter="accountLevel" onclick="setFilter('accountLevel')">🏅 Account Level</button>
         </div>
 
-        <div class="filter-divider"></div>
+        <div class="tab-group-label">👤 By Role</div>
+        <div class="filter-tabs">
+            <button class="filter-btn survivor-btn active" data-filter="survivors" onclick="setFilter('survivors')">🧒 Survivors (Best)</button>
+            <button class="filter-btn neighbor-btn" data-filter="neighbors" onclick="setFilter('neighbors')">🏠 Neighbors (Best)</button>
+        </div>
 
-        <div class="filter-group">
-            <span class="filter-group-label">🎲 Extra</span>
-            <button class="filter-btn" data-character="RandomExplorer" onclick="setFilter('RandomExplorer')">🎲 Random Explorer</button>
-            <button class="filter-btn" data-character="RandomNeighbor" onclick="setFilter('RandomNeighbor')">🎲 Random Neighbor</button>
-            <button class="filter-btn banned-btn" data-character="Banned" onclick="setFilter('Banned')">🔨 Banned</button>
+        <div class="tab-group-label">🎭 Characters</div>
+        <div class="filter-tabs">
+            <button class="filter-btn" data-filter="Bagger" onclick="setFilter('Bagger')">🎒 Bagger</button>
+            <button class="filter-btn" data-filter="Brave" onclick="setFilter('Brave')">🛡️ Brave</button>
+            <button class="filter-btn" data-filter="Detective" onclick="setFilter('Detective')">🔍 Detective</button>
+            <button class="filter-btn" data-filter="Inventor" onclick="setFilter('Inventor')">🔧 Inventor</button>
+            <button class="filter-btn" data-filter="Leader" onclick="setFilter('Leader')">⭐ Leader</button>
+            <button class="filter-btn" data-filter="Quentin" onclick="setFilter('Quentin')">📰 Quentin</button>
+            <button class="filter-btn" data-filter="Scout" onclick="setFilter('Scout')">🔭 Scout</button>
+            <button class="filter-btn" data-filter="Neighbor" onclick="setFilter('Neighbor')">🏠 Neighbor</button>
+            <button class="filter-btn" data-filter="Butcher" onclick="setFilter('Butcher')">🔪 Butcher</button>
+            <button class="filter-btn" data-filter="Clown" onclick="setFilter('Clown')">🤡 Clown</button>
+            <button class="filter-btn" data-filter="Ghost" onclick="setFilter('Ghost')">👻 Ghost</button>
+            <button class="filter-btn" data-filter="Guest" onclick="setFilter('Guest')">🚪 Guest</button>
+            <button class="filter-btn" data-filter="Hunter" onclick="setFilter('Hunter')">🧸 Hunter</button>
+        </div>
+
+        <div class="tab-group-label">🎲 Extra</div>
+        <div class="filter-tabs">
+            <button class="filter-btn" data-filter="RandomExplorer" onclick="setFilter('RandomExplorer')">🎲 Random Explorer</button>
+            <button class="filter-btn" data-filter="RandomNeighbor" onclick="setFilter('RandomNeighbor')">🎲 Random Neighbor</button>
+            <button class="filter-btn banned-btn" data-filter="Banned" onclick="setFilter('Banned')">🔨 Banned</button>
         </div>
     </div>
 
@@ -336,7 +336,7 @@
         <div id="tableContainer">
             <div class="loading">📦 Loading leaderboard from cache...</div>
         </div>
-        <div id="paginationContainer" style="display:none;"></div>
+        <div id="paginationContainer" style="display:none;" class="pagination"></div>
     </div>
 
     <div class="footer">
@@ -346,27 +346,38 @@
 
 <script>
     // ─── CONFIG ──────────────────────────────────────────────────────────────
-    const CACHE_KEY = "leaderboard_cache";
+    const CACHE_KEY = "leaderboard_cache_v2";
     const TOKEN_KEY = "leaderboard_token";
     const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
     const PLATFORM = "STEAM";
 
-    // ─── CHARACTER STATS ──────────────────────────────────────────────────
-    const CHARACTER_STATS = {
-        "Bagger": "LeaderBoard_BagmanSTEAM",
-        "Brave": "LeaderBoard_BraveSTEAM",
+    // ─── CHARACTER STATS ─────────────────────────────────────────────────────
+    const SURVIVOR_STATS = {
+        "Bagger":    "LeaderBoard_BagmanSTEAM",
+        "Brave":     "LeaderBoard_BraveSTEAM",
         "Detective": "LeaderBoard_DetectiveSTEAM",
-        "Inventor": "LeaderBoard_InventorSTEAM",
-        "Leader": "LeaderBoard_LeaderSTEAM",
-        "Quentin": "LeaderBoard_QuentinSTEAM",
-        "Scout": "LeaderBoard_ScoutSTEAM",
-        "Neighbor": "LeaderBoard_BasicNeighborSTEAM",
-        "Butcher": "LeaderBoard_ButcherNeighborSTEAM",
-        "Clown": "LeaderBoard_ClownNeighborSTEAM",
-        "Ghost": "LeaderBoard_GhostNeighborSTEAM",
-        "Guest": "LeaderBoard_GuestNeighborSTEAM",
-        "Hunter": "LeaderBoard_HunterNeighborSTEAM"
+        "Inventor":  "LeaderBoard_InventorSTEAM",
+        "Leader":    "LeaderBoard_LeaderSTEAM",
+        "Quentin":   "LeaderBoard_QuentinSTEAM",
+        "Scout":     "LeaderBoard_ScoutSTEAM"
     };
+
+    const NEIGHBOR_STATS = {
+        "Neighbor": "LeaderBoard_BasicNeighborSTEAM",
+        "Butcher":  "LeaderBoard_ButcherNeighborSTEAM",
+        "Clown":    "LeaderBoard_ClownNeighborSTEAM",
+        "Ghost":    "LeaderBoard_GhostNeighborSTEAM",
+        "Guest":    "LeaderBoard_GuestNeighborSTEAM",
+        "Hunter":   "LeaderBoard_HunterNeighborSTEAM"
+    };
+
+    const EXTRA_STATS = {
+        "RandomExplorer": "LeaderBoard_RandomExplorerSTEAM",
+        "RandomNeighbor": "LeaderBoard_RandomNeighborSTEAM"
+    };
+
+    const ACCOUNT_LEVEL_STAT = "LeaderBoard_AccountLevelSTEAM";
+    const BANNED_STAT        = "Banned";
 
     const CHARACTER_DISPLAY = {
         "Bagger": "Bagger", "Brave": "Brave", "Detective": "Detective",
@@ -382,54 +393,41 @@
         "Clown": "clown.png", "Ghost": "ghost.png", "Guest": "guest.png", "Hunter": "hunter.png"
     };
 
-    const EXTRA_STATS = {
-        "RandomExplorer": "LeaderBoard_RandomExplorerSTEAM",
-        "RandomNeighbor": "LeaderBoard_RandomNeighborSTEAM",
-        "Banned": "Banned"
-    };
+    const SURVIVOR_KEYS  = new Set(Object.keys(SURVIVOR_STATS));
+    const NEIGHBOR_KEYS  = new Set(Object.keys(NEIGHBOR_STATS));
 
-    // ─── STATE ──────────────────────────────────────────────────────────────
-    let allEntries = [];
+    // ─── STATE ───────────────────────────────────────────────────────────────
+    let allEntries     = {};   // keyed by view name
     let filteredEntries = [];
-    let currentPage = 1;
-    const pageSize = 50;
-    let currentFilter = "all";
-    let userToken = localStorage.getItem(TOKEN_KEY) || "";
-    let isRefreshing = false;
+    let currentPage    = 1;
+    const pageSize     = 50;
+    let currentFilter  = "survivors";
+    let userToken      = localStorage.getItem(TOKEN_KEY) || "";
+    let isRefreshing   = false;
 
-    // ─── DEBUG LOG ──────────────────────────────────────────────────────────
+    // ─── DEBUG LOG ───────────────────────────────────────────────────────────
     function log(msg, type = 'info') {
         const logEl = document.getElementById('debugLog');
-        const colors = {
-            info: 'log-info',
-            success: 'log-success',
-            error: 'log-error',
-            warning: 'log-warning'
-        };
-        const time = new Date().toLocaleTimeString();
-        logEl.innerHTML += `<div class="${colors[type] || 'log-info'}">[${time}] ${msg}</div>`;
+        const cls   = { info: 'log-info', success: 'log-success', error: 'log-error', warning: 'log-warning' };
+        const time  = new Date().toLocaleTimeString();
+        logEl.innerHTML += `<div class="${cls[type] || 'log-info'}">[${time}] ${msg}</div>`;
         logEl.scrollTop = logEl.scrollHeight;
-        console.log(`[${type}]`, msg);
     }
-
     function clearDebug() {
         document.getElementById('debugLog').innerHTML = '<div class="log-info">📡 Log cleared.</div>';
     }
 
-    // ─── TOKEN HANDLING ─────────────────────────────────────────────────────
+    // ─── TOKEN ───────────────────────────────────────────────────────────────
     function setToken() {
         const input = document.getElementById("tokenInput");
         const token = input.value.trim();
-        if (!token) {
-            alert("⚠️ Please paste your X-Authorization token!");
-            return;
-        }
+        if (!token) { alert("⚠️ Please paste your X-Authorization token!"); return; }
         userToken = token;
         localStorage.setItem(TOKEN_KEY, token);
         updateTokenStatus();
         log("✅ Token saved! Refreshing...", 'success');
-        refreshLeaderboard();
         input.value = "";
+        refreshLeaderboard();
     }
 
     function clearToken() {
@@ -441,23 +439,22 @@
     }
 
     function updateTokenStatus() {
-        const dot = document.getElementById("tokenDot");
+        const dot  = document.getElementById("tokenDot");
         const text = document.getElementById("tokenText");
         if (userToken) {
-            dot.className = "token-status-dot valid";
-            text.textContent = "Token set ✓";
-            text.style.color = "#2ecc71";
+            dot.className        = "token-status-dot valid";
+            text.textContent     = "Token set ✓";
+            text.style.color     = "#2ecc71";
         } else {
-            dot.className = "token-status-dot invalid";
-            text.textContent = "No token set — using cache";
-            text.style.color = "#e94560";
+            dot.className        = "token-status-dot invalid";
+            text.textContent     = "No token set — using cache";
+            text.style.color     = "#e94560";
         }
     }
 
-    // ─── CACHE ──────────────────────────────────────────────────────────────
+    // ─── CACHE ───────────────────────────────────────────────────────────────
     function saveToCache(data) {
-        const cache = { data: data, timestamp: Date.now() };
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() })); } catch (e) {}
         updateCacheStatus();
     }
 
@@ -465,18 +462,17 @@
         try {
             const raw = localStorage.getItem(CACHE_KEY);
             if (!raw) {
-                document.getElementById("tableContainer").innerHTML = `
-                    <div class="empty-state">📦 No cached data. Set a token and refresh.</div>
-                `;
+                document.getElementById("tableContainer").innerHTML =
+                    `<div class="empty-state">📦 No cached data. Set a token and refresh.</div>`;
                 return false;
             }
             const cache = JSON.parse(raw);
             allEntries = cache.data;
-            filteredEntries = [...allEntries];
+            filteredEntries = [...(allEntries[currentFilter] || [])];
             updateStats();
             renderTable();
             updateCacheStatus();
-            log(`📦 Loaded ${allEntries.length} entries from cache`, 'info');
+            log(`📦 Loaded from cache`, 'info');
             return true;
         } catch (e) { return false; }
     }
@@ -487,54 +483,38 @@
             const raw = localStorage.getItem(CACHE_KEY);
             if (!raw) { status.textContent = "No cache"; status.style.color = "#e94560"; return; }
             const cache = JSON.parse(raw);
-            const date = new Date(cache.timestamp);
-            const age = Math.floor((Date.now() - cache.timestamp) / 60000);
-            status.textContent = `${date.toLocaleString()} (${age}m ago) — 💾 Permanent`;
-            status.style.color = age < 60 ? "#2ecc71" : "#f39c12";
-        } catch (e) {
-            status.textContent = "Cache error";
-            status.style.color = "#e94560";
-        }
+            const age   = Math.floor((Date.now() - cache.timestamp) / 60000);
+            status.textContent  = `${new Date(cache.timestamp).toLocaleString()} (${age}m ago)`;
+            status.style.color  = age < 60 ? "#2ecc71" : "#f39c12";
+        } catch (e) { status.textContent = "Cache error"; status.style.color = "#e94560"; }
     }
 
-    // ─── FETCH ──────────────────────────────────────────────────────────────
+    // ─── FETCH ───────────────────────────────────────────────────────────────
     async function fetchStat(statName, token) {
         try {
-            const server = `${PROXY}/${PLATFORM}`;
-            const url = `${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`;
-            const body = {
-                MaxResultsCount: 100,
-                StartPosition: 0,
-                StatisticName: statName
-            };
-
+            const url  = `${PROXY}/${PLATFORM}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`;
+            const body = { MaxResultsCount: 100, StartPosition: 0, StatisticName: statName };
             log(`📡 Fetching ${statName}...`, 'info');
 
-            const response = await fetch(url, {
+            const res = await fetch(url, {
                 method: "POST",
                 headers: {
-                    "X-Authorization": token,
-                    "Content-Type": "application/json",
-                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
-                    "X-ReportErrorAsSuccess": "true",
-                    "Accept": "*/*",
-                    "X-Unity-Version": "2022.3.14f1"
+                    "X-Authorization":       token,
+                    "Content-Type":          "application/json",
+                    "X-PlayFabSDK":          "UnitySDK-2.155.221207",
+                    "X-ReportErrorAsSuccess":"true",
+                    "Accept":                "*/*",
+                    "X-Unity-Version":       "2022.3.14f1"
                 },
                 body: JSON.stringify(body)
             });
 
-            log(`📡 Response status: ${response.status} for ${statName}`, 'info');
+            log(`📡 Response status: ${res.status} for ${statName}`, 'info');
+            if (!res.ok) { log(`❌ HTTP ${res.status} for ${statName}`, 'error'); return null; }
 
-            if (!response.ok) {
-                log(`❌ HTTP ${response.status} for ${statName}`, 'error');
-                return null;
-            }
-
-            const data = await response.json();
-
+            const data = await res.json();
             if (data.code === 200 && data.data && data.data.Leaderboard) {
-                const count = data.data.Leaderboard.length;
-                log(`✅ ${statName}: ${count} players found`, 'success');
+                log(`✅ ${statName}: ${data.data.Leaderboard.length} players`, 'success');
                 return data.data.Leaderboard;
             } else {
                 log(`⚠️ ${statName}: ${data.errorMessage || 'No data'} (code: ${data.code})`, 'warning');
@@ -546,174 +526,179 @@
         }
     }
 
-    async function refreshLeaderboard() {
-        if (!userToken) {
-            alert("⚠️ Set your token first!");
-            return;
+    // ─── BUILD DEDUPED LIST ──────────────────────────────────────────────────
+    // For a given set of {charKey: [entries]}, return one entry per player
+    // keeping the highest StatValue across all chars in the set.
+    // charLabel: function(charKey) → display string  (null = don't show char col)
+    function buildDeduped(charDataMap) {
+        const playerMap = {};
+
+        for (const [charKey, entries] of Object.entries(charDataMap)) {
+            if (!entries) continue;
+            for (const e of entries) {
+                const id    = e.PlayFabId || e.PlayerId || "";
+                const name  = e.DisplayName || id || "Anonymous";
+                const level = e.StatValue   || 0;
+
+                if (!playerMap[id]) {
+                    playerMap[id] = { displayName: name, id, bestChar: charKey, bestLevel: level };
+                } else {
+                    // keep display name from whichever entry has one
+                    if (!playerMap[id].displayName && name) playerMap[id].displayName = name;
+                    if (level > playerMap[id].bestLevel) {
+                        playerMap[id].bestLevel = level;
+                        playerMap[id].bestChar  = charKey;
+                    }
+                }
+            }
         }
+
+        return Object.values(playerMap)
+            .sort((a, b) => b.bestLevel - a.bestLevel)
+            .map((p, i) => ({ ...p, rank: i + 1 }));
+    }
+
+    // Build per-char list (no dedup needed, one char = one board)
+    function buildCharList(entries, charKey) {
+        if (!entries) return [];
+        return entries
+            .map((e, i) => ({
+                rank:        i + 1,
+                id:          e.PlayFabId || e.PlayerId || "",
+                displayName: e.DisplayName || e.PlayFabId || "Anonymous",
+                charKey,
+                bestLevel:   e.StatValue || 0,
+                bestChar:    charKey
+            }));
+    }
+
+    // ─── REFRESH ─────────────────────────────────────────────────────────────
+    async function refreshLeaderboard() {
+        if (!userToken) { alert("⚠️ Set your token first!"); return; }
         if (isRefreshing) return;
         isRefreshing = true;
+        document.getElementById('refreshBtn').disabled = true;
 
         const container = document.getElementById("tableContainer");
-        container.innerHTML = '<div class="loading">⏳ Fetching all characters...</div>';
+        container.innerHTML = '<div class="loading">⏳ Fetching all data...</div>';
         log("🔄 Starting leaderboard refresh...", 'info');
 
         try {
-            const playerMap = {};
-
-            // ─── STEP 1: Cloud Script ──────────────────────────────────────
+            // Step 1: Cloud Script trigger
             log("📡 Executing Cloud Script...", 'info');
-            const server = `${PROXY}/${PLATFORM}`;
-            const cloudScriptBody = {
-                FunctionName: "refreshLeaderboardPlatform",
-                FunctionParameter: {
-                    currentLevelProgression: {
-                        playerLevel: "56",
-                        classLevel: [
-                            { classId: "Bagman", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
-                            { classId: "Brave", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
-                            { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
-                            { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
-                        ]
-                    },
-                    platformName: PLATFORM
-                },
-                GeneratePlayStreamEvent: true,
-                RevisionSelection: null,
-                SpecificRevision: null
-            };
-
             try {
-                const csResponse = await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
+                const csRes = await fetch(`${PROXY}/${PLATFORM}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
                     method: "POST",
                     headers: {
-                        "X-Authorization": userToken,
-                        "Content-Type": "application/json",
-                        "X-PlayFabSDK": "UnitySDK-2.155.221207",
-                        "X-ReportErrorAsSuccess": "true",
-                        "Accept": "*/*",
-                        "X-Unity-Version": "2022.3.14f1"
+                        "X-Authorization": userToken, "Content-Type": "application/json",
+                        "X-PlayFabSDK": "UnitySDK-2.155.221207", "X-ReportErrorAsSuccess": "true",
+                        "Accept": "*/*", "X-Unity-Version": "2022.3.14f1"
                     },
-                    body: JSON.stringify(cloudScriptBody)
+                    body: JSON.stringify({
+                        FunctionName: "refreshLeaderboardPlatform",
+                        FunctionParameter: {
+                            currentLevelProgression: {
+                                playerLevel: "56",
+                                classLevel: [
+                                    { classId: "Bagman",  XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
+                                    { classId: "Brave",   XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                                    { classId: "Steam",   XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                                    { classId: "Team",    XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
+                                ]
+                            },
+                            platformName: PLATFORM
+                        },
+                        GeneratePlayStreamEvent: true,
+                        RevisionSelection: null,
+                        SpecificRevision: null
+                    })
                 });
-                const csData = await csResponse.json();
-                log(`✅ Cloud Script: ${csData.code}`, csData.code === 200 ? 'success' : 'error');
+                const csData = await csRes.json();
+                log(`✅ Cloud Script: ${csData.code}`, csData.code === 200 ? 'success' : 'warning');
             } catch (e) {
                 log(`⚠️ Cloud Script failed: ${e.message}`, 'warning');
             }
 
-            // ─── STEP 2: Fetch ALL character stats ─────────────────────────
-            const charKeys = Object.keys(CHARACTER_STATS);
-            let totalEntries = 0;
-
-            for (const key of charKeys) {
-                const statName = CHARACTER_STATS[key];
-                const data = await fetchStat(statName, userToken);
-                if (data) {
-                    data.forEach(entry => {
-                        const playerId = entry.PlayFabId || entry.PlayerId || "";
-                        const displayName = entry.DisplayName || playerId || "Anonymous";
-                        const level = entry.StatValue || 0;
-
-                        if (!playerMap[playerId]) {
-                            playerMap[playerId] = { displayName, chars: {} };
-                        }
-                        if (!playerMap[playerId].chars[key] || level > playerMap[playerId].chars[key]) {
-                            playerMap[playerId].chars[key] = level;
-                        }
-                    });
-                    totalEntries += data.length;
-                    container.innerHTML = `<div class="loading">⏳ Fetching... (${totalEntries} entries found)</div>`;
-                }
+            // Step 2: Fetch all survivor stats
+            const survivorData = {};
+            for (const [key, stat] of Object.entries(SURVIVOR_STATS)) {
+                survivorData[key] = await fetchStat(stat, userToken);
+                container.innerHTML = `<div class="loading">⏳ Fetching survivors... (${key})</div>`;
             }
 
-            // ─── STEP 3: Fetch Extra Stats ──────────────────────────────────
-            const extraKeys = Object.keys(EXTRA_STATS);
-            for (const key of extraKeys) {
-                const statName = EXTRA_STATS[key];
-                const data = await fetchStat(statName, userToken);
-                if (data && data.length > 0) {
-                    data.forEach(entry => {
-                        const playerId = entry.PlayFabId || entry.PlayerId || "";
-                        const displayName = entry.DisplayName || playerId || "Anonymous";
-                        const level = entry.StatValue || 0;
-
-                        if (!playerMap[playerId]) {
-                            playerMap[playerId] = { displayName, chars: {} };
-                        }
-                        if (!playerMap[playerId].chars[key] || level > playerMap[playerId].chars[key]) {
-                            playerMap[playerId].chars[key] = level;
-                        }
-                    });
-                }
+            // Step 3: Fetch all neighbor stats
+            const neighborData = {};
+            for (const [key, stat] of Object.entries(NEIGHBOR_STATS)) {
+                neighborData[key] = await fetchStat(stat, userToken);
+                container.innerHTML = `<div class="loading">⏳ Fetching neighbors... (${key})</div>`;
             }
 
-            // ─── STEP 4: Build entries ──────────────────────────────────────
-            const highestEntries = [];
-            const allCharEntries = [];
-
-            for (const [playerId, data] of Object.entries(playerMap)) {
-                const chars = data.chars;
-                const displayName = data.displayName;
-
-                let highestChar = null;
-                let highestLevel = 0;
-                for (const [char, level] of Object.entries(chars)) {
-                    if (EXTRA_STATS[char]) continue;
-                    if (level > highestLevel) {
-                        highestLevel = level;
-                        highestChar = char;
-                    }
-                }
-
-                if (highestChar) {
-                    highestEntries.push({
-                        PlayFabId: playerId,
-                        displayName: displayName,
-                        character: highestChar,
-                        characterDisplay: CHARACTER_DISPLAY[highestChar] || highestChar,
-                        StatValue: highestLevel,
-                        isBanned: false,
-                        source: "highest"
-                    });
-                }
-
-                for (const [char, level] of Object.entries(chars)) {
-                    if (level > 0) {
-                        const isBanned = char === "Banned" || char === "RandomExplorer" || char === "RandomNeighbor";
-                        allCharEntries.push({
-                            PlayFabId: playerId,
-                            displayName: isBanned ? (playerId || "Unknown") : displayName,
-                            character: char,
-                            characterDisplay: isBanned ? char : (CHARACTER_DISPLAY[char] || char),
-                            StatValue: level,
-                            isBanned: isBanned,
-                            source: char
-                        });
-                    }
-                }
+            // Step 4: Fetch extra stats
+            const extraData = {};
+            for (const [key, stat] of Object.entries(EXTRA_STATS)) {
+                extraData[key] = await fetchStat(stat, userToken);
             }
 
-            highestEntries.sort((a, b) => b.StatValue - a.StatValue);
-            highestEntries.forEach((e, i) => e.rank = i + 1);
+            // Step 5: Fetch Account Level
+            container.innerHTML = `<div class="loading">⏳ Fetching account levels...</div>`;
+            const accountLevelRaw = await fetchStat(ACCOUNT_LEVEL_STAT, userToken);
+
+            // Step 6: Fetch Banned (may 400 — that's ok, we catch it)
+            const bannedRaw = await fetchStat(BANNED_STAT, userToken);
+
+            // ── Build views ──────────────────────────────────────────────────
+
+            // Survivors best: one entry per player, best survivor char
+            const survivorsList = buildDeduped(survivorData);
+
+            // Neighbors best: one entry per player, best neighbor char
+            const neighborsList = buildDeduped(neighborData);
+
+            // Account level: one entry per player
+            const accountList = buildCharList(accountLevelRaw || [], "AccountLevel");
+
+            // Per-character views
+            const charViews = {};
+            for (const [key, raw] of Object.entries(survivorData))
+                charViews[key] = buildCharList(raw || [], key);
+            for (const [key, raw] of Object.entries(neighborData))
+                charViews[key] = buildCharList(raw || [], key);
+
+            // Extra views
+            const extraViews = {};
+            for (const [key, raw] of Object.entries(extraData))
+                extraViews[key] = buildCharList(raw || [], key);
+
+            // Banned view
+            const bannedList = bannedRaw
+                ? bannedRaw.map((e, i) => ({
+                    rank: i + 1,
+                    id:          e.PlayFabId || e.PlayerId || "",
+                    displayName: e.DisplayName || e.PlayFabId || "Unknown",
+                    charKey:     "Banned",
+                    bestChar:    "Banned",
+                    bestLevel:   e.StatValue || 0
+                  }))
+                : [];
 
             allEntries = {
-                highest: highestEntries,
-                allChars: allCharEntries,
-                playerMap: playerMap
+                accountLevel: accountList,
+                survivors:    survivorsList,
+                neighbors:    neighborsList,
+                ...charViews,
+                ...extraViews,
+                Banned:       bannedList
             };
 
-            filteredEntries = [...highestEntries];
-
-            log(`✅ Total players: ${highestEntries.length}, Total entries: ${allCharEntries.length}`, 'success');
+            log(`✅ Done — Survivors: ${survivorsList.length}, Neighbors: ${neighborsList.length}, Account: ${accountList.length}`, 'success');
 
             saveToCache(allEntries);
+            setFilter(currentFilter, true);
             updateStats();
-            renderTable();
             updateCacheStatus();
 
         } catch (e) {
-            log(`❌ Fatal error: ${e.message}`, 'error');
+            log(`❌ Fatal: ${e.message}`, 'error');
             container.innerHTML = `<div class="empty-state" style="color:#e94560;">⚠️ Error: ${e.message}</div>`;
         } finally {
             isRefreshing = false;
@@ -722,108 +707,110 @@
     }
 
     // ─── FILTERS ─────────────────────────────────────────────────────────────
-    function setFilter(filter) {
+    function setFilter(filter, skipRender = false) {
         currentFilter = filter;
-        document.querySelectorAll('[data-character]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.character === filter);
+
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
         });
 
-        if (filter === "all") {
-            filteredEntries = allEntries.highest || [];
-        } else if (filter === "Banned") {
-            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "Banned");
-        } else if (filter === "RandomExplorer") {
-            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "RandomExplorer");
-        } else if (filter === "RandomNeighbor") {
-            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "RandomNeighbor");
-        } else {
-            filteredEntries = (allEntries.allChars || []).filter(e => e.character === filter);
-        }
-
-        filteredEntries.sort((a, b) => b.StatValue - a.StatValue);
-        filteredEntries.forEach((e, i) => e.rank = i + 1);
-
+        filteredEntries = [...(allEntries[filter] || [])];
         currentPage = 1;
-        renderTable();
+        if (!skipRender) renderTable();
         log(`📊 Filter: ${filter} — ${filteredEntries.length} entries`, 'info');
     }
 
     // ─── RENDER ──────────────────────────────────────────────────────────────
     function renderTable() {
-        const container = document.getElementById('tableContainer');
-        const paginationContainer = document.getElementById('paginationContainer');
+        const container   = document.getElementById('tableContainer');
+        const pagCont     = document.getElementById('paginationContainer');
 
         if (!filteredEntries || filteredEntries.length === 0) {
-            let msg = '🔍 No players found';
-            let icon = '🔍';
-            if (currentFilter === "Banned") { msg = '🔨 No banned players found'; icon = '✅'; }
-            else if (currentFilter === "RandomExplorer" || currentFilter === "RandomNeighbor") {
-                msg = '🎲 No data for this stat'; icon = '🎲';
-            }
-            container.innerHTML = `<div class="empty-state"><span class="big-icon">${icon}</span>${msg}</div>`;
-            paginationContainer.style.display = 'none';
+            container.innerHTML = `<div class="empty-state"><span class="big-icon">🔍</span>No data for this view.</div>`;
+            pagCont.style.display = 'none';
             return;
         }
 
+        const isExtra  = ["RandomExplorer", "RandomNeighbor"].includes(currentFilter);
+        const isBanned = currentFilter === "Banned";
+        const showChar = ["survivors", "neighbors"].includes(currentFilter);
+        const isAccountLevel = currentFilter === "accountLevel";
+
         const totalPages = Math.ceil(filteredEntries.length / pageSize);
         const start = (currentPage - 1) * pageSize;
-        const end = Math.min(start + pageSize, filteredEntries.length);
-        const pageEntries = filteredEntries.slice(start, end);
+        const pageEntries = filteredEntries.slice(start, start + pageSize);
 
-        let html = `<table><thead><tr><th>#</th><th>Player</th><th>Character</th><th>Level</th></tr></thead><tbody>`;
+        // decide columns
+        let headers = `<th>#</th><th>Player</th>`;
+        if (showChar)        headers += `<th>Best Character</th>`;
+        if (!isAccountLevel) headers += `<th>Level</th>`;
+        if (isAccountLevel)  headers += `<th>Account Level</th>`;
+
+        let html = `<table><thead><tr>${headers}</tr></thead><tbody>`;
 
         pageEntries.forEach((entry, idx) => {
-            const rank = start + idx + 1;
+            const rank      = start + idx + 1;
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
-            const isBanned = entry.isBanned === true || entry.character === "Banned";
-            const displayName = isBanned ? (entry.PlayFabId || entry.displayName || "Unknown") : entry.displayName;
-            const icon = isBanned ? 'default.png' : (CHARACTER_ICONS[entry.character] || 'default.png');
-            const charDisplay = isBanned ? 'BANNED' : (entry.characterDisplay || entry.character || 'Unknown');
+            const isBannedEntry = isBanned || entry.charKey === "Banned";
 
-            html += `
-                <tr class="${rankClass}${isBanned ? ' banned-row' : ''}">
-                    <td class="rank-number">#${rank}</td>
-                    <td>
-                        <div class="player-cell">
-                            <img src="images/characters/${icon}" onerror="this.style.display='none'"/>
-                            <span class="player-name">${displayName}</span>
-                            ${isBanned ? '<span class="banned-badge">🔨 BANNED</span>' : ''}
-                        </div>
-                    </td>
-                    <td>${isBanned ? '<span style="color:#e94560;">BANNED</span>' : charDisplay}</td>
-                    <td>${entry.StatValue || 0}</td>
-                </tr>
-            `;
+            // name display
+            const name = entry.displayName || entry.id || "Unknown";
+            const icon = isBannedEntry ? 'default.png' : (CHARACTER_ICONS[entry.bestChar] || 'default.png');
+
+            // for extra + banned: show name + id underneath
+            const showId = isExtra || isBannedEntry;
+
+            const playerCell = `
+                <div class="player-cell">
+                    <img src="images/characters/${icon}" onerror="this.style.display='none'"/>
+                    <div class="player-name-wrap">
+                        <span class="player-name">${isBannedEntry ? (name !== entry.id ? name : "Unknown") : name}</span>
+                        ${showId ? `<span class="player-id">${entry.id}</span>` : ''}
+                    </div>
+                    ${isBannedEntry ? '<span class="banned-badge">🔨 BANNED</span>' : ''}
+                </div>`;
+
+            const charDisplay = CHARACTER_DISPLAY[entry.bestChar] || entry.bestChar || "—";
+
+            html += `<tr class="${rankClass}${isBannedEntry ? ' banned-row' : ''}">
+                <td class="rank-number">#${rank}</td>
+                <td>${playerCell}</td>
+                ${showChar ? `<td>${isBannedEntry ? '<span style="color:#e94560;">BANNED</span>' : charDisplay}</td>` : ''}
+                <td>${entry.bestLevel ?? 0}</td>
+            </tr>`;
         });
 
         html += `</tbody></table>`;
         container.innerHTML = html;
 
         if (totalPages > 1) {
-            paginationContainer.style.display = 'flex';
+            pagCont.style.display = 'flex';
             let pHtml = '';
-            for (let i = 1; i <= totalPages; i++) {
+            const maxVisible = 10;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage   = Math.min(totalPages, startPage + maxVisible - 1);
+            if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+
+            if (startPage > 1)         pHtml += `<button class="page-btn" onclick="goToPage(1)">«</button>`;
+            for (let i = startPage; i <= endPage; i++)
                 pHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-            }
-            paginationContainer.innerHTML = pHtml;
+            if (endPage < totalPages)  pHtml += `<button class="page-btn" onclick="goToPage(${totalPages})">»</button>`;
+
+            pagCont.innerHTML = pHtml;
         } else {
-            paginationContainer.style.display = 'none';
+            pagCont.style.display = 'none';
         }
     }
 
-    function goToPage(page) {
-        currentPage = page;
-        renderTable();
-    }
+    function goToPage(page) { currentPage = page; renderTable(); }
 
     function updateStats() {
-        const total = allEntries.highest ? allEntries.highest.length : 0;
-        const maxLevel = allEntries.highest && allEntries.highest.length > 0 ? allEntries.highest[0].StatValue : 0;
-        document.getElementById('totalPlayers').textContent = total;
-        document.getElementById('topLevel').textContent = maxLevel;
+        const list = allEntries[currentFilter] || allEntries["survivors"] || [];
+        document.getElementById('totalPlayers').textContent = list.length;
+        document.getElementById('topLevel').textContent     = list.length > 0 ? list[0].bestLevel : 0;
     }
 
-    // ─── INIT ──────────────────────────────────────────────────────────────
+    // ─── INIT ────────────────────────────────────────────────────────────────
     function init() {
         updateTokenStatus();
         const hasCache = loadFromCache();

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Secret Neighbor Leaderboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            background: #16213e;
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 2px solid #e94560;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 { color: #e94560; font-size: 28px; }
+        .header .stats { color: #aaa; font-size: 14px; }
+        .header .stats span { color: #e94560; font-weight: bold; }
+
+        .cache-info {
+            background: #16213e;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid #2a2a4a;
+            font-size: 13px;
+            color: #888;
+        }
+        .cache-info .updated { color: #2ecc71; }
+        .cache-info .token-status { color: #e94560; }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 24px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn:hover { background: #c73652; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #0f3460; }
+        .btn-secondary:hover { background: #1a4a8a; }
+
+        .table-wrap {
+            background: #16213e;
+            border-radius: 16px;
+            border: 2px solid #2a2a4a;
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #0f3460;
+            color: #e94560;
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        td {
+            padding: 12px 18px;
+            border-bottom: 1px solid #1a1a3e;
+            color: #ddd;
+            font-size: 14px;
+        }
+        tr:hover td { background: #1a2a4a; }
+        .rank-1 td { color: #ffd700; font-weight: bold; }
+        .rank-2 td { color: #c0c0c0; font-weight: bold; }
+        .rank-3 td { color: #cd7f32; font-weight: bold; }
+        .rank-number { font-weight: bold; color: #e94560; }
+        .rank-1 .rank-number { color: #ffd700; }
+        .rank-2 .rank-number { color: #c0c0c0; }
+        .rank-3 .rank-number { color: #cd7f32; }
+
+        .player-cell { display: flex; align-items: center; gap: 10px; }
+        .player-cell img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #0f3460;
+            padding: 2px;
+        }
+        .player-name { font-weight: 500; }
+        .banned-badge {
+            background: #111;
+            color: #e94560;
+            border: 1px solid #e94560;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .banned-row td { opacity: 0.7; }
+
+        .loading { padding: 40px; text-align: center; color: #555; }
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #555;
+            font-size: 13px;
+        }
+        .footer a { color: #e94560; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 6px 14px;
+            background: #0f3460;
+            color: #aaa;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .page-btn:hover { border-color: #e94560; color: white; }
+        .page-btn.active { background: #e94560; color: white; border-color: #e94560; }
+
+        .empty-state { padding: 40px; text-align: center; color: #555; }
+        .empty-state .big-icon { font-size: 48px; display: block; margin-bottom: 10px; }
+
+        .token-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .token-input-row input {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 2px solid #2a2a4a;
+            background: #0f3460;
+            color: white;
+            font-size: 13px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .token-input-row input:focus { border-color: #e94560; outline: none; }
+        .token-status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .token-status-dot.valid { background: #2ecc71; }
+        .token-status-dot.invalid { background: #e94560; }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #16213e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #2a2a4a;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .filter-group-label {
+            color: #aaa;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .filter-btn {
+            padding: 5px 12px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            background: #0f3460;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .filter-btn:hover { border-color: #e94560; color: white; }
+        .filter-btn.active {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
+        .filter-btn.banned-btn {
+            border-color: #e94560;
+            color: #e94560;
+        }
+        .filter-btn.banned-btn.active {
+            background: #e94560;
+            color: white;
+        }
+        .filter-divider {
+            width: 1px;
+            height: 30px;
+            background: #2a2a4a;
+            margin: 0 8px;
+        }
+
+        .debug-log {
+            background: #0a0a1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #888;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .debug-log .log-info { color: #66c0f4; }
+        .debug-log .log-success { color: #2ecc71; }
+        .debug-log .log-error { color: #e94560; }
+        .debug-log .log-warning { color: #f39c12; }
+
+        @media (max-width: 600px) {
+            .header { flex-direction: column; text-align: center; }
+            .filters { flex-direction: column; }
+            .filter-group { flex-wrap: wrap; }
+            .controls { flex-direction: column; }
+            .token-input-row input { width: 100%; }
+            th, td { padding: 8px 10px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>🏆 Steam Leaderboard</h1>
+        <div class="stats">
+            👥 <span id="totalPlayers">0</span> players &nbsp;|&nbsp;
+            📈 Top Level: <span id="topLevel">0</span>
+        </div>
+    </div>
+
+    <div class="cache-info">
+        <div>
+            📦 Cache: <span class="updated" id="cacheStatus">Not loaded yet</span>
+        </div>
+        <div class="token-status" id="tokenStatus">
+            <span class="token-status-dot invalid" id="tokenDot"></span>
+            <span id="tokenText">No token set</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="token-input-row">
+            <input type="password" id="tokenInput" placeholder="Enter X-Authorization token..." />
+            <button class="btn" onclick="setToken()">🔑 Set Token</button>
+            <button class="btn btn-secondary" onclick="clearToken()">✕ Clear</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="refreshLeaderboard()" id="refreshBtn">🔄 Refresh</button>
+        <button class="btn btn-secondary" onclick="clearDebug()">🗑️ Clear Log</button>
+    </div>
+
+    <!-- Debug Log -->
+    <div class="debug-log" id="debugLog">
+        <div class="log-info">📡 Ready. Enter token and click Refresh.</div>
+    </div>
+
+    <div class="filters">
+        <div class="filter-group">
+            <span class="filter-group-label">👤 Character</span>
+            <button class="filter-btn active" data-character="all" onclick="setFilter('all')">👥 All (Highest)</button>
+            <button class="filter-btn" data-character="Bagger" onclick="setFilter('Bagger')">🎒 Bagger</button>
+            <button class="filter-btn" data-character="Brave" onclick="setFilter('Brave')">🛡️ Brave</button>
+            <button class="filter-btn" data-character="Detective" onclick="setFilter('Detective')">🔍 Detective</button>
+            <button class="filter-btn" data-character="Inventor" onclick="setFilter('Inventor')">🔧 Inventor</button>
+            <button class="filter-btn" data-character="Leader" onclick="setFilter('Leader')">⭐ Leader</button>
+            <button class="filter-btn" data-character="Quentin" onclick="setFilter('Quentin')">📰 Quentin</button>
+            <button class="filter-btn" data-character="Scout" onclick="setFilter('Scout')">🔭 Scout</button>
+            <button class="filter-btn" data-character="Neighbor" onclick="setFilter('Neighbor')">🏠 Neighbor</button>
+            <button class="filter-btn" data-character="Butcher" onclick="setFilter('Butcher')">🔪 Butcher</button>
+            <button class="filter-btn" data-character="Clown" onclick="setFilter('Clown')">🤡 Clown</button>
+            <button class="filter-btn" data-character="Ghost" onclick="setFilter('Ghost')">👻 Ghost</button>
+            <button class="filter-btn" data-character="Guest" onclick="setFilter('Guest')">🚪 Guest</button>
+            <button class="filter-btn" data-character="Hunter" onclick="setFilter('Hunter')">🧸 Hunter</button>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">🎲 Extra</span>
+            <button class="filter-btn" data-character="RandomExplorer" onclick="setFilter('RandomExplorer')">🎲 Random Explorer</button>
+            <button class="filter-btn" data-character="RandomNeighbor" onclick="setFilter('RandomNeighbor')">🎲 Random Neighbor</button>
+            <button class="filter-btn banned-btn" data-character="Banned" onclick="setFilter('Banned')">🔨 Banned</button>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <div id="tableContainer">
+            <div class="loading">📦 Loading leaderboard from cache...</div>
+        </div>
+        <div id="paginationContainer" style="display:none;"></div>
+    </div>
+
+    <div class="footer">
+        <a href="https://a4yoshi.github.io">← Back to a4Yoshi Tools</a> &bull; Data from PlayFab
+    </div>
+</div>
+
+<script>
+    // ─── CONFIG ──────────────────────────────────────────────────────────────
+    const CACHE_KEY = "leaderboard_cache";
+    const TOKEN_KEY = "leaderboard_token";
+    const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
+    const PLATFORM = "STEAM";
+
+    // ─── CHARACTER STATS ──────────────────────────────────────────────────
+    const CHARACTER_STATS = {
+        "Bagger": "LeaderBoard_BagmanSTEAM",
+        "Brave": "LeaderBoard_BraveSTEAM",
+        "Detective": "LeaderBoard_DetectiveSTEAM",
+        "Inventor": "LeaderBoard_InventorSTEAM",
+        "Leader": "LeaderBoard_LeaderSTEAM",
+        "Quentin": "LeaderBoard_QuentinSTEAM",
+        "Scout": "LeaderBoard_ScoutSTEAM",
+        "Neighbor": "LeaderBoard_BasicNeighborSTEAM",
+        "Butcher": "LeaderBoard_ButcherNeighborSTEAM",
+        "Clown": "LeaderBoard_ClownNeighborSTEAM",
+        "Ghost": "LeaderBoard_GhostNeighborSTEAM",
+        "Guest": "LeaderBoard_GuestNeighborSTEAM",
+        "Hunter": "LeaderBoard_HunterNeighborSTEAM"
+    };
+
+    const CHARACTER_DISPLAY = {
+        "Bagger": "Bagger", "Brave": "Brave", "Detective": "Detective",
+        "Inventor": "Inventor", "Leader": "Leader", "Quentin": "Quentin",
+        "Scout": "Scout", "Neighbor": "Neighbor", "Butcher": "Butcher",
+        "Clown": "Clown", "Ghost": "Ghost", "Guest": "Guest", "Hunter": "Hunter"
+    };
+
+    const CHARACTER_ICONS = {
+        "Bagger": "bagger.png", "Brave": "brave.png", "Detective": "detective.png",
+        "Inventor": "inventor.png", "Leader": "leader.png", "Quentin": "quentin.png",
+        "Scout": "scout.png", "Neighbor": "neighbor.png", "Butcher": "butcher.png",
+        "Clown": "clown.png", "Ghost": "ghost.png", "Guest": "guest.png", "Hunter": "hunter.png"
+    };
+
+    const EXTRA_STATS = {
+        "RandomExplorer": "LeaderBoard_RandomExplorerSTEAM",
+        "RandomNeighbor": "LeaderBoard_RandomNeighborSTEAM",
+        "Banned": "Banned"
+    };
+
+    // ─── STATE ──────────────────────────────────────────────────────────────
+    let allEntries = [];
+    let filteredEntries = [];
+    let currentPage = 1;
+    const pageSize = 50;
+    let currentFilter = "all";
+    let userToken = localStorage.getItem(TOKEN_KEY) || "";
+    let isRefreshing = false;
+
+    // ─── DEBUG LOG ──────────────────────────────────────────────────────────
+    function log(msg, type = 'info') {
+        const logEl = document.getElementById('debugLog');
+        const colors = {
+            info: 'log-info',
+            success: 'log-success',
+            error: 'log-error',
+            warning: 'log-warning'
+        };
+        const time = new Date().toLocaleTimeString();
+        logEl.innerHTML += `<div class="${colors[type] || 'log-info'}">[${time}] ${msg}</div>`;
+        logEl.scrollTop = logEl.scrollHeight;
+        console.log(`[${type}]`, msg);
+    }
+
+    function clearDebug() {
+        document.getElementById('debugLog').innerHTML = '<div class="log-info">📡 Log cleared.</div>';
+    }
+
+    // ─── TOKEN HANDLING ─────────────────────────────────────────────────────
+    function setToken() {
+        const input = document.getElementById("tokenInput");
+        const token = input.value.trim();
+        if (!token) {
+            alert("⚠️ Please paste your X-Authorization token!");
+            return;
+        }
+        userToken = token;
+        localStorage.setItem(TOKEN_KEY, token);
+        updateTokenStatus();
+        log("✅ Token saved! Refreshing...", 'success');
+        refreshLeaderboard();
+        input.value = "";
+    }
+
+    function clearToken() {
+        userToken = "";
+        localStorage.removeItem(TOKEN_KEY);
+        updateTokenStatus();
+        log("🗑️ Token cleared", 'warning');
+        loadFromCache();
+    }
+
+    function updateTokenStatus() {
+        const dot = document.getElementById("tokenDot");
+        const text = document.getElementById("tokenText");
+        if (userToken) {
+            dot.className = "token-status-dot valid";
+            text.textContent = "Token set ✓";
+            text.style.color = "#2ecc71";
+        } else {
+            dot.className = "token-status-dot invalid";
+            text.textContent = "No token set — using cache";
+            text.style.color = "#e94560";
+        }
+    }
+
+    // ─── CACHE ──────────────────────────────────────────────────────────────
+    function saveToCache(data) {
+        const cache = { data: data, timestamp: Date.now() };
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+        updateCacheStatus();
+    }
+
+    function loadFromCache() {
+        try {
+            const raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) {
+                document.getElementById("tableContainer").innerHTML = `
+                    <div class="empty-state">📦 No cached data. Set a token and refresh.</div>
+                `;
+                return false;
+            }
+            const cache = JSON.parse(raw);
+            allEntries = cache.data;
+            filteredEntries = [...allEntries];
+            updateStats();
+            renderTable();
+            updateCacheStatus();
+            log(`📦 Loaded ${allEntries.length} entries from cache`, 'info');
+            return true;
+        } catch (e) { return false; }
+    }
+
+    function updateCacheStatus() {
+        const status = document.getElementById("cacheStatus");
+        try {
+            const raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) { status.textContent = "No cache"; status.style.color = "#e94560"; return; }
+            const cache = JSON.parse(raw);
+            const date = new Date(cache.timestamp);
+            const age = Math.floor((Date.now() - cache.timestamp) / 60000);
+            status.textContent = `${date.toLocaleString()} (${age}m ago) — 💾 Permanent`;
+            status.style.color = age < 60 ? "#2ecc71" : "#f39c12";
+        } catch (e) {
+            status.textContent = "Cache error";
+            status.style.color = "#e94560";
+        }
+    }
+
+    // ─── FETCH ──────────────────────────────────────────────────────────────
+    async function fetchStat(statName, token) {
+        try {
+            const server = `${PROXY}/${PLATFORM}`;
+            const url = `${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`;
+            const body = {
+                MaxResultsCount: 100,
+                StartPosition: 0,
+                StatisticName: statName
+            };
+
+            log(`📡 Fetching ${statName}...`, 'info');
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-Authorization": token,
+                    "Content-Type": "application/json",
+                    "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                    "X-ReportErrorAsSuccess": "true",
+                    "Accept": "*/*",
+                    "X-Unity-Version": "2022.3.14f1"
+                },
+                body: JSON.stringify(body)
+            });
+
+            log(`📡 Response status: ${response.status} for ${statName}`, 'info');
+
+            if (!response.ok) {
+                log(`❌ HTTP ${response.status} for ${statName}`, 'error');
+                return null;
+            }
+
+            const data = await response.json();
+
+            if (data.code === 200 && data.data && data.data.Leaderboard) {
+                const count = data.data.Leaderboard.length;
+                log(`✅ ${statName}: ${count} players found`, 'success');
+                return data.data.Leaderboard;
+            } else {
+                log(`⚠️ ${statName}: ${data.errorMessage || 'No data'} (code: ${data.code})`, 'warning');
+                return null;
+            }
+        } catch (e) {
+            log(`❌ ${statName} error: ${e.message}`, 'error');
+            return null;
+        }
+    }
+
+    async function refreshLeaderboard() {
+        if (!userToken) {
+            alert("⚠️ Set your token first!");
+            return;
+        }
+        if (isRefreshing) return;
+        isRefreshing = true;
+
+        const container = document.getElementById("tableContainer");
+        container.innerHTML = '<div class="loading">⏳ Fetching all characters...</div>';
+        log("🔄 Starting leaderboard refresh...", 'info');
+
+        try {
+            const playerMap = {};
+
+            // ─── STEP 1: Cloud Script ──────────────────────────────────────
+            log("📡 Executing Cloud Script...", 'info');
+            const server = `${PROXY}/${PLATFORM}`;
+            const cloudScriptBody = {
+                FunctionName: "refreshLeaderboardPlatform",
+                FunctionParameter: {
+                    currentLevelProgression: {
+                        playerLevel: "56",
+                        classLevel: [
+                            { classId: "Bagman", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
+                            { classId: "Brave", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                            { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                            { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
+                        ]
+                    },
+                    platformName: PLATFORM
+                },
+                GeneratePlayStreamEvent: true,
+                RevisionSelection: null,
+                SpecificRevision: null
+            };
+
+            try {
+                const csResponse = await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
+                    method: "POST",
+                    headers: {
+                        "X-Authorization": userToken,
+                        "Content-Type": "application/json",
+                        "X-PlayFabSDK": "UnitySDK-2.155.221207",
+                        "X-ReportErrorAsSuccess": "true",
+                        "Accept": "*/*",
+                        "X-Unity-Version": "2022.3.14f1"
+                    },
+                    body: JSON.stringify(cloudScriptBody)
+                });
+                const csData = await csResponse.json();
+                log(`✅ Cloud Script: ${csData.code}`, csData.code === 200 ? 'success' : 'error');
+            } catch (e) {
+                log(`⚠️ Cloud Script failed: ${e.message}`, 'warning');
+            }
+
+            // ─── STEP 2: Fetch ALL character stats ─────────────────────────
+            const charKeys = Object.keys(CHARACTER_STATS);
+            let totalEntries = 0;
+
+            for (const key of charKeys) {
+                const statName = CHARACTER_STATS[key];
+                const data = await fetchStat(statName, userToken);
+                if (data) {
+                    data.forEach(entry => {
+                        const playerId = entry.PlayFabId || entry.PlayerId || "";
+                        const displayName = entry.DisplayName || playerId || "Anonymous";
+                        const level = entry.StatValue || 0;
+
+                        if (!playerMap[playerId]) {
+                            playerMap[playerId] = { displayName, chars: {} };
+                        }
+                        if (!playerMap[playerId].chars[key] || level > playerMap[playerId].chars[key]) {
+                            playerMap[playerId].chars[key] = level;
+                        }
+                    });
+                    totalEntries += data.length;
+                    container.innerHTML = `<div class="loading">⏳ Fetching... (${totalEntries} entries found)</div>`;
+                }
+            }
+
+            // ─── STEP 3: Fetch Extra Stats ──────────────────────────────────
+            const extraKeys = Object.keys(EXTRA_STATS);
+            for (const key of extraKeys) {
+                const statName = EXTRA_STATS[key];
+                const data = await fetchStat(statName, userToken);
+                if (data && data.length > 0) {
+                    data.forEach(entry => {
+                        const playerId = entry.PlayFabId || entry.PlayerId || "";
+                        const displayName = entry.DisplayName || playerId || "Anonymous";
+                        const level = entry.StatValue || 0;
+
+                        if (!playerMap[playerId]) {
+                            playerMap[playerId] = { displayName, chars: {} };
+                        }
+                        if (!playerMap[playerId].chars[key] || level > playerMap[playerId].chars[key]) {
+                            playerMap[playerId].chars[key] = level;
+                        }
+                    });
+                }
+            }
+
+            // ─── STEP 4: Build entries ──────────────────────────────────────
+            const highestEntries = [];
+            const allCharEntries = [];
+
+            for (const [playerId, data] of Object.entries(playerMap)) {
+                const chars = data.chars;
+                const displayName = data.displayName;
+
+                let highestChar = null;
+                let highestLevel = 0;
+                for (const [char, level] of Object.entries(chars)) {
+                    if (EXTRA_STATS[char]) continue;
+                    if (level > highestLevel) {
+                        highestLevel = level;
+                        highestChar = char;
+                    }
+                }
+
+                if (highestChar) {
+                    highestEntries.push({
+                        PlayFabId: playerId,
+                        displayName: displayName,
+                        character: highestChar,
+                        characterDisplay: CHARACTER_DISPLAY[highestChar] || highestChar,
+                        StatValue: highestLevel,
+                        isBanned: false,
+                        source: "highest"
+                    });
+                }
+
+                for (const [char, level] of Object.entries(chars)) {
+                    if (level > 0) {
+                        const isBanned = char === "Banned" || char === "RandomExplorer" || char === "RandomNeighbor";
+                        allCharEntries.push({
+                            PlayFabId: playerId,
+                            displayName: isBanned ? (playerId || "Unknown") : displayName,
+                            character: char,
+                            characterDisplay: isBanned ? char : (CHARACTER_DISPLAY[char] || char),
+                            StatValue: level,
+                            isBanned: isBanned,
+                            source: char
+                        });
+                    }
+                }
+            }
+
+            highestEntries.sort((a, b) => b.StatValue - a.StatValue);
+            highestEntries.forEach((e, i) => e.rank = i + 1);
+
+            allEntries = {
+                highest: highestEntries,
+                allChars: allCharEntries,
+                playerMap: playerMap
+            };
+
+            filteredEntries = [...highestEntries];
+
+            log(`✅ Total players: ${highestEntries.length}, Total entries: ${allCharEntries.length}`, 'success');
+
+            saveToCache(allEntries);
+            updateStats();
+            renderTable();
+            updateCacheStatus();
+
+        } catch (e) {
+            log(`❌ Fatal error: ${e.message}`, 'error');
+            container.innerHTML = `<div class="empty-state" style="color:#e94560;">⚠️ Error: ${e.message}</div>`;
+        } finally {
+            isRefreshing = false;
+            document.getElementById('refreshBtn').disabled = false;
+        }
+    }
+
+    // ─── FILTERS ─────────────────────────────────────────────────────────────
+    function setFilter(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('[data-character]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.character === filter);
+        });
+
+        if (filter === "all") {
+            filteredEntries = allEntries.highest || [];
+        } else if (filter === "Banned") {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "Banned");
+        } else if (filter === "RandomExplorer") {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "RandomExplorer");
+        } else if (filter === "RandomNeighbor") {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "RandomNeighbor");
+        } else {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === filter);
+        }
+
+        filteredEntries.sort((a, b) => b.StatValue - a.StatValue);
+        filteredEntries.forEach((e, i) => e.rank = i + 1);
+
+        currentPage = 1;
+        renderTable();
+        log(`📊 Filter: ${filter} — ${filteredEntries.length} entries`, 'info');
+    }
+
+    // ─── RENDER ──────────────────────────────────────────────────────────────
+    function renderTable() {
+        const container = document.getElementById('tableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        if (!filteredEntries || filteredEntries.length === 0) {
+            let msg = '🔍 No players found';
+            let icon = '🔍';
+            if (currentFilter === "Banned") { msg = '🔨 No banned players found'; icon = '✅'; }
+            else if (currentFilter === "RandomExplorer" || currentFilter === "RandomNeighbor") {
+                msg = '🎲 No data for this stat'; icon = '🎲';
+            }
+            container.innerHTML = `<div class="empty-state"><span class="big-icon">${icon}</span>${msg}</div>`;
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        const totalPages = Math.ceil(filteredEntries.length / pageSize);
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(start + pageSize, filteredEntries.length);
+        const pageEntries = filteredEntries.slice(start, end);
+
+        let html = `<table><thead><tr><th>#</th><th>Player</th><th>Character</th><th>Level</th></tr></thead><tbody>`;
+
+        pageEntries.forEach((entry, idx) => {
+            const rank = start + idx + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+            const isBanned = entry.isBanned === true || entry.character === "Banned";
+            const displayName = isBanned ? (entry.PlayFabId || entry.displayName || "Unknown") : entry.displayName;
+            const icon = isBanned ? 'default.png' : (CHARACTER_ICONS[entry.character] || 'default.png');
+            const charDisplay = isBanned ? 'BANNED' : (entry.characterDisplay || entry.character || 'Unknown');
+
+            html += `
+                <tr class="${rankClass}${isBanned ? ' banned-row' : ''}">
+                    <td class="rank-number">#${rank}</td>
+                    <td>
+                        <div class="player-cell">
+                            <img src="images/characters/${icon}" onerror="this.style.display='none'"/>
+                            <span class="player-name">${displayName}</span>
+                            ${isBanned ? '<span class="banned-badge">🔨 BANNED</span>' : ''}
+                        </div>
+                    </td>
+                    <td>${isBanned ? '<span style="color:#e94560;">BANNED</span>' : charDisplay}</td>
+                    <td>${entry.StatValue || 0}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+        if (totalPages > 1) {
+            paginationContainer.style.display = 'flex';
+            let pHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                pHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            paginationContainer.innerHTML = pHtml;
+        } else {
+            paginationContainer.style.display = 'none';
+        }
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderTable();
+    }
+
+    function updateStats() {
+        const total = allEntries.highest ? allEntries.highest.length : 0;
+        const maxLevel = allEntries.highest && allEntries.highest.length > 0 ? allEntries.highest[0].StatValue : 0;
+        document.getElementById('totalPlayers').textContent = total;
+        document.getElementById('topLevel').textContent = maxLevel;
+    }
+
+    // ─── INIT ──────────────────────────────────────────────────────────────
+    function init() {
+        updateTokenStatus();
+        const hasCache = loadFromCache();
+        if (userToken && !hasCache) {
+            log("🔑 Token found, auto-refreshing...", 'info');
+            refreshLeaderboard();
+        } else if (!userToken) {
+            log("📡 Ready. Enter token and click Refresh.", 'info');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
