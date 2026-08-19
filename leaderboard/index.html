@@ -304,7 +304,9 @@
         <div class="tab-group-label">👤 By Role</div>
         <div class="filter-tabs">
             <button class="filter-btn survivor-btn active" data-filter="survivors" onclick="setFilter('survivors')">🧒 Survivors (Best)</button>
+            <button class="filter-btn survivor-btn" data-filter="survivorsAll" onclick="setFilter('survivorsAll')">🧒 Survivors (All)</button>
             <button class="filter-btn neighbor-btn" data-filter="neighbors" onclick="setFilter('neighbors')">🏠 Neighbors (Best)</button>
+            <button class="filter-btn neighbor-btn" data-filter="neighborsAll" onclick="setFilter('neighborsAll')">🏠 Neighbors (All)</button>
         </div>
 
         <div class="tab-group-label">🎭 Characters</div>
@@ -681,10 +683,24 @@
                   }))
                 : [];
 
+            // Survivors All: every char entry, player can appear multiple times
+            const survivorsAll = Object.entries(survivorData)
+                .flatMap(([key, raw]) => buildCharList(raw || [], key))
+                .sort((a, b) => b.bestLevel - a.bestLevel)
+                .map((e, i) => ({ ...e, rank: i + 1 }));
+
+            // Neighbors All: same
+            const neighborsAll = Object.entries(neighborData)
+                .flatMap(([key, raw]) => buildCharList(raw || [], key))
+                .sort((a, b) => b.bestLevel - a.bestLevel)
+                .map((e, i) => ({ ...e, rank: i + 1 }));
+
             allEntries = {
                 accountLevel: accountList,
                 survivors:    survivorsList,
+                survivorsAll: survivorsAll,
                 neighbors:    neighborsList,
+                neighborsAll: neighborsAll,
                 ...charViews,
                 ...extraViews,
                 Banned:       bannedList
@@ -733,7 +749,7 @@
 
         const isExtra  = ["RandomExplorer", "RandomNeighbor"].includes(currentFilter);
         const isBanned = currentFilter === "Banned";
-        const showChar = ["survivors", "neighbors"].includes(currentFilter);
+        const showChar = ["survivors", "survivorsAll", "neighbors", "neighborsAll"].includes(currentFilter);
         const isAccountLevel = currentFilter === "accountLevel";
 
         const totalPages = Math.ceil(filteredEntries.length / pageSize);
