@@ -151,19 +151,6 @@
             font-weight: bold;
         }
         .banned-row td { opacity: 0.7; }
-        .stat-name {
-            font-size: 10px;
-            color: #555;
-            display: block;
-            margin-top: 2px;
-        }
-        .empty-badge {
-            color: #555;
-            font-size: 10px;
-            padding: 2px 8px;
-            border: 1px solid #333;
-            border-radius: 10px;
-        }
 
         .loading {
             padding: 40px;
@@ -293,17 +280,6 @@
             margin: 0 8px;
         }
 
-        .banned-stats-info {
-            font-size: 11px;
-            color: #555;
-            padding: 5px 12px;
-            background: #0a0a1a;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        .banned-stats-info .count { color: #e94560; font-weight: bold; }
-        .banned-stats-info .count.green { color: #2ecc71; }
-
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
             .filters { flex-direction: column; }
@@ -338,51 +314,41 @@
     <div class="controls">
         <div class="token-input-row">
             <input type="password" id="tokenInput" placeholder="Enter X-Authorization token..." />
-            <button class="btn" id="tokenBtn" onclick="setToken()">🔑 Set Token</button>
+            <button class="btn" onclick="setToken()">🔑 Set Token</button>
             <button class="btn btn-secondary" onclick="clearToken()">✕ Clear</button>
         </div>
     </div>
 
     <div class="controls">
         <button class="btn" onclick="refreshLeaderboard()" id="refreshBtn">🔄 Refresh</button>
-        <span class="banned-stats-info" id="bannedStatsInfo">📊 Click a banned tab to test</span>
     </div>
 
     <div class="filters">
         <div class="filter-group">
             <span class="filter-group-label">👤 Character</span>
-            <button class="filter-btn active" data-character="all" onclick="setCharacter('all')">👥 All</button>
-            <button class="filter-btn" data-character="Bagger" onclick="setCharacter('Bagger')">🎒 Bagger</button>
-            <button class="filter-btn" data-character="Brave" onclick="setCharacter('Brave')">🛡️ Brave</button>
-            <button class="filter-btn" data-character="Detective" onclick="setCharacter('Detective')">🔍 Detective</button>
-            <button class="filter-btn" data-character="Inventor" onclick="setCharacter('Inventor')">🔧 Inventor</button>
-            <button class="filter-btn" data-character="Leader" onclick="setCharacter('Leader')">⭐ Leader</button>
-            <button class="filter-btn" data-character="Quentin" onclick="setCharacter('Quentin')">📰 Quentin</button>
-            <button class="filter-btn" data-character="Scout" onclick="setCharacter('Scout')">🔭 Scout</button>
-            <button class="filter-btn" data-character="Neighbor" onclick="setCharacter('Neighbor')">🏠 Neighbor</button>
-            <button class="filter-btn" data-character="Butcher" onclick="setCharacter('Butcher')">🔪 Butcher</button>
-            <button class="filter-btn" data-character="Clown" onclick="setCharacter('Clown')">🤡 Clown</button>
-            <button class="filter-btn" data-character="Ghost" onclick="setCharacter('Ghost')">👻 Ghost</button>
-            <button class="filter-btn" data-character="Guest" onclick="setCharacter('Guest')">🚪 Guest</button>
-            <button class="filter-btn" data-character="Hunter" onclick="setCharacter('Hunter')">🧸 Hunter</button>
+            <button class="filter-btn active" data-character="all" onclick="setFilter('all')">👥 All (Highest)</button>
+            <button class="filter-btn" data-character="Bagger" onclick="setFilter('Bagger')">🎒 Bagger</button>
+            <button class="filter-btn" data-character="Brave" onclick="setFilter('Brave')">🛡️ Brave</button>
+            <button class="filter-btn" data-character="Detective" onclick="setFilter('Detective')">🔍 Detective</button>
+            <button class="filter-btn" data-character="Inventor" onclick="setFilter('Inventor')">🔧 Inventor</button>
+            <button class="filter-btn" data-character="Leader" onclick="setFilter('Leader')">⭐ Leader</button>
+            <button class="filter-btn" data-character="Quentin" onclick="setFilter('Quentin')">📰 Quentin</button>
+            <button class="filter-btn" data-character="Scout" onclick="setFilter('Scout')">🔭 Scout</button>
+            <button class="filter-btn" data-character="Neighbor" onclick="setFilter('Neighbor')">🏠 Neighbor</button>
+            <button class="filter-btn" data-character="Butcher" onclick="setFilter('Butcher')">🔪 Butcher</button>
+            <button class="filter-btn" data-character="Clown" onclick="setFilter('Clown')">🤡 Clown</button>
+            <button class="filter-btn" data-character="Ghost" onclick="setFilter('Ghost')">👻 Ghost</button>
+            <button class="filter-btn" data-character="Guest" onclick="setFilter('Guest')">🚪 Guest</button>
+            <button class="filter-btn" data-character="Hunter" onclick="setFilter('Hunter')">🧸 Hunter</button>
         </div>
 
         <div class="filter-divider"></div>
 
         <div class="filter-group">
-            <span class="filter-group-label">🎲 Random</span>
-            <button class="filter-btn" data-character="RandomExplorer" onclick="setCharacter('RandomExplorer')">🎲 Random Explorer</button>
-            <button class="filter-btn" data-character="RandomNeighbor" onclick="setCharacter('RandomNeighbor')">🎲 Random Neighbor</button>
-        </div>
-
-        <div class="filter-divider"></div>
-
-        <div class="filter-group">
-            <span class="filter-group-label">🔨 Banned</span>
-            <button class="filter-btn banned-btn" data-character="BANNED_ALL" onclick="setCharacter('BANNED_ALL')">🔨 All Banned</button>
-            <button class="filter-btn banned-btn" data-character="BANNED_V1" onclick="setCharacter('BANNED_V1')">v1: BannedSTEAM</button>
-            <button class="filter-btn banned-btn" data-character="BANNED_V2" onclick="setCharacter('BANNED_V2')">v2: BANNEDSTEAM</button>
-            <button class="filter-btn banned-btn" data-character="BANNED_V3" onclick="setCharacter('BANNED_V3')">v3: Banned</button>
+            <span class="filter-group-label">🎲 Extra</span>
+            <button class="filter-btn" data-character="RandomExplorer" onclick="setFilter('RandomExplorer')">🎲 Random Explorer</button>
+            <button class="filter-btn" data-character="RandomNeighbor" onclick="setFilter('RandomNeighbor')">🎲 Random Neighbor</button>
+            <button class="filter-btn banned-btn" data-character="Banned" onclick="setFilter('Banned')">🔨 Banned</button>
         </div>
     </div>
 
@@ -404,13 +370,23 @@
     const TOKEN_KEY = "leaderboard_token";
     const PROXY = "https://sweet-credit-ba20.berenddominik026.workers.dev";
     const PLATFORM = "STEAM";
-    const STAT_NAME = "LeaderBoard_AccountLevelSTEAM";
 
-    // ─── CHARACTER MAPPING ──────────────────────────────────────────────────
-    const CHARACTER_LIST = [
-        "Bagger", "Brave", "Detective", "Inventor", "Leader", "Quentin", "Scout",
-        "Neighbor", "Butcher", "Clown", "Ghost", "Guest", "Hunter"
-    ];
+    // ─── CHARACTER STATS ──────────────────────────────────────────────────
+    const CHARACTER_STATS = {
+        "Bagger": "LeaderBoard_BagmanSTEAM",
+        "Brave": "LeaderBoard_BraveSTEAM",
+        "Detective": "LeaderBoard_DetectiveSTEAM",
+        "Inventor": "LeaderBoard_InventorSTEAM",
+        "Leader": "LeaderBoard_LeaderSTEAM",
+        "Quentin": "LeaderBoard_QuentinSTEAM",
+        "Scout": "LeaderBoard_ScoutSTEAM",
+        "Neighbor": "LeaderBoard_BasicNeighborSTEAM",
+        "Butcher": "LeaderBoard_ButcherNeighborSTEAM",
+        "Clown": "LeaderBoard_ClownNeighborSTEAM",
+        "Ghost": "LeaderBoard_GhostNeighborSTEAM",
+        "Guest": "LeaderBoard_GuestNeighborSTEAM",
+        "Hunter": "LeaderBoard_HunterNeighborSTEAM"
+    };
 
     const CHARACTER_DISPLAY = {
         "Bagger": "Bagger", "Brave": "Brave", "Detective": "Detective",
@@ -426,29 +402,20 @@
         "Clown": "clown.png", "Ghost": "ghost.png", "Guest": "guest.png", "Hunter": "hunter.png"
     };
 
-    // Banned variations to test
-    const BANNED_VARIANTS = [
-        { key: "BANNED_V1", stat: "LeaderBoard_BannedSTEAM", label: "BannedSTEAM" },
-        { key: "BANNED_V2", stat: "LeaderBoard_BANNEDSTEAM", label: "BANNEDSTEAM" },
-        { key: "BANNED_V3", stat: "LeaderBoard_Banned", label: "Banned" }
-    ];
-
-    // Random stats
-    const RANDOM_STATS = [
-        { key: "RandomExplorer", stat: "LeaderBoard_RandomExplorerSTEAM", label: "Random Explorer" },
-        { key: "RandomNeighbor", stat: "LeaderBoard_RandomNeighborSTEAM", label: "Random Neighbor" }
-    ];
+    const EXTRA_STATS = {
+        "RandomExplorer": "LeaderBoard_RandomExplorerSTEAM",
+        "RandomNeighbor": "LeaderBoard_RandomNeighborSTEAM",
+        "Banned": "Banned"
+    };
 
     // ─── STATE ──────────────────────────────────────────────────────────────
     let allEntries = [];
     let filteredEntries = [];
     let currentPage = 1;
     const pageSize = 50;
-    let currentCharacter = "all";
+    let currentFilter = "all";
     let userToken = localStorage.getItem(TOKEN_KEY) || "";
     let isRefreshing = false;
-    let bannedData = {};
-    let randomData = {};
 
     // ─── TOKEN HANDLING ─────────────────────────────────────────────────────
     function setToken() {
@@ -463,7 +430,6 @@
         updateTokenStatus();
         refreshLeaderboard();
         input.value = "";
-        console.log("✅ Token saved!");
     }
 
     function clearToken() {
@@ -471,7 +437,6 @@
         localStorage.removeItem(TOKEN_KEY);
         updateTokenStatus();
         loadFromCache();
-        console.log("🗑️ Token cleared");
     }
 
     function updateTokenStatus() {
@@ -488,16 +453,10 @@
         }
     }
 
-    // ─── CACHE HANDLING ──────────────────────────────────────────────────────
-    function saveToCache(data, character) {
-        const cache = {
-            data: data,
-            character: character,
-            timestamp: Date.now()
-        };
-        try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-        } catch (e) { console.log("⚠️ Cache save failed:", e); }
+    // ─── CACHE ──────────────────────────────────────────────────────────────
+    function saveToCache(data) {
+        const cache = { data: data, timestamp: Date.now() };
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
         updateCacheStatus();
     }
 
@@ -506,55 +465,40 @@
             const raw = localStorage.getItem(CACHE_KEY);
             if (!raw) {
                 document.getElementById("tableContainer").innerHTML = `
-                    <div class="empty-state">📦 No cached data available. Please set a token and refresh.</div>
+                    <div class="empty-state">📦 No cached data. Set a token and refresh.</div>
                 `;
                 return false;
             }
             const cache = JSON.parse(raw);
             allEntries = cache.data;
             filteredEntries = [...allEntries];
-            currentCharacter = cache.character || "all";
             updateStats();
             renderTable();
             updateCacheStatus();
-            updateFiltersUI();
-            console.log("📦 Loaded from cache:", allEntries.length, "players");
             return true;
-        } catch (e) {
-            console.log("⚠️ Cache load failed:", e);
-            return false;
-        }
+        } catch (e) { return false; }
     }
 
     function updateCacheStatus() {
         const status = document.getElementById("cacheStatus");
         try {
             const raw = localStorage.getItem(CACHE_KEY);
-            if (!raw) {
-                status.textContent = "No cache";
-                status.style.color = "#e94560";
-                return;
-            }
+            if (!raw) { status.textContent = "No cache"; status.style.color = "#e94560"; return; }
             const cache = JSON.parse(raw);
             const date = new Date(cache.timestamp);
             const age = Math.floor((Date.now() - cache.timestamp) / 60000);
-            status.textContent = `${date.toLocaleString()} (${age}m ago) — 💾 Permanent cache`;
-            status.style.color = age < 60 ? "#2ecc71" : age < 1440 ? "#f39c12" : "#e94560";
+            status.textContent = `${date.toLocaleString()} (${age}m ago) — 💾 Permanent`;
+            status.style.color = age < 60 ? "#2ecc71" : "#f39c12";
         } catch (e) {
             status.textContent = "Cache error";
             status.style.color = "#e94560";
         }
     }
 
-    // ─── FETCH SPECIFIC STAT ────────────────────────────────────────────────
+    // ─── FETCH ──────────────────────────────────────────────────────────────
     async function fetchStat(server, statName, token) {
         try {
-            const body = {
-                MaxResultsCount: 50,
-                StartPosition: 0,
-                StatisticName: statName
-            };
-
+            const body = { MaxResultsCount: 200, StartPosition: 0, StatisticName: statName };
             const response = await fetch(`${server}/Client/GetLeaderboard?sdk=UnitySDK-2.155.221207`, {
                 method: "POST",
                 headers: {
@@ -567,53 +511,43 @@
                 },
                 body: JSON.stringify(body)
             });
-
             const data = await response.json();
             if (data.code === 200 && data.data && data.data.Leaderboard) {
                 return data.data.Leaderboard;
             }
             return null;
         } catch (e) {
-            console.log(`⚠️ Failed to fetch ${statName}:`, e.message);
+            console.log(`⚠️ Failed ${statName}:`, e.message);
             return null;
         }
     }
 
-    // ─── FETCH LEADERBOARD ──────────────────────────────────────────────────
-    async function fetchLeaderboard() {
-        if (!userToken) {
-            alert("⚠️ Please set your X-Authorization token first!");
-            return null;
-        }
-
-        if (isRefreshing) return null;
+    async function refreshLeaderboard() {
+        if (!userToken) { alert("⚠️ Set your token first!"); return; }
+        if (isRefreshing) return;
         isRefreshing = true;
 
         const container = document.getElementById("tableContainer");
-        container.innerHTML = '<div class="loading">⏳ Fetching leaderboard...</div>';
+        container.innerHTML = '<div class="loading">⏳ Fetching all characters...</div>';
 
         try {
             const server = `${PROXY}/${PLATFORM}`;
-            const allResults = [];
-            const seenPlayers = new Set();
-            bannedData = {};
-            randomData = {};
+            const allData = [];
+            const playerMap = {}; // playerId -> { displayName, chars: {} }
 
-            // ─── STEP 1: Refresh Cloud Script ──────────────────────────────
-            const currentLevelProgression = {
-                playerLevel: "56",
-                classLevel: [
-                    { classId: "Bagman", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
-                    { classId: "Brave", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
-                    { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
-                    { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
-                ]
-            };
-
+            // ─── STEP 1: Cloud Script ──────────────────────────────────────
             const cloudScriptBody = {
                 FunctionName: "refreshLeaderboardPlatform",
                 FunctionParameter: {
-                    currentLevelProgression: currentLevelProgression,
+                    currentLevelProgression: {
+                        playerLevel: "56",
+                        classLevel: [
+                            { classId: "Bagman", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 0 },
+                            { classId: "Brave", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                            { classId: "Steam", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 1 },
+                            { classId: "Team", XP: 0, XpToNextLevel: 300, level: 0, availablePerkSlotsCount: 2 }
+                        ]
+                    },
                     platformName: PLATFORM
                 },
                 GeneratePlayStreamEvent: true,
@@ -621,7 +555,6 @@
                 SpecificRevision: null
             };
 
-            console.log("📡 Executing Cloud Script...");
             await fetch(`${server}/Client/ExecuteCloudScript?sdk=UnitySDK-2.155.221207`, {
                 method: "POST",
                 headers: {
@@ -635,253 +568,178 @@
                 body: JSON.stringify(cloudScriptBody)
             });
 
-            // ─── STEP 2: Fetch Main Leaderboard ────────────────────────────
-            console.log(`📡 Fetching main: ${STAT_NAME}`);
-            const mainData = await fetchStat(server, STAT_NAME, userToken);
-            
-            if (mainData) {
-                mainData.forEach(entry => {
-                    const displayName = entry.DisplayName || "";
-                    const isBanned = !displayName || displayName.trim() === "";
-                    const playerId = entry.PlayFabId || entry.PlayerId || "";
+            // ─── STEP 2: Fetch ALL character stats ─────────────────────────
+            const charKeys = Object.keys(CHARACTER_STATS);
+            let total = 0;
 
-                    if (seenPlayers.has(playerId)) return;
-                    seenPlayers.add(playerId);
+            for (const key of charKeys) {
+                const statName = CHARACTER_STATS[key];
+                console.log(`📡 Fetching ${key}...`);
+                const data = await fetchStat(server, statName, userToken);
+                if (data) {
+                    data.forEach(entry => {
+                        const playerId = entry.PlayFabId || entry.PlayerId || "";
+                        const displayName = entry.DisplayName || playerId || "Anonymous";
+                        const level = entry.StatValue || 0;
 
-                    let character = "Unknown";
-                    for (const charKey of CHARACTER_LIST) {
-                        const display = CHARACTER_DISPLAY[charKey];
-                        if (displayName.includes(charKey) || displayName.includes(display)) {
-                            character = charKey;
-                            break;
+                        if (!playerMap[playerId]) {
+                            playerMap[playerId] = { displayName, chars: {} };
                         }
-                    }
+                        // Store this character's level (keep highest)
+                        if (!playerMap[playerId].chars[key] || level > playerMap[playerId].chars[key]) {
+                            playerMap[playerId].chars[key] = level;
+                        }
+                    });
+                    total += data.length;
+                }
+                container.innerHTML = `<div class="loading">⏳ Fetching... (${total} players found)</div>`;
+            }
 
-                    if (isBanned) {
-                        character = "BANNED";
-                    }
+            // ─── STEP 3: Fetch Extra Stats ──────────────────────────────────
+            const extraKeys = Object.keys(EXTRA_STATS);
+            for (const key of extraKeys) {
+                const statName = EXTRA_STATS[key];
+                console.log(`📡 Fetching ${key}...`);
+                const data = await fetchStat(server, statName, userToken);
+                if (data && data.length > 0) {
+                    data.forEach(entry => {
+                        const playerId = entry.PlayFabId || entry.PlayerId || "";
+                        const displayName = entry.DisplayName || playerId || "Anonymous";
+                        const level = entry.StatValue || 0;
 
-                    allResults.push({
+                        if (!playerMap[playerId]) {
+                            playerMap[playerId] = { displayName, chars: {} };
+                        }
+                        // Store this as a special character
+                        if (!playerMap[playerId].chars[key] || level > playerMap[playerId].chars[key]) {
+                            playerMap[playerId].chars[key] = level;
+                        }
+                    });
+                }
+            }
+
+            // ─── STEP 4: Build entries ──────────────────────────────────────
+            // For "all" view: each player's highest character (one entry per player)
+            const highestEntries = [];
+            // For character views: one entry per character per player
+            const allCharEntries = [];
+
+            for (const [playerId, data] of Object.entries(playerMap)) {
+                const chars = data.chars;
+                const displayName = data.displayName;
+
+                // Find highest character
+                let highestChar = null;
+                let highestLevel = 0;
+                for (const [char, level] of Object.entries(chars)) {
+                    // Skip extra stats for highest calculation
+                    if (EXTRA_STATS[char]) continue;
+                    if (level > highestLevel) {
+                        highestLevel = level;
+                        highestChar = char;
+                    }
+                }
+
+                if (highestChar) {
+                    highestEntries.push({
                         PlayFabId: playerId,
-                        PlayerId: playerId,
-                        displayName: isBanned ? (playerId || "Banned Player") : displayName,
-                        character: character,
-                        characterDisplay: character === "BANNED" ? "BANNED" : (CHARACTER_DISPLAY[character] || character),
-                        platform: PLATFORM,
-                        StatValue: entry.StatValue || 0,
-                        isBanned: isBanned,
-                        Position: entry.Position || 0,
-                        source: "main"
-                    });
-                });
-            }
-
-            console.log(`✅ Main: ${allResults.length} players`);
-
-            // ─── STEP 3: Fetch Random Stats ─────────────────────────────────
-            for (const random of RANDOM_STATS) {
-                console.log(`📡 Fetching random: ${random.stat}`);
-                const data = await fetchStat(server, random.stat, userToken);
-                const results = [];
-                
-                if (data && data.length > 0) {
-                    data.forEach(entry => {
-                        const playerId = entry.PlayFabId || entry.PlayerId || "";
-                        if (!seenPlayers.has(playerId)) {
-                            seenPlayers.add(playerId);
-                            results.push({
-                                PlayFabId: playerId,
-                                PlayerId: playerId,
-                                displayName: entry.DisplayName || playerId || "Anonymous",
-                                character: random.key,
-                                characterDisplay: random.label,
-                                platform: PLATFORM,
-                                StatValue: entry.StatValue || 0,
-                                isBanned: false,
-                                Position: entry.Position || 0,
-                                source: random.key
-                            });
-                        }
+                        displayName: displayName,
+                        character: highestChar,
+                        characterDisplay: CHARACTER_DISPLAY[highestChar] || highestChar,
+                        StatValue: highestLevel,
+                        isBanned: false,
+                        source: "highest"
                     });
                 }
-                randomData[random.key] = results;
-                allResults.push(...results);
-                console.log(`✅ ${random.stat}: ${results.length} players`);
-            }
 
-            // ─── STEP 4: Fetch Banned Variants ──────────────────────────────
-            for (const variant of BANNED_VARIANTS) {
-                console.log(`📡 Fetching banned: ${variant.stat}`);
-                const data = await fetchStat(server, variant.stat, userToken);
-                const results = [];
-                
-                if (data && data.length > 0) {
-                    data.forEach(entry => {
-                        const playerId = entry.PlayFabId || entry.PlayerId || "";
-                        if (!seenPlayers.has(playerId)) {
-                            seenPlayers.add(playerId);
-                            results.push({
-                                PlayFabId: playerId,
-                                PlayerId: playerId,
-                                displayName: playerId || "Banned Player",
-                                character: variant.key,
-                                characterDisplay: `BANNED (${variant.label})`,
-                                platform: PLATFORM,
-                                StatValue: entry.StatValue || 0,
-                                isBanned: true,
-                                Position: entry.Position || 0,
-                                source: variant.key,
-                                statName: variant.stat
-                            });
-                        }
-                    });
+                // Also add all character entries for filtering
+                for (const [char, level] of Object.entries(chars)) {
+                    if (level > 0) {
+                        // Check if this is a banned entry
+                        const isBanned = char === "Banned" || char === "RandomExplorer" || char === "RandomNeighbor";
+                        allCharEntries.push({
+                            PlayFabId: playerId,
+                            displayName: isBanned ? (playerId || "Unknown") : displayName,
+                            character: char,
+                            characterDisplay: isBanned ? char : (CHARACTER_DISPLAY[char] || char),
+                            StatValue: level,
+                            isBanned: isBanned,
+                            source: char,
+                            rawDisplayName: displayName
+                        });
+                    }
                 }
-                bannedData[variant.key] = results;
-                allResults.push(...results);
-                console.log(`✅ ${variant.stat}: ${results.length} players`);
             }
 
-            // ─── Log summary ─────────────────────────────────────────────────
-            console.log("📊 Summary:");
-            for (const variant of BANNED_VARIANTS) {
-                const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
-                console.log(`   ${variant.label}: ${count} players`);
-            }
-            for (const random of RANDOM_STATS) {
-                const count = randomData[random.key] ? randomData[random.key].length : 0;
-                console.log(`   ${random.label}: ${count} players`);
-            }
-            console.log(`✅ Total: ${allResults.length} players`);
+            // Sort highest entries by level (descending)
+            highestEntries.sort((a, b) => b.StatValue - a.StatValue);
+            highestEntries.forEach((e, i) => e.rank = i + 1);
 
-            // ─── SORT BY LEVEL (highest first) ─────────────────────────────
-            allResults.sort((a, b) => (b.StatValue || 0) - (a.StatValue || 0));
+            // Store both datasets
+            allEntries = {
+                highest: highestEntries,
+                allChars: allCharEntries,
+                playerMap: playerMap
+            };
 
-            // Add rank
-            allResults.forEach((entry, idx) => {
-                entry.rank = idx + 1;
-            });
+            // Default view: highest
+            filteredEntries = [...highestEntries];
 
-            saveToCache(allResults, currentCharacter);
-            allEntries = allResults;
-            filteredEntries = [...allResults];
+            console.log(`✅ Total players: ${highestEntries.length}, Total entries: ${allCharEntries.length}`);
+
+            saveToCache(allEntries);
             updateStats();
             renderTable();
             updateCacheStatus();
-            updateBannedInfo();
-            return allResults;
 
         } catch (e) {
-            container.innerHTML = `
-                <div class="empty-state" style="color:#e94560;">
-                    ⚠️ Network error: ${e.message}<br>
-                    <span style="font-size:12px;color:#555;">Check your connection and try again</span>
-                </div>
-            `;
-            return null;
+            container.innerHTML = `<div class="empty-state" style="color:#e94560;">⚠️ Error: ${e.message}</div>`;
         } finally {
             isRefreshing = false;
         }
     }
 
-    function updateBannedInfo() {
-        const info = document.getElementById("bannedStatsInfo");
-        let parts = [];
-        
-        for (const variant of BANNED_VARIANTS) {
-            const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
-            parts.push(`${variant.label}: ${count > 0 ? '✅ ' + count : '❌ 0'}`);
-        }
-        for (const random of RANDOM_STATS) {
-            const count = randomData[random.key] ? randomData[random.key].length : 0;
-            parts.push(`${random.label}: ${count > 0 ? '✅ ' + count : '❌ 0'}`);
-        }
-        info.textContent = `📊 ${parts.join(' | ')}`;
-        
-        // Update button styles
-        for (const variant of BANNED_VARIANTS) {
-            const btn = document.querySelector(`[data-character="${variant.key}"]`);
-            const count = bannedData[variant.key] ? bannedData[variant.key].length : 0;
-            if (btn) {
-                btn.classList.remove('has-data', 'no-data');
-                btn.classList.add(count > 0 ? 'has-data' : 'no-data');
-            }
-        }
-        for (const random of RANDOM_STATS) {
-            const btn = document.querySelector(`[data-character="${random.key}"]`);
-            const count = randomData[random.key] ? randomData[random.key].length : 0;
-            if (btn) {
-                btn.classList.remove('has-data', 'no-data');
-                btn.classList.add(count > 0 ? 'has-data' : 'no-data');
-            }
-        }
-    }
-
-    async function refreshLeaderboard() {
-        const btn = document.getElementById("refreshBtn");
-        btn.disabled = true;
-        btn.textContent = "⏳ Loading...";
-        await fetchLeaderboard();
-        btn.disabled = false;
-        btn.textContent = "🔄 Refresh";
-    }
-
     // ─── FILTERS ─────────────────────────────────────────────────────────────
-    function setCharacter(character) {
-        currentCharacter = character;
+    function setFilter(filter) {
+        currentFilter = filter;
         document.querySelectorAll('[data-character]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.character === character);
+            btn.classList.toggle('active', btn.dataset.character === filter);
         });
-        filterTable();
-    }
 
-    function updateFiltersUI() {
-        document.querySelectorAll('[data-character]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.character === currentCharacter);
-        });
-    }
-
-    // ─── TABLE RENDER ──────────────────────────────────────────────────────
-    function filterTable() {
-        const charFilter = currentCharacter;
-
-        if (charFilter === "all") {
-            filteredEntries = [...allEntries];
-        } else if (charFilter === "BANNED_ALL") {
-            filteredEntries = allEntries.filter(e => e.isBanned === true);
-        } else if (charFilter.startsWith("BANNED_V")) {
-            filteredEntries = allEntries.filter(e => e.source === charFilter);
-        } else if (charFilter === "RandomExplorer" || charFilter === "RandomNeighbor") {
-            filteredEntries = allEntries.filter(e => e.source === charFilter);
+        if (filter === "all") {
+            filteredEntries = allEntries.highest || [];
+        } else if (filter === "Banned") {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "Banned");
+        } else if (filter === "RandomExplorer") {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "RandomExplorer");
+        } else if (filter === "RandomNeighbor") {
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === "RandomNeighbor");
         } else {
-            filteredEntries = allEntries.filter(e => e.character === charFilter);
+            // Normal character filter
+            filteredEntries = (allEntries.allChars || []).filter(e => e.character === filter);
         }
+
+        // Sort by level
+        filteredEntries.sort((a, b) => b.StatValue - a.StatValue);
+        filteredEntries.forEach((e, i) => e.rank = i + 1);
+
         currentPage = 1;
         renderTable();
     }
 
+    // ─── RENDER ──────────────────────────────────────────────────────────────
     function renderTable() {
         const container = document.getElementById('tableContainer');
         const paginationContainer = document.getElementById('paginationContainer');
 
         if (!filteredEntries || filteredEntries.length === 0) {
-            let message = '🔍 No players found matching your filters';
+            let msg = '🔍 No players found';
             let icon = '🔍';
-            if (currentCharacter === "RandomExplorer" || currentCharacter === "RandomNeighbor") {
-                message = '🎲 This stat has no data. It might not exist in the game.';
-                icon = '🎲';
-            } else if (currentCharacter.startsWith("BANNED_V")) {
-                message = '🔨 This banned stat has no data. Try another variant.';
-                icon = '🔨';
-            } else if (currentCharacter === "BANNED_ALL") {
-                message = '🔨 No banned players found.';
-                icon = '✅';
+            if (currentFilter === "Banned") { msg = '🔨 No banned players found'; icon = '✅'; }
+            else if (currentFilter === "RandomExplorer" || currentFilter === "RandomNeighbor") {
+                msg = '🎲 No data for this stat'; icon = '🎲';
             }
-            container.innerHTML = `
-                <div class="empty-state">
-                    <span class="big-icon">${icon}</span>
-                    ${message}
-                </div>
-            `;
+            container.innerHTML = `<div class="empty-state"><span class="big-icon">${icon}</span>${msg}</div>`;
             paginationContainer.style.display = 'none';
             return;
         }
@@ -891,18 +749,76 @@
         const end = Math.min(start + pageSize, filteredEntries.length);
         const pageEntries = filteredEntries.slice(start, end);
 
-        let html = `<table>
-            <thead><tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>Character</th>
-                <th>Level</th>
-            </tr></thead><tbody>`;
+        let html = `<table><thead><tr><th>#</th><th>Player</th><th>Character</th><th>Level</th></tr></thead><tbody>`;
 
         pageEntries.forEach((entry, idx) => {
             const rank = start + idx + 1;
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
-            const level = entry.StatValue || 0;
-            const isBanned = entry.isBanned === true;
+            const isBanned = entry.isBanned === true || entry.character === "Banned";
+            const displayName = isBanned ? (entry.PlayFabId || entry.displayName || "Unknown") : entry.displayName;
             const icon = isBanned ? 'default.png' : (CHARACTER_ICONS[entry.character] || 'default.png');
-           
+            const charDisplay = isBanned ? 'BANNED' : (entry.characterDisplay || entry.character || 'Unknown');
+
+            html += `
+                <tr class="${rankClass}${isBanned ? ' banned-row' : ''}">
+                    <td class="rank-number">#${rank}</td>
+                    <td>
+                        <div class="player-cell">
+                            <img src="images/characters/${icon}" onerror="this.style.display='none'"/>
+                            <span class="player-name">${displayName}</span>
+                            ${isBanned ? '<span class="banned-badge">🔨 BANNED</span>' : ''}
+                        </div>
+                    </td>
+                    <td>${isBanned ? '<span style="color:#e94560;">BANNED</span>' : charDisplay}</td>
+                    <td>${entry.StatValue || 0}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+        if (totalPages > 1) {
+            paginationContainer.style.display = 'flex';
+            let pHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                pHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            paginationContainer.innerHTML = pHtml;
+        } else {
+            paginationContainer.style.display = 'none';
+        }
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderTable();
+    }
+
+    function updateStats() {
+        const total = allEntries.highest ? allEntries.highest.length : 0;
+        const maxLevel = allEntries.highest && allEntries.highest.length > 0 ? allEntries.highest[0].StatValue : 0;
+        document.getElementById('totalPlayers').textContent = total;
+        document.getElementById('topLevel').textContent = maxLevel;
+    }
+
+    // ─── INIT ──────────────────────────────────────────────────────────────
+    function init() {
+        updateTokenStatus();
+        const hasCache = loadFromCache();
+        if (userToken && !hasCache) {
+            refreshLeaderboard();
+        }
+        // Auto-refresh every 5 min
+        setInterval(() => { if (userToken && !isRefreshing) refreshLeaderboard(); }, 300000);
+    }
+
+    // Enter key
+    document.getElementById('tokenInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') setToken();
+    });
+
+    init();
+</script>
+</body>
+</html>
