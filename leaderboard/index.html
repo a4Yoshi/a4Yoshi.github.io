@@ -828,4 +828,14 @@
         updateTokenStatus();
         const hasCache = loadFromCache();
         if (userToken && !hasCache) {
-            log
+            log("🔑 Token found, auto-refreshing...", 'info');
+            refreshLeaderboard();
+        } else if (!userToken) {
+            log("📡 Ready. Enter token and click Refresh.", 'info');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
