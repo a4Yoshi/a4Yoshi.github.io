@@ -6,7 +6,6 @@
 <title>Coin Farm Bot</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     background: #0d0d0f;
     color: #e8e8e6;
@@ -17,206 +16,96 @@
     align-items: center;
     padding: 2rem 1rem;
   }
-
-  .container {
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  h1 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #e8e8e6;
-    letter-spacing: -0.02em;
-  }
-
+  .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 1.25rem; }
+  h1 { font-size: 1.4rem; font-weight: 600; color: #e8e8e6; letter-spacing: -0.02em; }
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 99px;
-    background: #1e1e22;
-    color: #888;
-    border: 0.5px solid #2a2a2e;
-    margin-bottom: 0.25rem;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 99px;
+    background: #1e1e22; color: #888; border: 0.5px solid #2a2a2e; margin-bottom: 0.25rem;
   }
-
   .badge.active { background: #0f2a1a; color: #4ade80; border-color: #166534; }
   .badge.active::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; }
   .badge.idle::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #888; display: inline-block; }
-
   .card {
-    background: #141416;
-    border: 0.5px solid #242428;
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    background: #141416; border: 0.5px solid #242428; border-radius: 14px;
+    padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;
   }
-
-  .card-title {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: #666;
+  .card-title { font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #666; }
+  label { font-size: 13px; color: #aaa; margin-bottom: 4px; display: block; }
+  input[type="text"], input[type="password"], select {
+    width: 100%; background: #0d0d0f; border: 0.5px solid #2a2a2e; border-radius: 8px;
+    color: #e8e8e6; font-size: 13px; padding: 9px 12px;
+    font-family: 'Courier New', monospace; outline: none; transition: border-color 0.15s;
   }
-
-  label {
-    font-size: 13px;
-    color: #aaa;
-    margin-bottom: 4px;
-    display: block;
-  }
-
-  input[type="text"], input[type="password"], select, textarea {
-    width: 100%;
-    background: #0d0d0f;
-    border: 0.5px solid #2a2a2e;
-    border-radius: 8px;
-    color: #e8e8e6;
-    font-size: 13px;
-    padding: 9px 12px;
-    font-family: 'Courier New', monospace;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
-    border-color: #4ade80;
-  }
-
+  input[type="text"]:focus, input[type="password"]:focus, select:focus { border-color: #4ade80; }
   select option { background: #141416; }
-
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-
   .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 20px;
-    border-radius: 9px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 20px; border-radius: 9px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.15s; width: 100%;
   }
-
-  .btn-start {
-    background: #166534;
-    color: #4ade80;
-    border: 0.5px solid #166534;
-  }
+  .btn-start { background: #166534; color: #4ade80; border: 0.5px solid #166534; }
   .btn-start:hover { background: #15803d; }
-
-  .btn-stop {
-    background: #3b0a0a;
-    color: #f87171;
-    border: 0.5px solid #7f1d1d;
-  }
+  .btn-stop { background: #3b0a0a; color: #f87171; border: 0.5px solid #7f1d1d; }
   .btn-stop:hover { background: #7f1d1d; }
-
-  .btn-disabled {
-    background: #1a1a1e;
-    color: #555;
-    border: 0.5px solid #2a2a2e;
-    cursor: not-allowed;
-  }
-
   .log-box {
-    background: #0a0a0c;
-    border: 0.5px solid #1e1e22;
-    border-radius: 10px;
-    padding: 1rem;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    line-height: 1.6;
-    color: #888;
-    height: 280px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
+    background: #0a0a0c; border: 0.5px solid #1e1e22; border-radius: 10px;
+    padding: 1rem; font-family: 'Courier New', monospace; font-size: 12px;
+    line-height: 1.6; color: #888; height: 280px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-all;
   }
-
   .log-box .ok { color: #4ade80; }
   .log-box .err { color: #f87171; }
   .log-box .info { color: #60a5fa; }
   .log-box .skip { color: #facc15; }
-
-  .stat-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  .stat {
-    background: #0d0d0f;
-    border: 0.5px solid #1e1e22;
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-  }
-
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { background: #0d0d0f; border: 0.5px solid #1e1e22; border-radius: 10px; padding: 12px; text-align: center; }
   .stat .val { font-size: 22px; font-weight: 700; color: #e8e8e6; }
   .stat .lbl { font-size: 11px; color: #555; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
-
   .stat.green .val { color: #4ade80; }
   .stat.red .val { color: #f87171; }
   .stat.blue .val { color: #60a5fa; }
-
-  .toggle-eye {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #555;
-    font-size: 13px;
-    user-select: none;
-  }
-
+  .toggle-eye { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555; font-size: 13px; user-select: none; }
   .input-wrap { position: relative; }
-
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 4px; }
-
-  .row-action { display: flex; gap: 10px; align-items: flex-end; }
-  .row-action > .btn { flex: 1; }
-
-  .divider { border: none; border-top: 0.5px solid #1e1e22; }
-
-  .clear-btn {
-    font-size: 11px;
-    color: #555;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    font-family: inherit;
-  }
+  .clear-btn { font-size: 11px; color: #555; cursor: pointer; background: none; border: none; padding: 0; text-decoration: underline; text-underline-offset: 2px; font-family: inherit; }
   .clear-btn:hover { color: #888; }
-
   .log-header { display: flex; justify-content: space-between; align-items: center; }
+
+  /* warning banner */
+  .warn-banner {
+    display: none; align-items: center; gap: 8px;
+    background: #2a1a00; border: 0.5px solid #854d0e; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; color: #fbbf24; font-weight: 500; margin-top: 6px;
+  }
+  .warn-banner.show { display: flex; }
+
+  /* inventory */
+  .inv-header { display: flex; justify-content: space-between; align-items: center; }
+  .reload-btn {
+    font-size: 11px; color: #60a5fa; cursor: pointer; background: none;
+    border: 0.5px solid #1e3a5f; border-radius: 6px; padding: 4px 10px;
+    font-family: inherit; font-weight: 600; transition: background 0.15s;
+  }
+  .reload-btn:hover { background: #0f2040; }
+  .reload-btn:disabled { color: #555; border-color: #2a2a2e; cursor: not-allowed; }
+  .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+  .inv-item {
+    background: #0d0d0f; border: 0.5px solid #1e1e22; border-radius: 10px;
+    padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .inv-item .inv-name { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inv-item .inv-amount { font-size: 20px; font-weight: 700; color: #facc15; }
+  .inv-empty { font-size: 12px; color: #555; font-style: italic; }
+  .inv-loading { font-size: 12px; color: #60a5fa; }
 </style>
 </head>
 <body>
-
 <div class="container">
 
   <div>
@@ -224,7 +113,7 @@
     <h1>Coin Farm Bot</h1>
   </div>
 
-  <!-- AUTH CARD -->
+  <!-- AUTH -->
   <div class="card">
     <div class="card-title">Authentication</div>
     <div>
@@ -241,10 +130,19 @@
     <div>
       <label>Player ID <span style="color:#555;font-size:11px;">(auto-resolved from token)</span></label>
       <div style="display:flex;gap:8px;align-items:center;">
-        <input type="text" id="resolvedPlayerId" placeholder="Paste token then click Resolve →" readonly style="flex:1;color:#4ade80;" />
+        <input type="text" id="resolvedPlayerId" placeholder="Paste token then click Resolve" readonly style="flex:1;color:#4ade80;" />
         <button onclick="fetchPlayerId()" style="white-space:nowrap;padding:9px 14px;background:#1a2a1a;border:0.5px solid #166534;color:#4ade80;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Courier New',monospace;">Resolve</button>
       </div>
     </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div class="card">
+    <div class="inv-header">
+      <div class="card-title">💰 Wallet / Inventory</div>
+      <button class="reload-btn" id="reloadInvBtn" onclick="fetchInventory()">⟳ Reload</button>
+    </div>
+    <div id="invContent" class="inv-empty">Resolve your token first, then click Reload.</div>
   </div>
 
   <!-- MATCH CONFIG -->
@@ -253,11 +151,11 @@
     <div class="grid2">
       <div>
         <label>Room type</label>
-        <input type="text" id="roomType" value="Normal" />
+        <input type="text" id="roomType" value="Normal" placeholder="Normal" />
       </div>
       <div>
         <label>Cycle interval</label>
-        <select id="delaySelect">
+        <select id="delaySelect" onchange="checkIntervalWarn()">
           <option value="1">1 minute</option>
           <option value="3">3 minutes</option>
           <option value="5" selected>5 minutes</option>
@@ -265,6 +163,9 @@
           <option value="15">15 minutes</option>
           <option value="30">30 minutes</option>
         </select>
+        <div class="warn-banner" id="warnBanner">
+          ⚠️ Short intervals may trigger rate limits or bans — use with caution
+        </div>
       </div>
     </div>
     <div>
@@ -291,16 +192,16 @@
   <button class="btn btn-start" id="mainBtn" onclick="toggleBot()">▶ Start bot</button>
 
   <!-- LOG -->
-  <div class="card" style="gap: 0.75rem;">
+  <div class="card" style="gap:0.75rem;">
     <div class="log-header">
       <div class="card-title">Live log</div>
       <button class="clear-btn" onclick="clearLog()">clear</button>
     </div>
-    <div class="log-box" id="logBox">Waiting to start...\n</div>
+    <div class="log-box" id="logBox">Waiting to start...
+</div>
   </div>
 
 </div>
-
 <script>
 let running = false;
 let intervalId = null;
@@ -310,6 +211,7 @@ let totalCalls = 0;
 
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('titleId').value = 'bdff1';
+  document.getElementById('roomType').value = 'Normal';
 });
 
 function toggleAuth() {
@@ -317,17 +219,20 @@ function toggleAuth() {
   el.type = el.type === 'password' ? 'text' : 'password';
 }
 
+function checkIntervalWarn() {
+  const val = parseInt(document.getElementById('delaySelect').value);
+  const banner = document.getElementById('warnBanner');
+  if (val === 1 || val === 3) banner.classList.add('show');
+  else banner.classList.remove('show');
+}
+
 async function fetchPlayerId() {
   const token = document.getElementById('authToken').value.trim();
   const titleId = document.getElementById('titleId').value.trim();
   const outEl = document.getElementById('resolvedPlayerId');
-
   if (!token) { outEl.value = 'Paste your X-Authorization token first'; outEl.style.color='#f87171'; return; }
   if (!titleId) { outEl.value = 'Title ID missing'; outEl.style.color='#f87171'; return; }
-
-  outEl.value = 'Resolving...';
-  outEl.style.color = '#facc15';
-
+  outEl.value = 'Resolving...'; outEl.style.color = '#facc15';
   try {
     const res = await fetch(`https://${titleId}.playfabapi.com/Client/GetAccountInfo`, {
       method: 'POST',
@@ -338,13 +243,63 @@ async function fetchPlayerId() {
     if (data.code >= 400) throw new Error(data.errorMessage || data.errorCode || 'Auth error');
     const pid = data?.data?.AccountInfo?.PlayFabId;
     if (!pid) throw new Error('PlayFabId not found in response');
-    outEl.value = pid;
-    outEl.style.color = '#4ade80';
+    outEl.value = pid; outEl.style.color = '#4ade80';
     log(`  ✓ Player ID resolved: ${pid}`, 'ok');
   } catch(e) {
-    outEl.value = 'Error: ' + e.message;
-    outEl.style.color = '#f87171';
+    outEl.value = 'Error: ' + e.message; outEl.style.color = '#f87171';
     log(`  ✗ fetchPlayerId: ${e.message}`, 'err');
+  }
+}
+
+async function fetchInventory() {
+  const token = document.getElementById('authToken').value.trim();
+  const titleId = document.getElementById('titleId').value.trim();
+  const container = document.getElementById('invContent');
+  const btn = document.getElementById('reloadInvBtn');
+
+  if (!token || !titleId) {
+    container.className = 'inv-empty';
+    container.innerHTML = 'Resolve your token first, then click Reload.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+  container.className = 'inv-loading';
+  container.innerHTML = 'Fetching wallet...';
+
+  try {
+    const res = await fetch(`https://${titleId}.playfabapi.com/Client/GetUserInventory`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Authorization': token },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if (data.code >= 400) throw new Error(data.errorMessage || data.errorCode || 'API error');
+
+    const currencies = data?.data?.VirtualCurrency || {};
+    const keys = Object.keys(currencies);
+
+    if (keys.length === 0) {
+      container.className = 'inv-empty';
+      container.innerHTML = 'No virtual currency found in this account.';
+    } else {
+      container.className = 'inv-grid';
+      container.innerHTML = keys.map(k => `
+        <div class="inv-item">
+          <div class="inv-name">${k}</div>
+          <div class="inv-amount">${currencies[k].toLocaleString()}</div>
+        </div>
+      `).join('');
+    }
+    log(`  ✓ Inventory loaded — ${keys.length} currency type(s)`, 'ok');
+  } catch(e) {
+    container.className = 'inv-empty';
+    container.innerHTML = 'Error: ' + e.message;
+    log(`  ✗ fetchInventory: ${e.message}`, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⟳ Reload';
   }
 }
 
@@ -357,9 +312,7 @@ function log(msg, cls) {
   box.scrollTop = box.scrollHeight;
 }
 
-function clearLog() {
-  document.getElementById('logBox').innerHTML = '';
-}
+function clearLog() { document.getElementById('logBox').innerHTML = ''; }
 
 function setStats() {
   document.getElementById('statOk').textContent = cyclesOk;
@@ -378,10 +331,7 @@ async function apiCall(titleId, token, endpoint, body) {
   setStats();
   const res = await fetch(`https://${titleId}.playfabapi.com/${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Authorization': token
-    },
+    headers: { 'Content-Type': 'application/json', 'X-Authorization': token },
     body: JSON.stringify(body)
   });
   const data = await res.json();
@@ -394,13 +344,11 @@ async function runCycle() {
   const titleId = document.getElementById('titleId').value.trim();
   const roomType = document.getElementById('roomType').value.trim() || 'Normal';
   const playerIds = ['p1','p2','p3','p4','p5','p6']
-    .map(id => document.getElementById(id).value.trim())
-    .filter(Boolean);
+    .map(id => document.getElementById(id).value.trim()).filter(Boolean);
 
   if (!token || !titleId) {
     log('[!] Missing auth token or title ID — bot stopped.', 'err');
-    stopBot();
-    return;
+    stopBot(); return;
   }
 
   const ts = new Date().toLocaleTimeString();
@@ -417,10 +365,7 @@ async function runCycle() {
     });
     matchId = d?.data?.FunctionResult?.currentMatchId ?? null;
     log(`  ✓ startNewMatch${matchId ? ' → matchId: ' + matchId : ''}`, 'ok');
-  } catch(e) {
-    log(`  ✗ startNewMatch: ${e.message}`, 'err');
-    cycleOk = false;
-  }
+  } catch(e) { log(`  ✗ startNewMatch: ${e.message}`, 'err'); cycleOk = false; }
 
   try {
     await apiCall(titleId, token, 'Client/ExecuteCloudScript', {
@@ -429,10 +374,7 @@ async function runCycle() {
       GeneratePlayStreamEvent: true
     });
     log(`  ✓ decideSpecialRole`, 'ok');
-  } catch(e) {
-    log(`  ✗ decideSpecialRole: ${e.message}`, 'err');
-    cycleOk = false;
-  }
+  } catch(e) { log(`  ✗ decideSpecialRole: ${e.message}`, 'err'); cycleOk = false; }
 
   if (matchId) {
     try {
@@ -442,10 +384,7 @@ async function runCycle() {
         GeneratePlayStreamEvent: true
       });
       log(`  ✓ xpConsumed`, 'ok');
-    } catch(e) {
-      log(`  ✗ xpConsumed: ${e.message}`, 'err');
-      cycleOk = false;
-    }
+    } catch(e) { log(`  ✗ xpConsumed: ${e.message}`, 'err'); cycleOk = false; }
   } else {
     log(`  ⏩ xpConsumed skipped (no matchId)`, 'skip');
   }
@@ -457,17 +396,11 @@ async function runCycle() {
       GeneratePlayStreamEvent: true
     });
     log(`  ✓ finishMatch`, 'ok');
-    if (d?.data?.Logs?.length) {
-      d.data.Logs.forEach(l => log(`    → ${l.Message}`, 'info'));
-    }
-  } catch(e) {
-    log(`  ✗ finishMatch: ${e.message}`, 'err');
-    cycleOk = false;
-  }
+    if (d?.data?.Logs?.length) d.data.Logs.forEach(l => log(`    → ${l.Message}`, 'info'));
+  } catch(e) { log(`  ✗ finishMatch: ${e.message}`, 'err'); cycleOk = false; }
 
-  if (cycleOk) cyclesOk++; else cyclesErr++;
+  if (cycleOk) { cyclesOk++; fetchInventory(); } else cyclesErr++;
   setStats();
-
   const delay = parseInt(document.getElementById('delaySelect').value);
   log(`  ↻ next cycle in ${delay} min`, 'info');
 }
