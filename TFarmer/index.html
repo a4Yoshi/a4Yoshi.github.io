@@ -24,7 +24,7 @@
       border-radius: 12px;
       padding: 32px;
       width: 100%;
-      max-width: 620px;
+      max-width: 640px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
@@ -41,98 +41,110 @@
       margin-bottom: 24px;
     }
 
-    /* ── requirement boxes ── */
-    .req-section { margin-bottom: 20px; }
-
-    .req-title {
-      font-size: 0.7rem;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 8px;
-    }
-
-    .req-box {
+    /* ── sections ── */
+    .section {
       background: #0f0f18;
       border: 1px solid #2a2a3a;
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 16px;
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
     }
 
-    .req-row {
+    .section-title {
+      font-size: 0.68rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 2px;
+    }
+
+    .field {
       display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
       align-items: center;
-      gap: 10px;
     }
 
-    .req-label {
-      font-size: 0.72rem;
-      color: #777;
-      width: 120px;
-      flex-shrink: 0;
-    }
-
-    .req-value {
-      font-family: monospace;
-      font-size: 0.8rem;
-      color: #c4b5fd;
-      background: #1a1a2e;
-      padding: 4px 10px;
-      border-radius: 4px;
+    input {
+      background: #13131e;
       border: 1px solid #2a2a3a;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      border-radius: 6px;
+      color: #c4b5fd;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      font-family: monospace;
+      transition: border-color 0.2s;
+      outline: none;
+      width: 100%;
     }
 
+    input:focus  { border-color: #7c3aed; }
+    input::placeholder { color: #2a2a3a; }
+
+    .hint {
+      font-size: 0.67rem;
+      color: #444;
+      margin-top: 2px;
+    }
+
+    /* pill badges */
     .badge {
-      font-size: 0.65rem;
-      padding: 2px 7px;
+      font-size: 0.62rem;
+      padding: 3px 8px;
       border-radius: 20px;
-      font-weight: 600;
+      font-weight: 700;
+      white-space: nowrap;
       flex-shrink: 0;
     }
+    .badge.required   { background: #3b0f0f; color: #f87171; }
+    .badge.hardcoded  { background: #1e1b4b; color: #818cf8; }
 
-    .badge.hardcoded { background: #1e1b4b; color: #818cf8; }
-    .badge.missing   { background: #3b0f0f; color: #f87171; }
-
-    /* ── why it fails box ── */
+    /* ── warn box ── */
     .warn-box {
       background: #1c0f0f;
       border: 1px solid #7f1d1d;
       border-radius: 8px;
       padding: 14px 16px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .warn-title {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: #f87171;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       margin-bottom: 8px;
     }
 
     .warn-item {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #fca5a5;
-      line-height: 1.7;
+      line-height: 1.75;
       padding-left: 10px;
       border-left: 2px solid #7f1d1d;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
-
     .warn-item:last-child { margin-bottom: 0; }
-
     .warn-item code {
       background: #2a0f0f;
       padding: 1px 5px;
       border-radius: 3px;
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       color: #fbbf24;
     }
 
@@ -149,17 +161,18 @@
       cursor: pointer;
       letter-spacing: 0.04em;
       margin-bottom: 16px;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s, transform 0.1s;
     }
-
-    .btn:hover { opacity: 0.85; }
+    .btn:hover  { opacity: 0.85; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
     /* ── output ── */
     .output-label {
-      font-size: 0.7rem;
-      color: #555;
+      font-size: 0.68rem;
+      color: #444;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       margin-bottom: 6px;
     }
 
@@ -187,88 +200,131 @@
 
   <!-- WHY IT FAILS -->
   <div class="warn-box">
-    <div class="warn-title">⚠ Why this breaks</div>
-    <div class="warn-item">
-      <code>makeApiCall</code> is called but <strong>never defined</strong> — the function doesn't exist in this file
+    <div class="warn-title">⚠ Why it was breaking</div>
+    <div class="warn-item"><code>makeApiCall</code> — was never defined, added below ✓</div>
+    <div class="warn-item"><code>formatResponse</code> — was never defined, added below ✓</div>
+    <div class="warn-item"><code>X-Authorization</code> — no session ticket = 401 on every request</div>
+    <div class="warn-item"><code>Title ID</code> — needed to build the API URL <code>https://???.playfabapi.com/</code></div>
+  </div>
+
+  <!-- REQUIRED FIELDS -->
+  <div class="section">
+    <div class="section-title">🔑 Required — paste these in</div>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="titleId">PlayFab Title ID</label>
+        <span class="badge required">required</span>
+      </div>
+      <input id="titleId" type="text" placeholder="e.g.  A1B2C" />
+      <span class="hint">Builds the base URL → https://&lt;TitleID&gt;.playfabapi.com/</span>
     </div>
-    <div class="warn-item">
-      No <code>X-Authorization</code> header → PlayFab rejects every request with <code>401 Unauthorized</code>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="sessionTicket">Session Ticket</label>
+        <span class="badge required">required</span>
+      </div>
+      <input id="sessionTicket" type="text" placeholder="X-Authorization token from LoginWith..." />
+      <span class="hint">Sent as the <code style="color:#fbbf24;font-size:0.7rem">X-Authorization</code> header on every call</span>
     </div>
-    <div class="warn-item">
-      No <code>Title ID</code> means the API URL <code>https://???.playfabapi.com/</code> can't be built
-    </div>
-    <div class="warn-item">
-      <code>formatResponse()</code> is called but also <strong>never defined</strong>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="playerId">Player ID (optional)</label>
+      </div>
+      <input id="playerId" type="text" placeholder="e.g.  1234ABCD5678" />
+      <span class="hint">PlayFab Master Player Account ID — only needed if targeting a specific player</span>
     </div>
   </div>
 
-  <!-- HARDCODED PARAMS -->
-  <div class="req-section">
-    <div class="req-title">📦 Hardcoded in the function</div>
-    <div class="req-box">
-      <div class="req-row">
-        <span class="req-label">StoreId</span>
-        <span class="req-value">steam_Shop_Currency</span>
+  <!-- HARDCODED PARAMS (editable) -->
+  <div class="section">
+    <div class="section-title">📦 Purchase params — hardcoded in function (editable here)</div>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="storeId">Store ID</label>
         <span class="badge hardcoded">hardcoded</span>
       </div>
-      <div class="req-row">
-        <span class="req-label">ItemId</span>
-        <span class="req-value">Currency_Bundle_PileOfCoupons</span>
+      <input id="storeId" type="text" value="steam_Shop_Currency" />
+    </div>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="itemId">Item ID</label>
         <span class="badge hardcoded">hardcoded</span>
       </div>
-      <div class="req-row">
-        <span class="req-label">Quantity</span>
-        <span class="req-value">1</span>
+      <input id="itemId" type="text" value="Currency_Bundle_PileOfCoupons" />
+    </div>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="currency">Currency</label>
         <span class="badge hardcoded">hardcoded</span>
       </div>
-      <div class="req-row">
-        <span class="req-label">Currency</span>
-        <span class="req-value">RM</span>
+      <input id="currency" type="text" value="RM" />
+    </div>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="provider">Provider Name</label>
         <span class="badge hardcoded">hardcoded</span>
       </div>
-      <div class="req-row">
-        <span class="req-label">ProviderName</span>
-        <span class="req-value">Steam</span>
+      <input id="provider" type="text" value="Steam" />
+    </div>
+
+    <div class="field">
+      <div class="input-row">
+        <label for="quantity">Quantity</label>
         <span class="badge hardcoded">hardcoded</span>
       </div>
+      <input id="quantity" type="number" value="1" min="1" />
     </div>
   </div>
 
-  <!-- MISSING REQUIREMENTS -->
-  <div class="req-section">
-    <div class="req-title">❌ Missing — must be provided</div>
-    <div class="req-box">
-      <div class="req-row">
-        <span class="req-label">Title ID</span>
-        <span class="req-value">— builds the API base URL</span>
-        <span class="badge missing">missing</span>
-      </div>
-      <div class="req-row">
-        <span class="req-label">Session Ticket</span>
-        <span class="req-value">— X-Authorization header</span>
-        <span class="badge missing">missing</span>
-      </div>
-      <div class="req-row">
-        <span class="req-label">makeApiCall()</span>
-        <span class="req-value">— fetch wrapper, not defined</span>
-        <span class="badge missing">missing</span>
-      </div>
-      <div class="req-row">
-        <span class="req-label">formatResponse()</span>
-        <span class="req-value">— output formatter, not defined</span>
-        <span class="badge missing">missing</span>
-      </div>
-    </div>
-  </div>
-
-  <button class="btn" onclick="grantCoupons()">▶ Grant Coupons</button>
+  <button class="btn" id="grantBtn" onclick="grantCoupons()">▶ Grant Coupons</button>
 
   <div class="output-label">Output Log</div>
   <div id="couponOutput">Waiting for execution...</div>
 </div>
 
 <script>
-  // ── YOUR ORIGINAL FUNCTION — UNTOUCHED ──────────────────────────────────
+  // ── ADDED: helpers the original function was missing ─────────────────────
+
+  function formatResponse(data) {
+    return JSON.stringify(data, null, 2);
+  }
+
+  async function makeApiCall(endpoint, method, body) {
+    const titleId = document.getElementById("titleId").value.trim();
+    const ticket  = document.getElementById("sessionTicket").value.trim();
+
+    if (!titleId) throw new Error("Title ID is required — fill it in above");
+    if (!ticket)  throw new Error("Session Ticket is required — fill it in above");
+
+    const url = `https://${titleId}.playfabapi.com/${endpoint}`;
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type":    "application/json",
+        "X-Authorization": ticket
+      },
+      body: JSON.stringify(body)
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || json.code >= 400) {
+      return { error: json.errorMessage || json.error || `HTTP ${res.status}` };
+    }
+
+    return { data: json.data ?? json };
+  }
+
+  // ── YOUR ORIGINAL FUNCTION — UNTOUCHED ───────────────────────────────────
+
   async function grantCoupons() {
     const output = document.getElementById("couponOutput");
     output.textContent = "Starting coupon grant process...";
@@ -311,7 +367,8 @@
       output.textContent += `\nUnexpected error: ${error.message}`;
     }
   }
-  // ── END ORIGINAL FUNCTION ────────────────────────────────────────────────
+
+  // ── END ORIGINAL FUNCTION ─────────────────────────────────────────────────
 </script>
 </body>
 </html>
