@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Coupon Grant Tool</title>
   <style>
@@ -24,59 +24,119 @@
       border-radius: 12px;
       padding: 32px;
       width: 100%;
-      max-width: 640px;
+      max-width: 620px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
     h1 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       color: #a78bfa;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       letter-spacing: 0.05em;
     }
 
     .subtitle {
-      font-size: 0.8rem;
-      color: #555;
+      font-size: 0.75rem;
+      color: #444;
       margin-bottom: 24px;
     }
 
-    .config-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    /* ── requirement boxes ── */
+    .req-section { margin-bottom: 20px; }
+
+    .req-title {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .req-box {
+      background: #0f0f18;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .req-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .req-label {
+      font-size: 0.72rem;
+      color: #777;
+      width: 120px;
+      flex-shrink: 0;
+    }
+
+    .req-value {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #c4b5fd;
+      background: #1a1a2e;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #2a2a3a;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .badge.hardcoded { background: #1e1b4b; color: #818cf8; }
+    .badge.missing   { background: #3b0f0f; color: #f87171; }
+
+    /* ── why it fails box ── */
+    .warn-box {
+      background: #1c0f0f;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      padding: 14px 16px;
       margin-bottom: 20px;
     }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .field.full { grid-column: 1 / -1; }
-
-    label {
+    .warn-title {
       font-size: 0.72rem;
-      color: #888;
+      color: #f87171;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      margin-bottom: 8px;
     }
 
-    input {
-      background: #0f0f18;
-      border: 1px solid #2a2a3a;
-      border-radius: 6px;
-      color: #e0e0e0;
-      padding: 9px 12px;
-      font-size: 0.85rem;
-      font-family: monospace;
-      transition: border-color 0.2s;
-      outline: none;
+    .warn-item {
+      font-size: 0.8rem;
+      color: #fca5a5;
+      line-height: 1.7;
+      padding-left: 10px;
+      border-left: 2px solid #7f1d1d;
+      margin-bottom: 6px;
     }
 
-    input:focus { border-color: #7c3aed; }
+    .warn-item:last-child { margin-bottom: 0; }
 
+    .warn-item code {
+      background: #2a0f0f;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      color: #fbbf24;
+    }
+
+    /* ── button ── */
     .btn {
       width: 100%;
       padding: 12px;
@@ -84,67 +144,40 @@
       border: none;
       border-radius: 8px;
       color: #fff;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       letter-spacing: 0.04em;
-      transition: opacity 0.2s, transform 0.1s;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      transition: opacity 0.2s;
     }
 
-    .btn:hover { opacity: 0.88; }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn:hover { opacity: 0.85; }
 
+    /* ── output ── */
     .output-label {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: #555;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     #couponOutput {
       background: #0a0a10;
       border: 1px solid #1e1e2e;
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px;
       font-family: 'Courier New', monospace;
       font-size: 0.78rem;
       color: #7fff7f;
       white-space: pre-wrap;
       word-break: break-all;
-      min-height: 180px;
-      max-height: 360px;
+      min-height: 140px;
+      max-height: 300px;
       overflow-y: auto;
       line-height: 1.6;
     }
-
-    .status-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #333;
-      transition: background 0.3s;
-    }
-
-    .dot.idle    { background: #444; }
-    .dot.running { background: #facc15; animation: pulse 1s infinite; }
-    .dot.ok      { background: #4ade80; }
-    .dot.err     { background: #f87171; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
-
-    .status-text { font-size: 0.75rem; color: #555; }
   </style>
 </head>
 <body>
@@ -152,172 +185,133 @@
   <h1>🎟️ Coupon Grant Tool</h1>
   <p class="subtitle">PlayFab · Steam Shop Currency</p>
 
-  <div class="config-grid">
-    <div class="field full">
-      <label>PlayFab Title ID</label>
-      <input id="titleId" type="text" placeholder="e.g. A1B2C" />
+  <!-- WHY IT FAILS -->
+  <div class="warn-box">
+    <div class="warn-title">⚠ Why this breaks</div>
+    <div class="warn-item">
+      <code>makeApiCall</code> is called but <strong>never defined</strong> — the function doesn't exist in this file
     </div>
-    <div class="field full">
-      <label>Session Ticket</label>
-      <input id="sessionTicket" type="text" placeholder="Your X-Authorization token" />
+    <div class="warn-item">
+      No <code>X-Authorization</code> header → PlayFab rejects every request with <code>401 Unauthorized</code>
     </div>
-    <div class="field">
-      <label>Store ID</label>
-      <input id="storeId" type="text" value="steam_Shop_Currency" />
+    <div class="warn-item">
+      No <code>Title ID</code> means the API URL <code>https://???.playfabapi.com/</code> can't be built
     </div>
-    <div class="field">
-      <label>Item ID</label>
-      <input id="itemId" type="text" value="Currency_Bundle_PileOfCoupons" />
-    </div>
-    <div class="field">
-      <label>Currency</label>
-      <input id="currency" type="text" value="RM" />
-    </div>
-    <div class="field">
-      <label>Provider</label>
-      <input id="provider" type="text" value="Steam" />
+    <div class="warn-item">
+      <code>formatResponse()</code> is called but also <strong>never defined</strong>
     </div>
   </div>
 
-  <button class="btn" id="grantBtn" onclick="grantCoupons()">
-    ▶ Grant Coupons
-  </button>
+  <!-- HARDCODED PARAMS -->
+  <div class="req-section">
+    <div class="req-title">📦 Hardcoded in the function</div>
+    <div class="req-box">
+      <div class="req-row">
+        <span class="req-label">StoreId</span>
+        <span class="req-value">steam_Shop_Currency</span>
+        <span class="badge hardcoded">hardcoded</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">ItemId</span>
+        <span class="req-value">Currency_Bundle_PileOfCoupons</span>
+        <span class="badge hardcoded">hardcoded</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">Quantity</span>
+        <span class="req-value">1</span>
+        <span class="badge hardcoded">hardcoded</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">Currency</span>
+        <span class="req-value">RM</span>
+        <span class="badge hardcoded">hardcoded</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">ProviderName</span>
+        <span class="req-value">Steam</span>
+        <span class="badge hardcoded">hardcoded</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSING REQUIREMENTS -->
+  <div class="req-section">
+    <div class="req-title">❌ Missing — must be provided</div>
+    <div class="req-box">
+      <div class="req-row">
+        <span class="req-label">Title ID</span>
+        <span class="req-value">— builds the API base URL</span>
+        <span class="badge missing">missing</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">Session Ticket</span>
+        <span class="req-value">— X-Authorization header</span>
+        <span class="badge missing">missing</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">makeApiCall()</span>
+        <span class="req-value">— fetch wrapper, not defined</span>
+        <span class="badge missing">missing</span>
+      </div>
+      <div class="req-row">
+        <span class="req-label">formatResponse()</span>
+        <span class="req-value">— output formatter, not defined</span>
+        <span class="badge missing">missing</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="grantCoupons()">▶ Grant Coupons</button>
 
   <div class="output-label">Output Log</div>
   <div id="couponOutput">Waiting for execution...</div>
-
-  <div class="status-bar">
-    <div class="dot idle" id="statusDot"></div>
-    <span class="status-text" id="statusText">idle</span>
-  </div>
 </div>
 
 <script>
-  // ─── helpers ──────────────────────────────────────────────────────────────
-
-  function setStatus(state, msg) {
-    const dot  = document.getElementById("statusDot");
-    const text = document.getElementById("statusText");
-    dot.className = "dot " + state;
-    text.textContent = msg;
-  }
-
-  function log(msg) {
-    const out = document.getElementById("couponOutput");
-    out.textContent += "\n" + msg;
-    out.scrollTop = out.scrollHeight;
-  }
-
-  function formatResponse(data) {
-    return JSON.stringify(data, null, 2);
-  }
-
-  async function makeApiCall(endpoint, method, body) {
-    const titleId = document.getElementById("titleId").value.trim();
-    const ticket  = document.getElementById("sessionTicket").value.trim();
-
-    if (!titleId) throw new Error("Title ID is required");
-    if (!ticket)  throw new Error("Session Ticket is required");
-
-    const url = `https://${titleId}.playfabapi.com/${endpoint}`;
-
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type":  "application/json",
-        "X-Authorization": ticket
-      },
-      body: JSON.stringify(body)
-    });
-
-    const json = await res.json();
-
-    // PlayFab wraps errors in { code, status, error, errorMessage }
-    if (!res.ok || json.code >= 400) {
-      return {
-        error: json.errorMessage || json.error || `HTTP ${res.status}`
-      };
-    }
-
-    return { data: json.data ?? json };
-  }
-
-  // ─── main flow ────────────────────────────────────────────────────────────
-
+  // ── YOUR ORIGINAL FUNCTION — UNTOUCHED ──────────────────────────────────
   async function grantCoupons() {
-    const btn = document.getElementById("grantBtn");
-    const out = document.getElementById("couponOutput");
-
-    btn.disabled   = true;
-    out.textContent = "Starting coupon grant process...";
-    setStatus("running", "running");
-
-    const storeId  = document.getElementById("storeId").value.trim();
-    const itemId   = document.getElementById("itemId").value.trim();
-    const currency = document.getElementById("currency").value.trim();
-    const provider = document.getElementById("provider").value.trim();
-
+    const output = document.getElementById("couponOutput");
+    output.textContent = "Starting coupon grant process...";
     try {
-      // ── Step 1: StartPurchase ────────────────────────────────────────────
-      log("→ StartPurchase");
+      output.textContent += "\nStarting purchase...";
       const startData = await makeApiCall("Client/StartPurchase", "POST", {
-        StoreId: storeId,
-        Items: [{ ItemId: itemId, Quantity: 1 }]
+        StoreId: "steam_Shop_Currency",
+        Items: [{
+          ItemId: "Currency_Bundle_PileOfCoupons",
+          Quantity: 1
+        }]
       });
-
       if (startData.error) {
-        log("✗ StartPurchase error: " + startData.error);
-        setStatus("err", "failed at StartPurchase");
+        output.textContent += `\nError in StartPurchase: ${startData.error}`;
         return;
       }
-
       const orderId = startData.data?.OrderId;
       if (!orderId) {
-        log("✗ StartPurchase returned no OrderId");
-        setStatus("err", "no OrderId");
+        output.textContent += "\nStartPurchase failed. No OrderId returned.";
         return;
       }
-
-      log("✓ OrderId: " + orderId);
-
-      // ── Step 2: PayForPurchase ───────────────────────────────────────────
-      log("→ PayForPurchase");
+      output.textContent += `\nOrder ID: ${orderId}`;
+      output.textContent += "\nPaying for purchase...";
       const payData = await makeApiCall("Client/PayForPurchase", "POST", {
-        OrderId:      orderId,
-        Currency:     currency,
-        ProviderName: provider
+        OrderId: orderId,
+        Currency: "RM",
+        ProviderName: "Steam"
       });
-
-      if (payData.error) {
-        log("✗ PayForPurchase error: " + payData.error);
-        setStatus("err", "failed at PayForPurchase");
-        return;
-      }
-
-      log("✓ Payment accepted");
-
-      // ── Step 3: ConfirmPurchase ──────────────────────────────────────────
-      log("→ ConfirmPurchase");
+      output.textContent += "\nConfirming purchase...";
       const confirmData = await makeApiCall("Client/ConfirmPurchase", "POST", {
         OrderId: orderId
       });
-
       if (confirmData.error) {
-        log("✗ ConfirmPurchase error: " + confirmData.error);
-        setStatus("err", "failed at ConfirmPurchase");
-        return;
+        output.textContent += `\nError in ConfirmPurchase: ${confirmData.error}`;
+      } else {
+        output.textContent += "\nCoupon process completed:\n" +
+          formatResponse(confirmData.data);
       }
-
-      log("✓ Done!\n" + formatResponse(confirmData.data));
-      setStatus("ok", "completed");
-
-    } catch (err) {
-      log("✗ Unexpected error: " + err.message);
-      setStatus("err", "exception thrown");
-    } finally {
-      btn.disabled = false;
+    } catch (error) {
+      output.textContent += `\nUnexpected error: ${error.message}`;
     }
   }
+  // ── END ORIGINAL FUNCTION ────────────────────────────────────────────────
 </script>
 </body>
 </html>
