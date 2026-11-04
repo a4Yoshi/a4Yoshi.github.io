@@ -1,0 +1,274 @@
+/* ============================================================
+   HALLOWEEN: THE GAME — PERK CODEX
+   Design: dark Haddonfield-night palette, perk cards styled like
+   the in-game roll screen (bordered card, corner-tag rarity).
+   Fonts: Oswald (condensed, cinematic) for display, Inter for body.
+   ============================================================ */
+
+:root {
+  --bg: #0c0a09;
+  --bg-raised: #15110e;
+  --bg-card: #1a1512;
+  --line: #2b241e;
+  --text: #ece5da;
+  --text-muted: #978a7a;
+  --accent: #ff6a1f; /* pumpkin — used sparingly */
+
+  /* Rarity outline colors, per tier */
+  --r-common: #8a5a35;
+  --r-rare: #e9e6df;
+  --r-super: #e0c15a;
+  --r-super-glow: #6b5a22;
+  --r-epic: #9b4fe0;
+  --r-legendary: #d4281c;
+
+  --radius: 2px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at top, rgba(255, 106, 31, 0.06), transparent 55%);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Oswald', 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  margin: 0;
+}
+
+a { color: inherit; }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 72px 24px 40px;
+}
+
+.hero .kicker {
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.05;
+  max-width: 14ch;
+}
+
+.hero p {
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin-top: 16px;
+  font-size: 1.05rem;
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(var(--bg) 70%, transparent);
+  padding-top: 18px;
+  z-index: 10;
+}
+
+.search {
+  flex: 1 1 220px;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-btn {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.filter-btn:hover { color: var(--text); }
+
+.filter-btn[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.filter-btn[data-rarity="common"][aria-pressed="true"] { background: var(--r-common); border-color: var(--r-common); color: #fff; }
+.filter-btn[data-rarity="rare"][aria-pressed="true"] { background: var(--r-rare); border-color: var(--r-rare); color: #111; }
+.filter-btn[data-rarity="super_rare"][aria-pressed="true"] { background: var(--r-super); border-color: var(--r-super); color: #221a05; }
+.filter-btn[data-rarity="epic"][aria-pressed="true"] { background: var(--r-epic); border-color: var(--r-epic); color: #fff; }
+.filter-btn[data-rarity="legendary"][aria-pressed="true"] { background: var(--r-legendary); border-color: var(--r-legendary); color: #fff; }
+
+/* ---------- Tier sections ---------- */
+
+.tier {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 36px 24px 8px;
+}
+
+.tier-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tier-head .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.tier[data-rarity="common"] .dot { background: var(--r-common); }
+.tier[data-rarity="rare"] .dot { background: var(--r-rare); }
+.tier[data-rarity="super_rare"] .dot { background: var(--r-super); box-shadow: 0 0 8px var(--r-super-glow); }
+.tier[data-rarity="epic"] .dot { background: var(--r-epic); }
+.tier[data-rarity="legendary"] .dot { background: var(--r-legendary); }
+
+.tier-head h2 { font-size: 1.4rem; }
+.tier-head .count { color: var(--text-muted); font-size: 0.9rem; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+/* ---------- Perk card ---------- */
+
+.card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+}
+
+.card[data-rarity="common"] { border-color: var(--r-common); }
+.card[data-rarity="rare"] { border-color: var(--r-rare); }
+.card[data-rarity="super_rare"] {
+  border-color: var(--r-super);
+  box-shadow: 0 0 0 1px var(--r-super-glow) inset;
+}
+.card[data-rarity="epic"] { border-color: var(--r-epic); }
+.card[data-rarity="legendary"] { border-color: var(--r-legendary); }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.card h3 {
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.lvl-badge {
+  flex: none;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--text-muted);
+  padding: 2px 7px;
+  border-radius: var(--radius);
+}
+
+.card[data-rarity="common"] .lvl-badge { background: var(--r-common); color: #fff; }
+.card[data-rarity="rare"] .lvl-badge { background: var(--r-rare); color: #111; }
+.card[data-rarity="super_rare"] .lvl-badge { background: var(--r-super); color: #221a05; }
+.card[data-rarity="epic"] .lvl-badge { background: var(--r-epic); color: #fff; }
+.card[data-rarity="legendary"] .lvl-badge { background: var(--r-legendary); color: #fff; }
+
+.card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.pct {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.pct.empty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+.empty-state {
+  max-width: 1040px;
+  margin: 40px auto;
+  padding: 0 24px;
+  color: var(--text-muted);
+  display: none;
+}
+
+footer {
+  max-width: 1040px;
+  margin: 48px auto 0;
+  padding: 24px 24px 56px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
