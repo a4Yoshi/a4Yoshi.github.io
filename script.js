@@ -14,8 +14,15 @@ const emptyState = document.getElementById("empty-state");
 const searchInput = document.getElementById("search");
 const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
 
-let activeRarity = "all";
+let activeRarity = "common";
 let query = "";
+
+function iconHTML(perk) {
+  if (perk.icon) {
+    return `<img class="card-icon" src="${escapeHTML(perk.icon)}" alt="" loading="lazy" onerror="this.replaceWith(monogramEl('${escapeHTML(perk.name)}'))" />`;
+  }
+  return `<div class="card-icon placeholder">${escapeHTML(perk.name.charAt(0))}</div>`;
+}
 
 function cardHTML(perk) {
   const pct = perk.percentage
@@ -25,14 +32,26 @@ function cardHTML(perk) {
   return `
     <article class="card" data-rarity="${perk.rarity}">
       <div class="card-top">
-        <h3>${escapeHTML(perk.name)}</h3>
-        <span class="lvl-badge">LV ${perk.level}</span>
+        ${iconHTML(perk)}
+        <div class="card-head">
+          <h3>${escapeHTML(perk.name)}</h3>
+          <span class="lvl-badge">LV ${perk.level}</span>
+        </div>
       </div>
       <p>${escapeHTML(perk.description)}</p>
       ${pct}
     </article>
   `;
 }
+
+// Fallback element used if a referenced icon file is missing (404).
+function monogramEl(name) {
+  const div = document.createElement("div");
+  div.className = "card-icon placeholder";
+  div.textContent = name.charAt(0);
+  return div;
+}
+window.monogramEl = monogramEl;
 
 function escapeHTML(str) {
   const div = document.createElement("div");
@@ -51,7 +70,7 @@ function render() {
   let totalShown = 0;
 
   TIERS.forEach((tier) => {
-    if (activeRarity !== "all" && activeRarity !== tier.key) return;
+    if (activeRarity !== tier.key) return;
 
     const tierPerks = perks.filter(
       (p) => p.rarity === tier.key && matchesQuery(p)
@@ -69,6 +88,7 @@ function render() {
         <h2>${tier.label}</h2>
         <span class="count">${tierPerks.length} perk${tierPerks.length === 1 ? "" : "s"}</span>
       </div>
+      <p class="tier-desc">${escapeHTML(tierDescriptions[tier.key] || "")}</p>
       <div class="grid">
         ${tierPerks.map(cardHTML).join("")}
       </div>

@@ -9,7 +9,8 @@ A simple, no-build-step wiki for the Perk Cards in *Halloween: The Game* (IllFon
 | `index.html` | The page structure. You shouldn't need to touch this. |
 | `style.css` | Colors, layout, the rarity outline styling. |
 | `script.js` | Renders the cards from `data.js` and handles search/filter. |
-| `data.js` | **Edit this one.** Every perk's name, rarity, level, percentage, description. |
+| `data.js` | **Edit this one.** Every perk's name, rarity, level, percentage, icon, description — plus the five tier descriptions. |
+| `icons/` | Optional. Drop your own perk screenshots here and point to them from `data.js`. Empty by default — the site falls back to a colored monogram. |
 
 ## Adding or correcting a perk
 
@@ -55,3 +56,9 @@ Save, refresh the page (or push to GitHub) — no build step, no framework, noth
 ## Notes on the data
 
 The game currently has 49–51 publicly documented Perk Cards (names and effect text confirmed via in-game text and guide sites as of the September 2026 patch). **Rarity tiers and exact percentages are not officially published** — every perk in `data.js` starts as `rarity: "common"` with an empty `percentage` as a neutral placeholder. Fill those in as you and your community confirm them from actual rolls.
+
+The five `tierDescriptions` at the bottom of `data.js` (what Common/Rare/Super Rare/Epic/Legendary generally mean) are also starting placeholders — rewrite them once real patterns emerge from your rolls.
+
+## Images
+
+There's no official perk art available to pull in automatically. Each card supports an optional `icon` path (see `icons/README.md`); until you add your own, cards show a clean colored monogram instead so nothing looks broken.

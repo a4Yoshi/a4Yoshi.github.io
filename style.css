@@ -176,6 +176,13 @@ a { color: inherit; }
 .tier-head h2 { font-size: 1.4rem; }
 .tier-head .count { color: var(--text-muted); font-size: 0.9rem; }
 
+.tier-desc {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  max-width: 68ch;
+  margin: -4px 0 18px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -204,16 +211,50 @@ a { color: inherit; }
 
 .card-top {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
   margin-bottom: 8px;
+}
+
+.card-head {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .card h3 {
   font-size: 1.05rem;
   line-height: 1.25;
 }
+
+.card-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+}
+
+.card-icon.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.card[data-rarity="common"] .card-icon.placeholder { color: var(--r-common); border-color: var(--r-common); }
+.card[data-rarity="rare"] .card-icon.placeholder { color: var(--r-rare); border-color: var(--r-rare); }
+.card[data-rarity="super_rare"] .card-icon.placeholder { color: var(--r-super); border-color: var(--r-super); }
+.card[data-rarity="epic"] .card-icon.placeholder { color: var(--r-epic); border-color: var(--r-epic); }
+.card[data-rarity="legendary"] .card-icon.placeholder { color: var(--r-legendary); border-color: var(--r-legendary); }
 
 .lvl-badge {
   flex: none;
