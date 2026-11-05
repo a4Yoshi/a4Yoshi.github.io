@@ -14,19 +14,24 @@ A simple, no-build-step wiki for the Perk Cards in *Halloween: The Game* (IllFon
 
 ## Adding or correcting a perk
 
-Open `data.js` and either edit an existing entry or copy this block for a new one:
+Open `data.js` and either edit an existing entry or copy this block for a new one. Each perk is written **once** — one name, one icon, one description — with all five level numbers sitting together in a single `percentages` table, so there's nothing to copy-paste per rarity:
 
 ```js
 {
   name: "Perk Name",
-  rarity: "epic",       // common | rare | super_rare | epic | legendary
-  level: 4,              // 1–5, matches rarity
-  percentage: "20%",     // the effect's strength — leave "" if you don't know it yet
-  description: "What it does.",
+  icon: "",                     // optional, e.g. "icons/perk-name.png"
+  description: "What it does.", // shown at every level, written once
+  percentages: {
+    common: "5%",      // Lv1 — leave "" if you don't know it yet
+    rare: "10%",        // Lv2
+    super_rare: "15%",  // Lv3
+    epic: "20%",         // Lv4
+    legendary: "25%",   // Lv5
+  },
 },
 ```
 
-Save, refresh the page (or push to GitHub) — no build step, no framework, nothing to compile.
+Save, refresh the page (or push to GitHub) — no build step, no framework, nothing to compile. Every perk now shows up under every tier tab automatically; switching tabs just swaps which number from `percentages` is displayed.
 
 ## Putting this on GitHub Pages (free hosting)
 
@@ -62,3 +67,16 @@ The five `tierDescriptions` at the bottom of `data.js` (what Common/Rare/Super R
 ## Images
 
 There's no official perk art available to pull in automatically. Each card supports an optional `icon` path (see `icons/README.md`); until you add your own, cards show a clean colored monogram instead so nothing looks broken.
+
+**If an image you added isn't showing up**, check these in order — they cover almost every case:
+
+1. **Open the file directly, not by double-clicking `index.html`.** Browsers sometimes block local file-to-file loading when you open a page straight from disk (`file:///...`). Instead, run a tiny local server from inside the project folder:
+   ```bash
+   python3 -m http.server 8000
+   ```
+   then visit `http://localhost:8000` in your browser. This also matches how GitHub Pages actually serves the site, so it's the more reliable way to test.
+2. **Check the path is exact and case-sensitive.** `icon: "icons/Adrenaline.PNG"` will NOT match a file saved as `adrenaline.png` — GitHub Pages' server treats those as different files even if your own computer doesn't.
+3. **Check the path has no leading slash.** Use `icons/adrenaline.png`, not `/icons/adrenaline.png`.
+4. **Open your browser's DevTools → Network tab**, reload, and look for the image request in red (404). It'll show you the exact URL it tried to load — compare that letter-for-letter against your actual filename in `icons/`.
+
+If the image is missing or still 404s, the card automatically falls back to the colored monogram rather than showing a broken-image icon.

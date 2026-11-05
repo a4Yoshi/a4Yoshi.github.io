@@ -1,5 +1,6 @@
-// Renders `perks` (from data.js) into rarity-grouped sections, and wires
-// up the search box + filter pills. No build step, no framework.
+// Renders `perks` (from data.js) into tier tabs. Every perk appears in every
+// tier — only its `percentages[tier]` value changes between tabs. No build
+// step, no framework.
 
 const TIERS = [
   { key: "common", label: "Common", level: 1 },
@@ -14,37 +15,11 @@ const emptyState = document.getElementById("empty-state");
 const searchInput = document.getElementById("search");
 const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
 
-let activeRarity = "common";
+let activeTier = "common";
 let query = "";
 
-function iconHTML(perk) {
-  if (perk.icon) {
-    return `<img class="card-icon" src="${escapeHTML(perk.icon)}" alt="" loading="lazy" onerror="this.replaceWith(monogramEl('${escapeHTML(perk.name)}'))" />`;
-  }
-  return `<div class="card-icon placeholder">${escapeHTML(perk.name.charAt(0))}</div>`;
-}
-
-function cardHTML(perk) {
-  const pct = perk.percentage
-    ? `<span class="pct">${escapeHTML(perk.percentage)}</span>`
-    : `<span class="pct empty">value not logged yet</span>`;
-
-  return `
-    <article class="card" data-rarity="${perk.rarity}">
-      <div class="card-top">
-        ${iconHTML(perk)}
-        <div class="card-head">
-          <h3>${escapeHTML(perk.name)}</h3>
-          <span class="lvl-badge">LV ${perk.level}</span>
-        </div>
-      </div>
-      <p>${escapeHTML(perk.description)}</p>
-      ${pct}
-    </article>
-  `;
-}
-
-// Fallback element used if a referenced icon file is missing (404).
+// Fallback element used if a referenced icon file is missing (404) —
+// keeps the grid from showing a broken-image icon.
 function monogramEl(name) {
   const div = document.createElement("div");
   div.className = "card-icon placeholder";
@@ -59,6 +34,34 @@ function escapeHTML(str) {
   return div.innerHTML;
 }
 
+function iconHTML(perk) {
+  if (perk.icon) {
+    return `<img class="card-icon" src="${escapeHTML(perk.icon)}" alt="" loading="lazy" onerror="this.replaceWith(monogramEl('${escapeHTML(perk.name)}'))" />`;
+  }
+  return `<div class="card-icon placeholder">${escapeHTML(perk.name.charAt(0))}</div>`;
+}
+
+function cardHTML(perk, tier) {
+  const value = perk.percentages ? perk.percentages[tier.key] : "";
+  const pct = value
+    ? `<span class="pct">${escapeHTML(value)}</span>`
+    : `<span class="pct empty">value not logged yet</span>`;
+
+  return `
+    <article class="card" data-rarity="${tier.key}">
+      <div class="card-top">
+        ${iconHTML(perk)}
+        <div class="card-head">
+          <h3>${escapeHTML(perk.name)}</h3>
+          <span class="lvl-badge">LV ${tier.level}</span>
+        </div>
+      </div>
+      <p>${escapeHTML(perk.description)}</p>
+      ${pct}
+    </article>
+  `;
+}
+
 function matchesQuery(perk) {
   if (!query) return true;
   const haystack = (perk.name + " " + perk.description).toLowerCase();
@@ -67,41 +70,33 @@ function matchesQuery(perk) {
 
 function render() {
   grid.innerHTML = "";
-  let totalShown = 0;
 
-  TIERS.forEach((tier) => {
-    if (activeRarity !== tier.key) return;
+  const tier = TIERS.find((t) => t.key === activeTier);
+  const visiblePerks = perks.filter(matchesQuery);
 
-    const tierPerks = perks.filter(
-      (p) => p.rarity === tier.key && matchesQuery(p)
-    );
-    if (tierPerks.length === 0) return;
+  emptyState.style.display = visiblePerks.length === 0 ? "block" : "none";
+  if (visiblePerks.length === 0) return;
 
-    totalShown += tierPerks.length;
-
-    const section = document.createElement("section");
-    section.className = "tier";
-    section.dataset.rarity = tier.key;
-    section.innerHTML = `
-      <div class="tier-head">
-        <span class="dot"></span>
-        <h2>${tier.label}</h2>
-        <span class="count">${tierPerks.length} perk${tierPerks.length === 1 ? "" : "s"}</span>
-      </div>
-      <p class="tier-desc">${escapeHTML(tierDescriptions[tier.key] || "")}</p>
-      <div class="grid">
-        ${tierPerks.map(cardHTML).join("")}
-      </div>
-    `;
-    grid.appendChild(section);
-  });
-
-  emptyState.style.display = totalShown === 0 ? "block" : "none";
+  const section = document.createElement("section");
+  section.className = "tier";
+  section.dataset.rarity = tier.key;
+  section.innerHTML = `
+    <div class="tier-head">
+      <span class="dot"></span>
+      <h2>${tier.label}</h2>
+      <span class="count">${visiblePerks.length} perk${visiblePerks.length === 1 ? "" : "s"}</span>
+    </div>
+    <p class="tier-desc">${escapeHTML(tierDescriptions[tier.key] || "")}</p>
+    <div class="grid">
+      ${visiblePerks.map((p) => cardHTML(p, tier)).join("")}
+    </div>
+  `;
+  grid.appendChild(section);
 }
 
 filterButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    activeRarity = btn.dataset.rarity;
+    activeTier = btn.dataset.rarity;
     filterButtons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
     render();
   });
