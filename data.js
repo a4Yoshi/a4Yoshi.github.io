@@ -6,11 +6,23 @@
   Each perk is ONE object — no duplicating it per rarity. The fields are:
 
     name          - Perk Card name (as shown in-game)
-    icon          - optional path to an image, e.g. "icons/adrenaline.png".
-                    Leave "" and the card shows a colored monogram instead.
-                    This is the SAME icon shown at every level — this site
-                    can't pull art out of the game itself, only what you add
-                    yourself to the /icons folder.
+    icons         - OPTIONAL overrides. Leave as {} and the site finds the
+                    image itself — no editing needed. For a perk card image
+                    to show up automatically, name the file:
+
+                        NAME_IN_CAPS_WITH_UNDERSCORES_ROMANNUMERAL.png
+
+                    placed in the /icons folder. Roman numeral matches the
+                    level: I = Common, II = Rare, III = Super Rare,
+                    IV = Epic, V = Legendary. Example: "Pied Piper" at Epic
+                    (IV) is expected at icons/PIED_PIPER_IV.png.
+                    If a filename can't follow that pattern (a typo you'd
+                    rather not rename, a weird name), override it here:
+                      icons: { epic: "icons/my-weird-filename.png" }
+                    Only the levels you override need a key — everything
+                    else still falls back to the auto-generated name.
+                    No image found at either path? The card shows a colored
+                    monogram instead, never a broken-image icon.
     description   - plain-language explanation of what the perk does.
                     Written ONCE — it's shown no matter which tier tab is
                     open, so you never need to retype it per rarity.
@@ -27,11 +39,17 @@
   Card list. Percentages are NOT officially published for any level, so
   every percentages value starts blank — fill them in as you confirm them.
 
+  SEARCH = COMPARE MODE
+  Typing in the search box switches the page from "one tier at a time" to a
+  side-by-side row of all 5 levels for every matching perk — so searching
+  "Adrenaline" shows its Common through Legendary cards in one line, for a
+  direct comparison. Clear the search to go back to normal tab browsing.
+
   Duplicate this block to add a brand new perk the devs add later:
 
     {
       name: "New Perk Name",
-      icon: "",
+      icons: {},
       description: "What it does, in plain language.",
       percentages: { common: "", rare: "", super_rare: "", epic: "", legendary: "" },
     },
@@ -40,313 +58,319 @@
 const perks = [
   {
     name: "Adrenaline",
-    icon: "",
+    icons: {},
     description: "Increases stamina recharge speed.",
     percentages: { common: "8%", rare: "12%", super_rare: "20%", epic: "", legendary: "30%" },
   },
   {
     name: "Aura of Awareness",
-    icon: "",
+    icons: {},
     description: "Increases the personal radius that prevents Michael from using Shape Jump.",
     percentages: { common: "15%", rare: "25%", super_rare: "40%", epic: "50%", legendary: "" },
   },
   {
     name: "Barricade",
-    icon: "",
+    icons: {},
     description: "Makes locked doors more resistant to destruction.",
     percentages: { common: "30%", rare: "40%", super_rare: "", epic: "60%", legendary: "" },
   },
   {
     name: "Breakfall",
-    icon: "",
+    icons: {},
     description: "Increases recovery speed after landing.",
     percentages: { common: "5%", rare: "10%", super_rare: "12%", epic: "17%", legendary: "" },
   },
   {
     name: "Brimstone Fuse",
-    icon: "",
+    icons: {},
     description: "Makes Firecrackers disorient Michael for a longer duration.",
     percentages: { common: "", rare: "20%", super_rare: "35%", epic: "50%", legendary: "" },
   },
   {
     name: "Brutal Cleave",
-    icon: "",
+    icons: {},
     description: "Increases Heavy Attack melee damage.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "35%" },
   },
   {
     name: "Bullet Belt",
-    icon: "",
+    icons: {},
     description: "Increases the amount of ammunition you can carry per stack.",
     percentages: { common: "10%", rare: "20%", super_rare: "35%", epic: "", legendary: "" },
   },
   {
     name: "Clotting",
-    icon: "",
+    icons: {},
     description: "Increases health regeneration speed.",
     percentages: { common: "5%", rare: "", super_rare: "", epic: "", legendary: "35" },
   },
   {
     name: "Contender",
-    icon: "",
+    icons: {},
     description: "Increases melee damage.",
     percentages: { common: "5%", rare: "", super_rare: "10%", epic: "15%", legendary: "20%" },
   },
   {
     name: "Convincing Plea",
-    icon: "",
+    icons: {},
     description: "Reduces the arrival timer for incoming Police waves after filling the Police Badge.",
     percentages: { common: "10%", rare: "20%", super_rare: "35%", epic: "", legendary: "65%" },
   },
   {
     name: "Dead Shot",
-    icon: "",
+    icons: {},
     description: "Increases critical damage with ranged weapons.",
     percentages: { common: "15%", rare: "20%", super_rare: "", epic: "", legendary: "" },
   },
   {
     name: "Deaden",
-    icon: "",
+    icons: {},
     description: "Makes the noise pings you generate less visible.",
     percentages: { common: "20%", rare: "30%", super_rare: "", epic: "30%", legendary: "" },
   },
   {
     name: "Dying Breath",
-    icon: "",
+    icons: {},
     description: "Increases your chance of escaping Michael's grabs while at low health.",
     percentages: { common: "15%", rare: "20%", super_rare: "", epic: "30%", legendary: "" },
   },
   {
     name: "Elusory",
-    icon: "",
+    icons: {},
     description: "Slows the rate at which Michael builds Stalk progress on you.",
     percentages: { common: "10%", rare: "", super_rare: "", epic: "30", legendary: "50" },
   },
   {
     name: "Exit Strategy",
-    icon: "",
+    icons: {},
     description: "Increases the distance from which escape routes can be discovered.",
     percentages: { common: "25%", rare: "35%", super_rare: "", epic: "", legendary: "" },
   },
   {
     name: "Fade to Black",
-    icon: "",
+    icons: {},
     description: "Causes Stalk tiers to degrade faster while hiding in a hiding spot.",
     percentages: { common: "15%", rare: "", super_rare: "30%", epic: "", legendary: "" },
   },
   {
     name: "Field Triage",
-    icon: "",
+    icons: {},
     description: "Increases the use speed of Healing Spray and Med-Kits.",
     percentages: { common: "10%", rare: "15%", super_rare: "", epic: "30%", legendary: "" },
   },
   {
     name: "Frantic",
-    icon: "",
+    icons: {},
     description: "Adds more Police presence when you successfully complete a call.",
     percentages: { common: "", rare: "25%", super_rare: "35%", epic: "", legendary: "" },
   },
   {
     name: "Ghost",
-    icon: "",
+    icons: {},
     description: "Increases the natural Stalk degradation rate.",
     percentages: { common: "", rare: "15%", super_rare: "20%", epic: "25%", legendary: "" },
   },
   {
     name: "Glass Walker",
-    icon: "",
+    icons: {},
     description: "Reduces damage taken when diving through windows.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "" },
   },
   {
     name: "Grave Footing",
-    icon: "",
+    icons: {},
     description: "Reduces the chance of tripping while exhausted or terrified.",
     percentages: { common: "20%", rare: "", super_rare: "", epic: "", legendary: "90%" },
   },
   {
     name: "Guardian Shadow",
-    icon: "",
+    icons: {},
     description: "Reduces damage taken by Residents following you.",
     percentages: { common: "", rare: "20%", super_rare: "30%", epic: "", legendary: "" },
   },
   {
     name: "Hardened",
-    icon: "",
+    icons: {},
     description: "Increases resistance to blunt damage.",
     percentages: { common: "10%", rare: "", super_rare: "", epic: "30%", legendary: "" },
   },
   {
     name: "Iron Ankles",
-    icon: "",
+    icons: {},
     description: "Reduces fall damage.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "35%", legendary: "50%" },
   },
   {
     name: "Knockout",
-    icon: "",
+    icons: {},
     description: "Makes Michael remain downed longer when you help knock him down.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "35%" },
   },
   {
     name: "Lethal Pitch",
-    icon: "",
+    icons: {},
     description: "Increases damage dealt by thrown items and weapons.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "25%", legendary: "" },
   },
   {
     name: "Liquid Courage",
-    icon: "",
+    icons: {},
     description: "Increases melee damage while intoxicated.",
     percentages: { common: "5%", rare: "10%", super_rare: "", epic: "", legendary: "35%" },
   },
   {
     name: "Panic Contagion",
-    icon: "",
+    icons: {},
     description: "Increases movement speed after successfully helping a Resident escape.",
     percentages: { common: "1.5%", rare: "2%", super_rare: "2.3%", epic: "2.7%", legendary: "3%" },
   },
   {
     name: "Panic Drive",
-    icon: "",
+    icons: {},
     description: "Reduces damage taken by cars while driving them.",
     percentages: { common: "25%", rare: "", super_rare: "50%", epic: "60%", legendary: "" },
   },
   {
     name: "Pied Piper",
-    icon: "",
+    // Your uploaded file is "PIEP_PIPER_II.png" — the auto-generated name
+    // would be "PIED_PIPER_II.png" (correct spelling). Rename the file to
+    // match and you can delete this override entirely.
+    icons: { rare: "icons/PIEP_PIPER_II.png" },
     description: "Increases the number of Residents who can follow you.",
     percentages: { common: "1", rare: "1", super_rare: "1", epic: "1", legendary: "1" },
   },
   {
     name: "Relentless Steel",
-    icon: "",
+    icons: {},
     description: "Increases melee weapon durability.",
     percentages: { common: "10%", rare: "", super_rare: "", epic: "30%", legendary: "40%" },
   },
   {
     name: "Repair Expert",
-    icon: "",
+    icons: {},
     description: "Gives you a chance not to consume a Repair Kit when using it.",
     percentages: { common: "20%", rare: "", super_rare: "", epic: "35%", legendary: "" },
   },
   {
     name: "Reveler",
-    icon: "",
+    icons: {},
     description: "Increases the duration of intoxication and certain other status effects.",
     percentages: { common: "15%", rare: "30%", super_rare: "", epic: "75%", legendary: "100%" },
   },
   {
     name: "Scavenger",
-    icon: "",
+    icons: {},
     description: "Increases progress during the hiding spot rummage minigame.",
     percentages: { common: "10%", rare: "15%", super_rare: "25%", epic: "30%", legendary: "" },
   },
   {
     name: "Shared Desperation",
-    icon: "",
+    icons: {},
     description: "Makes Residents deal more damage after you give them a weapon.",
     percentages: { common: "15%", rare: "", super_rare: "30%", epic: "", legendary: "" },
   },
   {
     name: "Shield of Law",
-    icon: "",
+    icons: {},
     description: "Reduces Fear gain while within 15 meters of a Police Officer.",
     percentages: { common: "", rare: "25%", super_rare: "40%", epic: "", legendary: "" },
   },
   {
     name: "Silver Tongue",
-    icon: "",
+    icons: {},
     description: "Gives you more time to achieve a perfect result during conversation minigames.",
     percentages: { common: "15%", rare: "", super_rare: "25%", epic: "30%", legendary: "" },
   },
   {
     name: "Sixth Sense",
-    icon: "",
+    icons: {},
     description: "Allows you to hear Michael breathing during Shape Jump from a greater distance.",
     percentages: { common: "2m", rare: "3.5m", super_rare: "5m", epic: "", legendary: "" },
   },
   {
     name: "Slippery",
-    icon: "",
+    icons: {},
     description: "Reduces the difficulty of the struggle minigame when Michael grabs you.",
     percentages: { common: "15%", rare: "17%", super_rare: "", epic: "22%", legendary: "25%" },
   },
   {
     name: "Smooth Talker",
-    icon: "",
+    icons: {},
     description: "Increases the perfect zone of the dispatch call skill check.",
     percentages: { common: "10%", rare: "15%", super_rare: "", epic: "30%", legendary: "50%" },
   },
   {
     name: "Solid Foundation",
-    icon: "",
+    icons: {},
     description: "Increases Poise, improving your ability to contribute toward knocking Michael down.",
     percentages: { common: "5%", rare: "10%", super_rare: "20%", epic: "", legendary: "" },
   },
   {
     name: "Stubborn",
-    icon: "",
+    icons: {},
     description: "Increases movement speed while wounded.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "30%" },
   },
   {
     name: "Survival Intuition",
-    icon: "",
+    icons: {},
     description: "Automatically marks one random escape location on your map.",
     percentages: { common: "1", rare: "1", super_rare: "1", epic: "1", legendary: "1" },
   },
   {
     name: "Survival Rage",
-    icon: "",
+    // Your uploaded file is "SURVIVIAL_RAGE_IV.png" — the auto-generated
+    // name would be "SURVIVAL_RAGE_IV.png" (correct spelling). Rename the
+    // file to match and you can delete this override entirely.
+    icons: { epic: "icons/SURVIVIAL_RAGE_IV.png" },
     description: "When Terrified, melee damage is increased.",
     percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "30%" },
-  },  
+  },
   {
     name: "Thick Skin",
-    icon: "",
+    icons: {},
     description: "Increases resistance to sharp damage.",
     percentages: { common: "10%", rare: "", super_rare: "18%", epic: "", legendary: "28%" },
   },
   {
     name: "Trespasser",
-    icon: "",
+    icons: {},
     description: "Allows you to pick locked doors by holding the interaction button for a set duration.",
     percentages: { common: "", rare: "4.5s", super_rare: "", epic: "", legendary: "" },
   },
   {
     name: "Unphased",
-    icon: "",
+    icons: {},
     description: "Reduces Fear buildup.",
     percentages: { common: "", rare: "20%", super_rare: "35%", epic: "50%", legendary: "" },
   },
   {
     name: "Unwinded",
-    icon: "",
+    icons: {},
     description: "Reduces stamina consumption from all actions.",
     percentages: { common: "", rare: "15%", super_rare: "18%", epic: "", legendary: "" },
   },
   {
     name: "Voice of Reason",
-    icon: "",
+    icons: {},
     description: "Reduces Fear gained by Residents following you.",
     percentages: { common: "15%", rare: "25%", super_rare: "40%", epic: "60%", legendary: "" },
   },
   {
     name: "Wired",
-    icon: "",
+    icons: {},
     description: "Each Pop you consume permanently reduces incoming Fear for the rest of the match.",
     percentages: { common: "10%", rare: "", super_rare: "15%", epic: "", legendary: "20%" },
   },
   {
     name: "Witness State",
-    icon: "",
+    icons: {},
     description: "Reveals the outlines of nearby Residents.",
     percentages: { common: "15m", rare: "20m", super_rare: "25m", epic: "", legendary: "50m" },
   },
   {
     name: "Wound Mender",
-    icon: "",
+    icons: {},
     description: "Increases the amount of health restored by healing items.",
     percentages: { common: "5%", rare: "", super_rare: "20%", epic: "", legendary: "" },
   },

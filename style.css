@@ -1,7 +1,7 @@
 /* ============================================================
    HALLOWEEN: THE GAME — PERK CODEX
    Design: dark Haddonfield-night palette, perk cards styled like
-   the in-game roll screen (bordered card, corner-tag rarity).
+   the in-game roll screen (bordered card, corner roman-numeral tag).
    Fonts: Oswald (condensed, cinematic) for display, Inter for body.
    ============================================================ */
 
@@ -14,15 +14,24 @@
   --text-muted: #978a7a;
   --accent: #ff6a1f; /* pumpkin — used sparingly */
 
-  /* Rarity outline colors, per tier */
+  /* Rarity colors, matched against the real card borders:
+     I  Common    — worn tan/brown card stock
+     II Rare      — pale grey-white
+     III Super Rare — cream outer edge, gold inner glow
+     IV Epic      — violet with a soft corona
+     V  Legendary — red-to-orange ember gradient              */
   --r-common: #8a5a35;
+  --r-common-dim: #5c3d24;
   --r-rare: #e9e6df;
-  --r-super: #e0c15a;
-  --r-super-glow: #6b5a22;
-  --r-epic: #9b4fe0;
-  --r-legendary: #d4281c;
+  --r-rare-dim: #9a968c;
+  --r-super: #e7c968;
+  --r-super-glow: #a8821f;
+  --r-epic: #a855e0;
+  --r-epic-glow: #5c2a82;
+  --r-legendary: #e8431f;
+  --r-legendary-glow: #7a1a0c;
 
-  --radius: 2px;
+  --radius: 3px;
 }
 
 * { box-sizing: border-box; }
@@ -49,12 +58,47 @@ h1, h2, h3, .display {
 
 a { color: inherit; }
 
+/* ---------- Site nav (shared across Perks / XP / Challenges pages) ---------- */
+
+.sitenav {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 20px 24px 0;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.sitenav .brand {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-right: auto;
+}
+
+.sitenav a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.sitenav a:hover { color: var(--text); }
+
+.sitenav a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 /* ---------- Hero ---------- */
 
 .hero {
   max-width: 1040px;
   margin: 0 auto;
-  padding: 72px 24px 40px;
+  padding: 40px 24px 40px;
 }
 
 .hero .kicker {
@@ -114,6 +158,12 @@ a { color: inherit; }
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  transition: opacity 0.15s ease;
+}
+
+.filters.disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 .filter-btn {
@@ -145,7 +195,7 @@ a { color: inherit; }
 
 /* ---------- Tier sections ---------- */
 
-.tier {
+.tier, .compare-wrap {
   max-width: 1040px;
   margin: 0 auto;
   padding: 36px 24px 8px;
@@ -170,8 +220,8 @@ a { color: inherit; }
 .tier[data-rarity="common"] .dot { background: var(--r-common); }
 .tier[data-rarity="rare"] .dot { background: var(--r-rare); }
 .tier[data-rarity="super_rare"] .dot { background: var(--r-super); box-shadow: 0 0 8px var(--r-super-glow); }
-.tier[data-rarity="epic"] .dot { background: var(--r-epic); }
-.tier[data-rarity="legendary"] .dot { background: var(--r-legendary); }
+.tier[data-rarity="epic"] .dot { background: var(--r-epic); box-shadow: 0 0 8px var(--r-epic-glow); }
+.tier[data-rarity="legendary"] .dot { background: var(--r-legendary); box-shadow: 0 0 8px var(--r-legendary-glow); }
 
 .tier-head h2 { font-size: 1.4rem; }
 .tier-head .count { color: var(--text-muted); font-size: 0.9rem; }
@@ -200,14 +250,26 @@ a { color: inherit; }
   position: relative;
 }
 
-.card[data-rarity="common"] { border-color: var(--r-common); }
-.card[data-rarity="rare"] { border-color: var(--r-rare); }
+.card[data-rarity="common"] {
+  border-color: var(--r-common);
+  box-shadow: 0 0 0 1px var(--r-common-dim) inset;
+}
+.card[data-rarity="rare"] {
+  border-color: var(--r-rare);
+  box-shadow: 0 0 0 1px var(--r-rare-dim) inset;
+}
 .card[data-rarity="super_rare"] {
   border-color: var(--r-super);
-  box-shadow: 0 0 0 1px var(--r-super-glow) inset;
+  box-shadow: 0 0 0 1px var(--r-super-glow) inset, 0 0 14px -6px var(--r-super-glow);
 }
-.card[data-rarity="epic"] { border-color: var(--r-epic); }
-.card[data-rarity="legendary"] { border-color: var(--r-legendary); }
+.card[data-rarity="epic"] {
+  border-color: var(--r-epic);
+  box-shadow: 0 0 0 1px var(--r-epic-glow) inset, 0 0 16px -6px var(--r-epic-glow);
+}
+.card[data-rarity="legendary"] {
+  border-color: var(--r-legendary);
+  box-shadow: 0 0 0 1px var(--r-legendary-glow) inset, 0 0 18px -5px var(--r-legendary);
+}
 
 .card-top {
   display: flex;
@@ -219,9 +281,7 @@ a { color: inherit; }
 .card-head {
   flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 10px;
   min-width: 0;
 }
 
@@ -230,15 +290,33 @@ a { color: inherit; }
   line-height: 1.25;
 }
 
-.card-icon {
+/* icon + roman-numeral corner badge, styled like the in-game card corner */
+
+.icon-wrap {
+  position: relative;
   flex: none;
-  width: 40px;
-  height: 40px;
+}
+
+.card-icon {
+  display: block;
+  width: 44px;
+  height: 58px;
   border-radius: var(--radius);
   object-fit: cover;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   background: var(--bg-raised);
 }
+
+.card-icon.sm {
+  width: 36px;
+  height: 48px;
+}
+
+.icon-wrap[data-rarity="common"] .card-icon { border-color: var(--r-common); }
+.icon-wrap[data-rarity="rare"] .card-icon { border-color: var(--r-rare); }
+.icon-wrap[data-rarity="super_rare"] .card-icon { border-color: var(--r-super); }
+.icon-wrap[data-rarity="epic"] .card-icon { border-color: var(--r-epic); }
+.icon-wrap[data-rarity="legendary"] .card-icon { border-color: var(--r-legendary); }
 
 .card-icon.placeholder {
   display: flex;
@@ -250,28 +328,31 @@ a { color: inherit; }
   color: var(--text-muted);
 }
 
-.card[data-rarity="common"] .card-icon.placeholder { color: var(--r-common); border-color: var(--r-common); }
-.card[data-rarity="rare"] .card-icon.placeholder { color: var(--r-rare); border-color: var(--r-rare); }
-.card[data-rarity="super_rare"] .card-icon.placeholder { color: var(--r-super); border-color: var(--r-super); }
-.card[data-rarity="epic"] .card-icon.placeholder { color: var(--r-epic); border-color: var(--r-epic); }
-.card[data-rarity="legendary"] .card-icon.placeholder { color: var(--r-legendary); border-color: var(--r-legendary); }
+.icon-wrap[data-rarity="common"] .card-icon.placeholder { color: var(--r-common); }
+.icon-wrap[data-rarity="rare"] .card-icon.placeholder { color: var(--r-rare); }
+.icon-wrap[data-rarity="super_rare"] .card-icon.placeholder { color: var(--r-super); }
+.icon-wrap[data-rarity="epic"] .card-icon.placeholder { color: var(--r-epic); }
+.icon-wrap[data-rarity="legendary"] .card-icon.placeholder { color: var(--r-legendary); }
 
-.lvl-badge {
-  flex: none;
+.roman-badge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
   font-family: 'Oswald', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--bg);
-  background: var(--text-muted);
-  padding: 2px 7px;
-  border-radius: var(--radius);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 2px;
+  background: var(--bg);
+  border: 1px solid var(--line);
 }
 
-.card[data-rarity="common"] .lvl-badge { background: var(--r-common); color: #fff; }
-.card[data-rarity="rare"] .lvl-badge { background: var(--r-rare); color: #111; }
-.card[data-rarity="super_rare"] .lvl-badge { background: var(--r-super); color: #221a05; }
-.card[data-rarity="epic"] .lvl-badge { background: var(--r-epic); color: #fff; }
-.card[data-rarity="legendary"] .lvl-badge { background: var(--r-legendary); color: #fff; }
+.roman-badge[data-rarity="common"] { color: var(--r-common); border-color: var(--r-common); }
+.roman-badge[data-rarity="rare"] { color: var(--r-rare); border-color: var(--r-rare); }
+.roman-badge[data-rarity="super_rare"] { color: var(--r-super); border-color: var(--r-super); }
+.roman-badge[data-rarity="epic"] { color: var(--r-epic); border-color: var(--r-epic); }
+.roman-badge[data-rarity="legendary"] { color: var(--r-legendary); border-color: var(--r-legendary); }
 
 .card p {
   margin: 0;
@@ -301,6 +382,61 @@ a { color: inherit; }
   display: none;
 }
 
+/* ---------- Compare mode (search results) ---------- */
+
+.tier-head.compare { border-bottom-color: var(--accent); }
+
+.compare-row {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.compare-row:last-child { border-bottom: none; }
+
+.compare-head h3 { font-size: 1.1rem; }
+.compare-head p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 4px 0 14px;
+  max-width: 70ch;
+}
+
+.compare-levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mini-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  min-width: 84px;
+}
+
+.mini-card[data-rarity="common"] { border-color: var(--r-common); }
+.mini-card[data-rarity="rare"] { border-color: var(--r-rare); }
+.mini-card[data-rarity="super_rare"] { border-color: var(--r-super); box-shadow: 0 0 12px -6px var(--r-super-glow); }
+.mini-card[data-rarity="epic"] { border-color: var(--r-epic); box-shadow: 0 0 12px -6px var(--r-epic-glow); }
+.mini-card[data-rarity="legendary"] { border-color: var(--r-legendary); box-shadow: 0 0 14px -5px var(--r-legendary); }
+
+.mini-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.mini-pct {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 footer {
   max-width: 1040px;
   margin: 48px auto 0;
@@ -308,6 +444,60 @@ footer {
   color: var(--text-muted);
   font-size: 0.85rem;
   border-top: 1px solid var(--line);
+}
+
+/* ---------- Simple tables (XP page) ---------- */
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+table.data-table th, table.data-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+table.data-table th {
+  font-family: 'Oswald', sans-serif;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+table.data-table tr:hover td { background: var(--bg-raised); }
+
+/* ---------- Challenge cards ---------- */
+
+.challenge {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.challenge .num {
+  font-family: 'Oswald', sans-serif;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.challenge h4 { font-size: 1rem; margin: 4px 0 6px; }
+.challenge p { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 8px; }
+.challenge .unlock {
+  display: inline-block;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.78rem;
+  color: var(--r-super);
+  border: 1px solid var(--r-super-glow);
+  padding: 3px 8px;
+  border-radius: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

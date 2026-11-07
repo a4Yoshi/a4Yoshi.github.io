@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XP Tables — Halloween: The Game Codex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="sitenav">
+    <span class="brand">Halloween: The Game — Haddonfield Codex</span>
+    <a href="index.html">Perks</a>
+    <a href="xp.html" class="active">XP</a>
+    <a href="challenges.html">Challenges</a>
+  </nav>
+
+  <div class="hero">
+    <p class="kicker">Community reference · not affiliated with IllFonic</p>
+    <h1>XP Tables</h1>
+    <p>Level-by-level XP requirements and unlocks, tracked separately for Michael and for Civilians.</p>
+  </div>
+
+  <div class="controls">
+    <div class="filters" id="xp-filters">
+      <button class="filter-btn" data-side="michael" aria-pressed="true">Michael</button>
+      <button class="filter-btn" data-side="civilians" aria-pressed="false">Civilians</button>
+    </div>
+  </div>
+
+  <main class="tier">
+    <div class="tier-head">
+      <h2 id="xp-title">Michael</h2>
+      <span class="count" id="xp-count"></span>
+    </div>
+    <table class="data-table" id="xp-table">
+      <thead><tr id="xp-head"></tr></thead>
+      <tbody id="xp-body"></tbody>
+    </table>
+  </main>
+
+  <footer>
+    Edit <code>xp-data.js</code> to add or correct rows — each table is a plain list, nothing else needs touching.
+  </footer>
+
+  <script src="xp-data.js"></script>
+  <script src="xp.js"></script>
+</body>
+</html>

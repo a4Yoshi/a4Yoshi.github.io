@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Challenges — Halloween: The Game Codex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="sitenav">
+    <span class="brand">Halloween: The Game — Haddonfield Codex</span>
+    <a href="index.html">Perks</a>
+    <a href="xp.html">XP</a>
+    <a href="challenges.html" class="active">Challenges</a>
+  </nav>
+
+  <div class="hero">
+    <p class="kicker">Community reference · not affiliated with IllFonic</p>
+    <h1>Challenges</h1>
+    <p>Progressive challenges are tied to one character — pick one below. Passive challenges are shared collections you chip away at regardless of who you're playing.</p>
+  </div>
+
+  <main class="tier">
+    <div class="tier-head">
+      <h2>Progressive Challenges</h2>
+    </div>
+
+    <div class="controls" style="position: static; padding: 0 0 20px; background: none;">
+      <div class="filters" id="character-filters"></div>
+    </div>
+
+    <div id="progressive-list"></div>
+  </main>
+
+  <main class="tier">
+    <div class="tier-head">
+      <h2>Passive Challenges</h2>
+      <span class="count">shared collections</span>
+    </div>
+    <div id="passive-list"></div>
+  </main>
+
+  <footer>
+    Edit <code>challenges-data.js</code> to add characters, collections, or fill in real challenge text and unlocks as you confirm them.
+  </footer>
+
+  <script src="challenges-data.js"></script>
+  <script src="challenges.js"></script>
+</body>
+</html>
