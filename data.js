@@ -102,7 +102,7 @@ const perks = [
     name: "Clotting",
     icons: {},
     description: "Increases health regeneration speed.",
-    percentages: { common: "5%", rare: "", super_rare: "", epic: "", legendary: "35" },
+    percentages: { common: "5%", rare: "", super_rare: "18%", epic: "", legendary: "35" },
   },
   {
     name: "Contender",
@@ -120,13 +120,13 @@ const perks = [
     name: "Dead Shot",
     icons: {},
     description: "Increases critical damage with ranged weapons.",
-    percentages: { common: "15%", rare: "20%", super_rare: "", epic: "", legendary: "" },
+    percentages: { common: "15%", rare: "20%", super_rare: "", epic: "", legendary: "40%" },
   },
   {
     name: "Deaden",
     icons: {},
     description: "Makes the noise pings you generate less visible.",
-    percentages: { common: "20%", rare: "30%", super_rare: "", epic: "30%", legendary: "" },
+    percentages: { common: "20%", rare: "30%", super_rare: "", epic: "", legendary: "" },
   },
   {
     name: "Dying Breath",
@@ -138,7 +138,7 @@ const perks = [
     name: "Elusory",
     icons: {},
     description: "Slows the rate at which Michael builds Stalk progress on you.",
-    percentages: { common: "10%", rare: "", super_rare: "", epic: "30", legendary: "50" },
+    percentages: { common: "10%", rare: "", super_rare: "25%", epic: "30", legendary: "50%" },
   },
   {
     name: "Exit Strategy",
@@ -150,13 +150,13 @@ const perks = [
     name: "Fade to Black",
     icons: {},
     description: "Causes Stalk tiers to degrade faster while hiding in a hiding spot.",
-    percentages: { common: "15%", rare: "", super_rare: "30%", epic: "", legendary: "" },
+    percentages: { common: "15%", rare: "", super_rare: "30%", epic: "45%", legendary: "60%" },
   },
   {
     name: "Field Triage",
     icons: {},
     description: "Increases the use speed of Healing Spray and Med-Kits.",
-    percentages: { common: "10%", rare: "15%", super_rare: "", epic: "30%", legendary: "" },
+    percentages: { common: "10%", rare: "15%", super_rare: "", epic: "30%", legendary: "50%" },
   },
   {
     name: "Frantic",
@@ -168,13 +168,13 @@ const perks = [
     name: "Ghost",
     icons: {},
     description: "Increases the natural Stalk degradation rate.",
-    percentages: { common: "", rare: "15%", super_rare: "20%", epic: "25%", legendary: "" },
+    percentages: { common: "", rare: "15%", super_rare: "20%", epic: "25%", legendary: "35%" },
   },
   {
     name: "Glass Walker",
     icons: {},
     description: "Reduces damage taken when diving through windows.",
-    percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "" },
+    percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "30%", legendary: "" },
   },
   {
     name: "Grave Footing",
@@ -204,7 +204,7 @@ const perks = [
     name: "Knockout",
     icons: {},
     description: "Makes Michael remain downed longer when you help knock him down.",
-    percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "35%" },
+    percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "25%", legendary: "35%" },
   },
   {
     name: "Lethal Pitch",
@@ -216,7 +216,7 @@ const perks = [
     name: "Liquid Courage",
     icons: {},
     description: "Increases melee damage while intoxicated.",
-    percentages: { common: "5%", rare: "10%", super_rare: "", epic: "", legendary: "35%" },
+    percentages: { common: "5%", rare: "10%", super_rare: "15%", epic: "", legendary: "35%" },
   },
   {
     name: "Panic Contagion",
@@ -232,10 +232,7 @@ const perks = [
   },
   {
     name: "Pied Piper",
-    // Your uploaded file is "PIEP_PIPER_II.png" — the auto-generated name
-    // would be "PIED_PIPER_II.png" (correct spelling). Rename the file to
-    // match and you can delete this override entirely.
-    icons: { rare: "icons/PIEP_PIPER_II.png" },
+    icons: {},
     description: "Increases the number of Residents who can follow you.",
     percentages: { common: "1", rare: "1", super_rare: "1", epic: "1", legendary: "1" },
   },
@@ -267,13 +264,13 @@ const perks = [
     name: "Shared Desperation",
     icons: {},
     description: "Makes Residents deal more damage after you give them a weapon.",
-    percentages: { common: "15%", rare: "", super_rare: "30%", epic: "", legendary: "" },
+    percentages: { common: "15%", rare: "", super_rare: "30%", epic: "40%", legendary: "" },
   },
   {
     name: "Shield of Law",
     icons: {},
     description: "Reduces Fear gain while within 15 meters of a Police Officer.",
-    percentages: { common: "", rare: "25%", super_rare: "40%", epic: "", legendary: "" },
+    percentages: { common: "", rare: "25%", super_rare: "40%", epic: "", legendary: "80%" },
   },
   {
     name: "Silver Tongue",
@@ -285,7 +282,7 @@ const perks = [
     name: "Sixth Sense",
     icons: {},
     description: "Allows you to hear Michael breathing during Shape Jump from a greater distance.",
-    percentages: { common: "2m", rare: "3.5m", super_rare: "5m", epic: "", legendary: "" },
+    percentages: { common: "2m", rare: "3.5m", super_rare: "5m", epic: "", legendary: "10m" },
   },
   {
     name: "Slippery",
@@ -303,7 +300,7 @@ const perks = [
     name: "Solid Foundation",
     icons: {},
     description: "Increases Poise, improving your ability to contribute toward knocking Michael down.",
-    percentages: { common: "5%", rare: "10%", super_rare: "20%", epic: "", legendary: "" },
+    percentages: { common: "5%", rare: "10%", super_rare: "20%", epic: "", legendary: "50%" },
   },
   {
     name: "Stubborn",
@@ -319,12 +316,9 @@ const perks = [
   },
   {
     name: "Survival Rage",
-    // Your uploaded file is "SURVIVIAL_RAGE_IV.png" — the auto-generated
-    // name would be "SURVIVAL_RAGE_IV.png" (correct spelling). Rename the
-    // file to match and you can delete this override entirely.
-    icons: { epic: "icons/SURVIVIAL_RAGE_IV.png" },
+    icons: {},
     description: "When Terrified, melee damage is increased.",
-    percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "", legendary: "30%" },
+    percentages: { common: "10%", rare: "15%", super_rare: "20%", epic: "25%", legendary: "30%" },
   },
   {
     name: "Thick Skin",
@@ -336,7 +330,7 @@ const perks = [
     name: "Trespasser",
     icons: {},
     description: "Allows you to pick locked doors by holding the interaction button for a set duration.",
-    percentages: { common: "", rare: "4.5s", super_rare: "", epic: "", legendary: "" },
+    percentages: { common: "", rare: "4.5s", super_rare: "", epic: "", legendary: "3s" },
   },
   {
     name: "Unphased",
@@ -348,7 +342,7 @@ const perks = [
     name: "Unwinded",
     icons: {},
     description: "Reduces stamina consumption from all actions.",
-    percentages: { common: "", rare: "15%", super_rare: "18%", epic: "", legendary: "" },
+    percentages: { common: "", rare: "15%", super_rare: "18%", epic: "20%", legendary: "" },
   },
   {
     name: "Voice of Reason",
