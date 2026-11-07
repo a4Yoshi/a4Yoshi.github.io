@@ -25,10 +25,12 @@ function escapeHTML(str) {
 }
 
 // Fallback element used if a perk has no image (or the image 404s) — a
-// colored monogram instead of a broken-image icon.
-function monogramEl(name) {
+// colored monogram instead of a broken-image icon. `sizeClass` carries over
+// the same "sm" modifier the <img> it's replacing would have had, so sizing
+// stays correct in both the big grid cards and the small compare-row cards.
+function monogramEl(name, sizeClass) {
   const div = document.createElement("div");
-  div.className = "card-icon placeholder";
+  div.className = `card-icon placeholder ${sizeClass || ""}`.trim();
   div.textContent = name.charAt(0);
   return div;
 }
@@ -50,8 +52,9 @@ function iconPathFor(perk, tier) {
 
 function iconHTML(perk, tier, size) {
   const src = iconPathFor(perk, tier);
-  const sizeClass = size === "sm" ? "card-icon sm" : "card-icon";
-  return `<img class="${sizeClass}" data-rarity="${tier.key}" src="${escapeHTML(src)}" alt="" loading="lazy" onerror="this.replaceWith(monogramEl('${escapeHTML(perk.name)}'))" />`;
+  const sizeModifier = size === "sm" ? "sm" : "";
+  const sizeClass = `card-icon ${sizeModifier}`.trim();
+  return `<img class="${sizeClass}" data-rarity="${tier.key}" src="${escapeHTML(src)}" alt="" loading="lazy" onerror="this.replaceWith(monogramEl('${escapeHTML(perk.name)}', '${sizeModifier}'))" />`;
 }
 
 function romanBadge(tier) {
@@ -66,17 +69,15 @@ function cardHTML(perk, tier) {
 
   return `
     <article class="card" data-rarity="${tier.key}">
-      <div class="card-top">
-        <div class="icon-wrap" data-rarity="${tier.key}">
-          ${iconHTML(perk, tier)}
-          ${romanBadge(tier)}
-        </div>
-        <div class="card-head">
-          <h3>${escapeHTML(perk.name)}</h3>
-        </div>
+      <div class="card-media" data-rarity="${tier.key}">
+        ${iconHTML(perk, tier)}
+        ${romanBadge(tier)}
+        <div class="name-plate">${escapeHTML(perk.name)}</div>
       </div>
-      <p>${escapeHTML(perk.description)}</p>
-      ${pct}
+      <div class="card-body">
+        <p>${escapeHTML(perk.description)}</p>
+        ${pct}
+      </div>
     </article>
   `;
 }
@@ -87,7 +88,7 @@ function compareCardHTML(perk, tier) {
   const pct = value ? escapeHTML(value) : "—";
   return `
     <div class="mini-card" data-rarity="${tier.key}">
-      <div class="icon-wrap sm" data-rarity="${tier.key}">
+      <div class="card-media sm" data-rarity="${tier.key}">
         ${iconHTML(perk, tier, "sm")}
         ${romanBadge(tier)}
       </div>

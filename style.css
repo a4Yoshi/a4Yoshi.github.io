@@ -235,8 +235,8 @@ a { color: inherit; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
   padding-bottom: 8px;
 }
 
@@ -246,8 +246,13 @@ a { color: inherit; }
   background: var(--bg-card);
   border: 1.5px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 0 0 16px;
   position: relative;
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 14px 16px 0;
 }
 
 .card[data-rarity="common"] {
@@ -271,88 +276,104 @@ a { color: inherit; }
   box-shadow: 0 0 0 1px var(--r-legendary-glow) inset, 0 0 18px -5px var(--r-legendary);
 }
 
-.card-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.card-head {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  min-width: 0;
-}
-
 .card h3 {
   font-size: 1.05rem;
   line-height: 1.25;
 }
 
-/* icon + roman-numeral corner badge, styled like the in-game card corner */
+/* ---------- Card media: big portrait image, roman numeral, name-plate ----------
+   Shape modeled on the game's own card (tall, image-first, name captioned
+   over the bottom of the art) — not an attempt to copy its exact art. */
 
-.icon-wrap {
+.card-media {
   position: relative;
-  flex: none;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--bg-raised);
+  overflow: hidden;
+}
+
+.card-media.sm {
+  width: 84px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--line);
 }
 
 .card-icon {
-  display: block;
-  width: 44px;
-  height: 58px;
-  border-radius: var(--radius);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 1.5px solid var(--line);
-  background: var(--bg-raised);
+  display: block;
 }
 
-.card-icon.sm {
-  width: 36px;
-  height: 48px;
-}
-
-.icon-wrap[data-rarity="common"] .card-icon { border-color: var(--r-common); }
-.icon-wrap[data-rarity="rare"] .card-icon { border-color: var(--r-rare); }
-.icon-wrap[data-rarity="super_rare"] .card-icon { border-color: var(--r-super); }
-.icon-wrap[data-rarity="epic"] .card-icon { border-color: var(--r-epic); }
-.icon-wrap[data-rarity="legendary"] .card-icon { border-color: var(--r-legendary); }
+.card-media[data-rarity="common"] { box-shadow: inset 0 0 0 3px var(--r-common); }
+.card-media[data-rarity="rare"] { box-shadow: inset 0 0 0 3px var(--r-rare); }
+.card-media[data-rarity="super_rare"] { box-shadow: inset 0 0 0 3px var(--r-super); }
+.card-media[data-rarity="epic"] { box-shadow: inset 0 0 0 3px var(--r-epic); }
+.card-media[data-rarity="legendary"] { box-shadow: inset 0 0 0 3px var(--r-legendary); }
 
 .card-icon.placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Oswald', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 2.6rem;
+  font-weight: 700;
   color: var(--text-muted);
+  background: var(--bg-raised);
 }
 
-.icon-wrap[data-rarity="common"] .card-icon.placeholder { color: var(--r-common); }
-.icon-wrap[data-rarity="rare"] .card-icon.placeholder { color: var(--r-rare); }
-.icon-wrap[data-rarity="super_rare"] .card-icon.placeholder { color: var(--r-super); }
-.icon-wrap[data-rarity="epic"] .card-icon.placeholder { color: var(--r-epic); }
-.icon-wrap[data-rarity="legendary"] .card-icon.placeholder { color: var(--r-legendary); }
+.card-icon.placeholder.sm { font-size: 1.3rem; }
+
+.card-media[data-rarity="common"] .card-icon.placeholder { color: var(--r-common); }
+.card-media[data-rarity="rare"] .card-icon.placeholder { color: var(--r-rare); }
+.card-media[data-rarity="super_rare"] .card-icon.placeholder { color: var(--r-super); }
+.card-media[data-rarity="epic"] .card-icon.placeholder { color: var(--r-epic); }
+.card-media[data-rarity="legendary"] .card-icon.placeholder { color: var(--r-legendary); }
 
 .roman-badge {
   position: absolute;
-  top: -5px;
-  left: -5px;
+  top: 8px;
+  left: 10px;
   font-family: 'Oswald', sans-serif;
-  font-size: 0.62rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1;
-  padding: 2px 4px;
-  border-radius: 2px;
-  background: var(--bg);
-  border: 1px solid var(--line);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.6);
+  z-index: 2;
 }
 
-.roman-badge[data-rarity="common"] { color: var(--r-common); border-color: var(--r-common); }
-.roman-badge[data-rarity="rare"] { color: var(--r-rare); border-color: var(--r-rare); }
-.roman-badge[data-rarity="super_rare"] { color: var(--r-super); border-color: var(--r-super); }
-.roman-badge[data-rarity="epic"] { color: var(--r-epic); border-color: var(--r-epic); }
-.roman-badge[data-rarity="legendary"] { color: var(--r-legendary); border-color: var(--r-legendary); }
+.card-media.sm .roman-badge {
+  font-size: 0.7rem;
+  top: 5px;
+  left: 6px;
+}
+
+.roman-badge[data-rarity="common"] { color: var(--r-common); }
+.roman-badge[data-rarity="rare"] { color: var(--r-rare); }
+.roman-badge[data-rarity="super_rare"] { color: var(--r-super); }
+.roman-badge[data-rarity="epic"] { color: var(--r-epic); }
+.roman-badge[data-rarity="legendary"] { color: var(--r-legendary); }
+
+.name-plate {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  background: rgba(10, 8, 7, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  padding: 6px 8px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text);
+  line-height: 1.2;
+}
 
 .card p {
   margin: 0;
@@ -415,8 +436,8 @@ a { color: inherit; }
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 10px 14px;
-  min-width: 84px;
+  padding: 10px;
+  width: 110px;
 }
 
 .mini-card[data-rarity="common"] { border-color: var(--r-common); }
