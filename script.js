@@ -57,10 +57,6 @@ function iconHTML(perk, tier, size) {
   return `<img class="${sizeClass}" data-rarity="${tier.key}" src="${escapeHTML(src)}" alt="" loading="lazy" onerror="this.replaceWith(monogramEl('${escapeHTML(perk.name)}', '${sizeModifier}'))" />`;
 }
 
-function romanBadge(tier) {
-  return `<span class="roman-badge" data-rarity="${tier.key}">${tier.roman}</span>`;
-}
-
 function cardHTML(perk, tier) {
   const value = perk.percentages ? perk.percentages[tier.key] : "";
   const pct = value
@@ -71,10 +67,9 @@ function cardHTML(perk, tier) {
     <article class="card" data-rarity="${tier.key}">
       <div class="card-media" data-rarity="${tier.key}">
         ${iconHTML(perk, tier)}
-        ${romanBadge(tier)}
-        <div class="name-plate">${escapeHTML(perk.name)}</div>
       </div>
       <div class="card-body">
+        <h3>${escapeHTML(perk.name)}</h3>
         <p>${escapeHTML(perk.description)}</p>
         ${pct}
       </div>
@@ -90,7 +85,6 @@ function compareCardHTML(perk, tier) {
     <div class="mini-card" data-rarity="${tier.key}">
       <div class="card-media sm" data-rarity="${tier.key}">
         ${iconHTML(perk, tier, "sm")}
-        ${romanBadge(tier)}
       </div>
       <span class="mini-label">${tier.label}</span>
       <span class="mini-pct">${pct}</span>
